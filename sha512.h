@@ -2,8 +2,8 @@
 #define SHA512_h
 
 // SHA-2: SHA-384/SHA-512
-// SHA384 provides a 48 byte hash
 // SHA512 provides a 64 byte hash
+// SHA384 provides a 48 byte hash
 #include <stdint.h>
 
 typedef struct
