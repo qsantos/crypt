@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+
 #include "md2.h"
 #include "md4.h"
 #include "md5.h"
@@ -5,11 +10,6 @@
 #include "sha256.h"
 #include "sha512.h"
 #include "cipher.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/time.h>
 
 #define TEST(fun,result,test) fun(strlen(test), (uint8_t*)test, sig);for(uint8_t i=0;i<strlen(result)/2;i++)printf("%.2x", sig[i]);printf("\n%s\n", result);
 int main()
