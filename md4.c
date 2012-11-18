@@ -68,7 +68,7 @@ static void MD4_block(MD4ctx* md4, const uint8_t block[64])
 	DD = 0;
 }
 
-void MD4_push(MD4ctx* md4, uint32_t len, const uint8_t* data)
+void MD4_push(MD4ctx* md4, uint64_t len, const uint8_t* data)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 64 - md4->bufLen;
@@ -137,7 +137,7 @@ void MD4_hash(MD4ctx* md4, uint8_t dst[16])
 	free(md4);
 }
 
-void MD4(uint32_t len, const uint8_t* src, uint8_t dst[16])
+void MD4(uint64_t len, const uint8_t* src, uint8_t dst[16])
 {
 	MD4ctx* md4 = MD4_new();
 	MD4_push(md4, len, src);

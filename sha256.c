@@ -99,7 +99,7 @@ static void SHA256_block(SHA256ctx* sha256, const uint8_t block[64])
 	h = 0;
 }
 
-void SHA256_push(SHA256ctx* sha256, uint32_t len, const uint8_t* data)
+void SHA256_push(SHA256ctx* sha256, uint64_t len, const uint8_t* data)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 64 - sha256->bufLen;
@@ -170,7 +170,7 @@ void SHA256_hash(SHA256ctx* sha256, uint8_t dst[32])
 	free(sha256);
 }
 
-void SHA256(uint32_t len, const uint8_t* src, uint8_t dst[32])
+void SHA256(uint64_t len, const uint8_t* src, uint8_t dst[32])
 {
 	SHA256ctx* sha256 = SHA256_new();
 	SHA256_push(sha256, len, src);
@@ -195,7 +195,7 @@ SHA224ctx* SHA224_new()
 	return ret;
 }
 
-void SHA224_push(SHA224ctx* sha224, uint32_t len, const uint8_t* data)
+void SHA224_push(SHA224ctx* sha224, uint64_t len, const uint8_t* data)
 {
 	SHA256_push(sha224, len, data);
 }
@@ -236,7 +236,7 @@ void SHA224_hash(SHA224ctx* sha224, uint8_t dst[28])
 	free(sha224);
 }
 
-void SHA224(uint32_t len, const uint8_t* src, uint8_t dst[28])
+void SHA224(uint64_t len, const uint8_t* src, uint8_t dst[28])
 {
 	SHA224ctx* sha224 = SHA224_new();
 	SHA224_push(sha224, len, src);

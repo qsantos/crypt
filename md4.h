@@ -16,8 +16,8 @@ typedef struct
 } MD4ctx;
 
 MD4ctx* MD4_new();
-void MD4_push(MD4ctx* md4, uint32_t len, const uint8_t* data);
+void MD4_push(MD4ctx* md4, uint64_t len, const uint8_t* data);
 void MD4_hash(MD4ctx* md4, uint8_t dst[16]); // sets hash in dst and frees md4
-void MD4(uint32_t len, const uint8_t* src, uint8_t dst[16]);
+void MD4(uint64_t len, const uint8_t* src, uint8_t dst[16]);
 
 #endif

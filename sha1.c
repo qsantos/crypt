@@ -72,7 +72,7 @@ static void SHA1_block(SHA1ctx* sha1, const uint8_t block[64])
 	E = 0;
 }
 
-void SHA1_push(SHA1ctx* sha1, uint32_t len, const uint8_t* data)
+void SHA1_push(SHA1ctx* sha1, uint64_t len, const uint8_t* data)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 64 - sha1->bufLen;
@@ -140,7 +140,7 @@ void SHA1_hash(SHA1ctx* sha1, uint8_t dst[20])
 	free(sha1);
 }
 
-void SHA1(uint32_t len, const uint8_t* src, uint8_t dst[20])
+void SHA1(uint64_t len, const uint8_t* src, uint8_t dst[20])
 {
 	SHA1ctx* sha1 = SHA1_new();
 	SHA1_push(sha1, len, src);

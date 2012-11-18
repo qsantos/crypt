@@ -85,7 +85,7 @@ void MD2_block(MD2ctx* md2, const uint8_t block[16], bool updateCheckSum)
 	memset(X, 0, 48);
 }
 
-void MD2_push(MD2ctx* md2, uint32_t len, const uint8_t* data)
+void MD2_push(MD2ctx* md2, uint64_t len, const uint8_t* data)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 16 - md2->bufLen;
@@ -124,7 +124,7 @@ void MD2_hash(MD2ctx* md2, uint8_t dst[16])
 	free(md2);
 }
 
-void MD2(uint32_t len, const uint8_t* src, uint8_t dst[16])
+void MD2(uint64_t len, const uint8_t* src, uint8_t dst[16])
 {
 	MD2ctx* md2 = MD2_new();
 	MD2_push(md2, len, src);

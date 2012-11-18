@@ -98,7 +98,7 @@ static void MD5_block(MD5ctx* md5, const uint8_t block[64])
 	DD = 0;
 }
 
-void MD5_push(MD5ctx* md5, uint32_t len, const uint8_t* data)
+void MD5_push(MD5ctx* md5, uint64_t len, const uint8_t* data)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 64 - md5->bufLen;
@@ -168,7 +168,7 @@ void MD5_hash(MD5ctx* md5, uint8_t dst[16])
 	free(md5);
 }
 
-void MD5(uint32_t len, const uint8_t* src, uint8_t dst[16])
+void MD5(uint64_t len, const uint8_t* src, uint8_t dst[16])
 {
 	MD5ctx* md5 = MD5_new();
 	MD5_push(md5, len, src);
