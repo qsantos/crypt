@@ -68,6 +68,8 @@ void checkDigestFile(void(digest)(uint64_t, const uint8_t*, uint8_t*), uint8_t h
 
 int main()
 {
+	// validity checks
+/*
 	checkDigestFile(MD2,    16, "tests/md2");
 	checkDigestFile(MD4,    16, "tests/md4");
 	checkDigestFile(MD5,    16, "tests/md5");
@@ -76,6 +78,14 @@ int main()
 	checkDigestFile(SHA224, 28, "tests/sha224");
 	checkDigestFile(SHA512, 64, "tests/sha512");
 	checkDigestFile(SHA384, 48, "tests/sha384");
+*/
+	
+	// stdin digest
+	uint8_t result[20];
+	DIGEST_FILE(stdin, MD5, result);
+	for (uint8_t i = 0; i < 20; i++)
+		printf("%.2x", result[i]);
+	putchar('\n');
 	return 0;
 
 	// DES
@@ -100,13 +110,6 @@ int main()
 	//for (uint8_t i = 0; i < MSG_LEN; i++)
 	//	printf("%.2X", O2[i]);
 	//putchar('\n');
-	
-	// Benchmarks
-	uint8_t result[20];
-	DIGEST_FILE(stdin, SHA512, result);
-	for (uint8_t i = 0; i < 20; i++)
-		printf("%.2x", result[i]);
-	putchar('\n');
 	
 	return 0;
 }
