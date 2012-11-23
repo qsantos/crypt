@@ -16,6 +16,7 @@ MD2ctx* MD2_new();
 void MD2_push(MD2ctx* md2, uint64_t len, const uint8_t* data);
 void MD2_hash(MD2ctx* md2, uint8_t dst[16]); // sets hash in dst and frees md2
 
+// one-call digest (NOT THREAD-SAFE)
 void MD2(uint64_t slen, const uint8_t* src, uint8_t dst[16]);
 
 #endif

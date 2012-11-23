@@ -11,15 +11,12 @@ static const uint8_t* padding = (uint8_t*)
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
 
+static const MD4ctx initctx = { 0, {0}, 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0};
+
 MD4ctx* MD4_new()
 {
 	MD4ctx* ret = malloc(sizeof(MD4ctx));
-	ret->bufLen = 0;
-	ret->A = 0x67452301;
-	ret->B = 0xEFCDAB89;
-	ret->C = 0x98BADCFE;
-	ret->D = 0x10325476;
-	ret->len = 0;
+	memcpy(ret, &initctx, sizeof(MD4ctx));
 	return ret;
 }
 
@@ -61,11 +58,14 @@ static void MD4_block(MD4ctx* md4, const uint8_t block[64])
 	md4->C += CC;
 	md4->D += DD;
 
+	// TODO : true cleaning
+/*
 	memset(X, 0, 16);
 	AA = 0;
 	BB = 0;
 	CC = 0;
 	DD = 0;
+*/
 }
 
 void MD4_push(MD4ctx* md4, uint64_t len, const uint8_t* data)
@@ -89,17 +89,11 @@ void MD4_push(MD4ctx* md4, uint64_t len, const uint8_t* data)
 	md4->bufLen += len - i;
 	md4->len += len;
 
+	// TODO : true cleaning
+/*
 	i = 0;
 	availBuf = 0;
-}
-
-static void u32to8(uint32_t v, uint8_t* dst)
-{
-	dst[0] = (v >>  0) & 0xFF;
-	dst[1] = (v >>  8) & 0xFF;
-	dst[2] = (v >> 16) & 0xFF;
-	dst[3] = (v >> 24) & 0xFF;
-	v = 0;
+*/
 }
 
 void MD4_hash(MD4ctx* md4, uint8_t dst[16])
@@ -108,38 +102,39 @@ void MD4_hash(MD4ctx* md4, uint8_t dst[16])
 	uint8_t pad = (md4->bufLen < 56 ? 56 : 120) - md4->bufLen;
 	MD4_push(md4, pad, padding);
 
-	uint8_t len8[8];
-	len8[0] = (len >>  0) & 0xFF;
-	len8[1] = (len >>  8) & 0xFF;
-	len8[2] = (len >> 16) & 0xFF;
-	len8[3] = (len >> 24) & 0xFF;
-	len8[4] = (len >> 32) & 0xFF;
-	len8[5] = (len >> 40) & 0xFF;
-	len8[6] = (len >> 48) & 0xFF;
-	len8[7] = (len >> 56) & 0xFF;
-	MD4_push(md4, 8, len8);
+	MD4_push(md4, 8, (uint8_t*) &len);
 
-	u32to8(md4->A, dst +  0);
-	u32to8(md4->B, dst +  4);
-	u32to8(md4->C, dst +  8);
-	u32to8(md4->D, dst + 12);
+	memcpy(dst +  0, &md4->A, 4);
+	memcpy(dst +  4, &md4->B, 4);
+	memcpy(dst +  8, &md4->C, 4);
+	memcpy(dst + 12, &md4->D, 4);
 
+	// TODO : true cleaning
+/*
 	len = 0;
 	pad = 0;
-	memset(len8, 0, 8);
-	md4->bufLen = 0;
-	memset(md4->buffer, 0, 64);
-	md4->A = 0;
-	md4->B = 0;
-	md4->C = 0;
-	md4->D = 0;
-	md4->len = 0;
+	memset(md4, 0, sizeof(MD4ctx));
+*/
 	free(md4);
 }
 
-void MD4(uint64_t len, const uint8_t* src, uint8_t dst[16])
+void MD4(uint64_t slen, const uint8_t* src, uint8_t dst[16])
 {
-	MD4ctx* md4 = MD4_new();
-	MD4_push(md4, len, src);
-	MD4_hash(md4, dst);
+	static MD4ctx md4;
+	memcpy(&md4, &initctx, sizeof(MD4ctx));
+
+	MD4_push(&md4, slen, src);
+
+	uint64_t len = md4.len << 3;
+	uint8_t pad = (md4.bufLen < 56 ? 56 : 120) - md4.bufLen;
+	MD4_push(&md4, pad, padding);
+
+	MD4_push(&md4, 8, (uint8_t*) &len);
+
+	memcpy(dst +  0, &md4.A, 4);
+	memcpy(dst +  4, &md4.B, 4);
+	memcpy(dst +  8, &md4.C, 4);
+	memcpy(dst + 12, &md4.D, 4);
+
+	// TODO : true cleaning
 }
