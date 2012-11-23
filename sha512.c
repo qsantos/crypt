@@ -41,20 +41,17 @@ static const uint64_t K[] =
 	0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817,
 };
 
+static const SHA512ctx initctx512 =
+{
+	0, {0},
+	{ 0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1, 0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179 },
+	{0, 0}
+};
+
 SHA512ctx* SHA512_new()
 {
 	SHA512ctx* ret = malloc(sizeof(SHA512ctx));
-	ret->bufLen = 0;
-	ret->H[0] = 0x6a09e667f3bcc908;
-	ret->H[1] = 0xbb67ae8584caa73b;
-	ret->H[2] = 0x3c6ef372fe94f82b;
-	ret->H[3] = 0xa54ff53a5f1d36f1;
-	ret->H[4] = 0x510e527fade682d1;
-	ret->H[5] = 0x9b05688c2b3e6c1f;
-	ret->H[6] = 0x1f83d9abfb41bd6b;
-	ret->H[7] = 0x5be0cd19137e2179;
-	ret->len[0] = 0;
-	ret->len[1] = 0;
+	memcpy(ret, &initctx512, sizeof(SHA512ctx));
 	return ret;
 }
 
@@ -95,8 +92,6 @@ static void SHA512_block(SHA512ctx* sha512, const uint8_t block[128])
 		T2 =     Sum0(a) + Maj(a,b,c);
 		h = g; g = f; f = e; e = d + T1; d = c; c = b; b = a; a = T1 + T2;
 	}
-	T1 = 0;
-	T2 = 0;
 
 	sha512->H[0] += a;
 	sha512->H[1] += b;
@@ -107,6 +102,10 @@ static void SHA512_block(SHA512ctx* sha512, const uint8_t block[128])
 	sha512->H[6] += g;
 	sha512->H[7] += h;
 
+	// TODO : true cleaning
+/*
+	T1 = 0;
+	T2 = 0;
 	memset(W, 0, 80);
 	a = 0;
 	b = 0;
@@ -115,7 +114,7 @@ static void SHA512_block(SHA512ctx* sha512, const uint8_t block[128])
 	e = 0;
 	f = 0;
 	g = 0;
-	g = 0;
+*/
 }
 
 void SHA512_push(SHA512ctx* sha512, uint64_t len, const uint8_t* data)
@@ -138,13 +137,17 @@ void SHA512_push(SHA512ctx* sha512, uint64_t len, const uint8_t* data)
 	memcpy(sha512->buffer + sha512->bufLen, data + i, len - i);
 	sha512->bufLen += len - i;
 
+	// TODO
 	uint64_t bits = len << 3;
 	sha512->len[0] += bits;
-	// TODO
 
+
+	// TODO : true cleaning
+/*
 	i = 0;
 	availBuf = 0;
 	bits = 0;
+*/
 }
 
 static void u64to8(uint64_t v, uint8_t* dst)
@@ -196,6 +199,8 @@ void SHA512_hash(SHA512ctx* sha512, uint8_t dst[32])
 	u64to8(sha512->H[6], dst + 48);
 	u64to8(sha512->H[7], dst + 56);
 
+	// TODO : true cleaning
+/*
 	len0 = 0;
 	len1 = 0;
 	pad = 0;
@@ -204,14 +209,51 @@ void SHA512_hash(SHA512ctx* sha512, uint8_t dst[32])
 	memset(sha512->buffer, 0, 128);
 	memset(sha512->H, 0, 8);
 	memset(sha512->len, 0, 2);
+*/
 	free(sha512);
 }
 
 void SHA512(uint64_t len, const uint8_t* src, uint8_t dst[32])
 {
-	SHA512ctx* sha512 = SHA512_new();
-	SHA512_push(sha512, len, src);
-	SHA512_hash(sha512, dst);
+	static SHA512ctx sha512;
+	memcpy(&sha512, &initctx512, sizeof(SHA512ctx));
+
+	SHA512_push(&sha512, len, src);
+
+	uint64_t len0 = sha512.len[0];
+	uint64_t len1 = sha512.len[1];
+	uint8_t pad = (sha512.bufLen < 112 ? 112 : 240) - sha512.bufLen;
+	SHA512_push(&sha512, pad, padding);
+
+	uint8_t len8[16];
+	len8[15] = (len0 >>  0) & 0xFF;
+	len8[14] = (len0 >>  8) & 0xFF;
+	len8[13] = (len0 >> 16) & 0xFF;
+	len8[12] = (len0 >> 24) & 0xFF;
+	len8[11] = (len0 >> 32) & 0xFF;
+	len8[10] = (len0 >> 40) & 0xFF;
+	len8[ 9] = (len0 >> 48) & 0xFF;
+	len8[ 8] = (len0 >> 56) & 0xFF;
+	len8[ 7] = (len1 >>  0) & 0xFF;
+	len8[ 6] = (len1 >>  8) & 0xFF;
+	len8[ 5] = (len1 >> 16) & 0xFF;
+	len8[ 4] = (len1 >> 24) & 0xFF;
+	len8[ 3] = (len1 >> 32) & 0xFF;
+	len8[ 2] = (len1 >> 40) & 0xFF;
+	len8[ 1] = (len1 >> 48) & 0xFF;
+	len8[ 0] = (len1 >> 56) & 0xFF;
+	SHA512_push(&sha512, 16, len8);
+
+	u64to8(sha512.H[0], dst +  0);
+	u64to8(sha512.H[1], dst +  8);
+	u64to8(sha512.H[2], dst + 16);
+	u64to8(sha512.H[3], dst + 24);
+	u64to8(sha512.H[4], dst + 32);
+	u64to8(sha512.H[5], dst + 40);
+	u64to8(sha512.H[6], dst + 48);
+	u64to8(sha512.H[7], dst + 56);
+
+	// TODO : true cleaning
 }
 
 
