@@ -11,16 +11,11 @@ static const uint8_t* padding = (uint8_t*)
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
 
+SHA1ctx initctx = { 0, {0}, {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0}, 0 };
 SHA1ctx* SHA1_new()
 {
 	SHA1ctx* ret = malloc(sizeof(SHA1ctx));
-	ret->bufLen = 0;
-	ret->H[0] = 0x67452301;
-	ret->H[1] = 0xEFCDAB89;
-	ret->H[2] = 0x98BADCFE;
-	ret->H[3] = 0x10325476;
-	ret->H[4] = 0xC3D2E1F0;
-	ret->len = 0;
+	memcpy(ret, &initctx, sizeof(SHA1ctx));
 	return ret;
 }
 
@@ -64,12 +59,15 @@ static void SHA1_block(SHA1ctx* sha1, const uint8_t block[64])
 	sha1->H[3] += D;
 	sha1->H[4] += E;
 
+	// TODO : true cleaning
+/*
 	memset(W, 0, 80);
 	A = 0;
 	B = 0;
 	C = 0;
 	D = 0;
 	E = 0;
+*/
 }
 
 void SHA1_push(SHA1ctx* sha1, uint64_t len, const uint8_t* data)
@@ -93,8 +91,11 @@ void SHA1_push(SHA1ctx* sha1, uint64_t len, const uint8_t* data)
 	sha1->bufLen += len - i;
 	sha1->len += len;
 
+	// TODO : true cleaning
+/*
 	i = 0;
 	availBuf = 0;
+*/
 }
 
 static void u32to8(uint32_t v, uint8_t* dst)
@@ -130,6 +131,8 @@ void SHA1_hash(SHA1ctx* sha1, uint8_t dst[20])
 	u32to8(sha1->H[3], dst + 12);
 	u32to8(sha1->H[4], dst + 16);
 
+	// TODO : true cleaning
+/*
 	len = 0;
 	pad = 0;
 	memset(len8, 0, 8);
@@ -137,6 +140,7 @@ void SHA1_hash(SHA1ctx* sha1, uint8_t dst[20])
 	memset(sha1->buffer, 0, 64);
 	memset(sha1->H, 0, 5);
 	sha1->len = 0;
+*/
 	free(sha1);
 }
 

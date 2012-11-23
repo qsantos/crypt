@@ -68,6 +68,8 @@ void checkDigestFile(void(digest)(uint64_t, const uint8_t*, uint8_t*), uint8_t h
 
 int main()
 {
+	checkDigestFile(SHA1,   20, "tests/sha1");
+	return 0;
 	// validity checks
 /*
 	checkDigestFile(MD2,    16, "tests/md2");
