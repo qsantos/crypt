@@ -13,15 +13,23 @@ typedef struct
 	uint32_t H[8];
 	uint64_t len;
 } SHA256ctx;
+
 SHA256ctx* SHA256_new();
 void SHA256_push(SHA256ctx* sha256, uint64_t len, const uint8_t* data);
 void SHA256_hash(SHA256ctx* sha256, uint8_t dst[32]); // sets hash in dst and frees sha256
-void SHA256(uint64_t len, const uint8_t* src, uint8_t dst[32]);
+
+// one-call digest (NOT THREAD-SAFE)
+void SHA256(uint64_t slen, const uint8_t* src, uint8_t dst[32]);
+
+
 
 typedef SHA256ctx SHA224ctx;
+
 SHA224ctx* SHA224_new();
 void SHA224_push(SHA224ctx* sha224, uint64_t len, const uint8_t* data);
 void SHA224_hash(SHA224ctx* sha224, uint8_t dst[28]); // sets hash in dst and frees sha224
-void SHA224(uint64_t len, const uint8_t* src, uint8_t dst[28]);
+
+// one-call digest (NOT THREAD-SAFE)
+void SHA224(uint64_t slen, const uint8_t* src, uint8_t dst[28]);
 
 #endif

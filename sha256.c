@@ -25,19 +25,17 @@ static const uint32_t K[] =
 	0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,  0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
 };
 
+static const SHA256ctx initctx256 =
+{
+	0, {0},
+	{0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19},
+	0
+};
+
 SHA256ctx* SHA256_new()
 {
 	SHA256ctx* ret = malloc(sizeof(SHA256ctx));
-	ret->bufLen = 0;
-	ret->H[0] = 0x6a09e667;
-	ret->H[1] = 0xbb67ae85;
-	ret->H[2] = 0x3c6ef372;
-	ret->H[3] = 0xa54ff53a;
-	ret->H[4] = 0x510e527f;
-	ret->H[5] = 0x9b05688c;
-	ret->H[6] = 0x1f83d9ab;
-	ret->H[7] = 0x5be0cd19;
-	ret->len = 0;
+	memcpy(ret, &initctx256, sizeof(SHA256ctx));
 	return ret;
 }
 
@@ -88,6 +86,8 @@ static void SHA256_block(SHA256ctx* sha256, const uint8_t block[64])
 	sha256->H[6] += g;
 	sha256->H[7] += h;
 
+	// TODO : true cleaning
+/*
 	memset(W, 0, 64);
 	a = 0;
 	b = 0;
@@ -97,6 +97,7 @@ static void SHA256_block(SHA256ctx* sha256, const uint8_t block[64])
 	f = 0;
 	g = 0;
 	h = 0;
+*/
 }
 
 void SHA256_push(SHA256ctx* sha256, uint64_t len, const uint8_t* data)
@@ -120,8 +121,11 @@ void SHA256_push(SHA256ctx* sha256, uint64_t len, const uint8_t* data)
 	sha256->bufLen += len - i;
 	sha256->len += len;
 
+	// TODO : true cleaning
+/*
 	i = 0;
 	availBuf = 0;
+*/
 }
 
 static void u32to8(uint32_t v, uint8_t* dst)
@@ -131,7 +135,10 @@ static void u32to8(uint32_t v, uint8_t* dst)
 	dst[2] = (v >>  8) & 0xFF;
 	dst[3] = (v >>  0) & 0xFF;
 
+	// TODO : true cleaning
+/*
 	v = 0;
+*/
 }
 
 void SHA256_hash(SHA256ctx* sha256, uint8_t dst[32])
@@ -160,6 +167,8 @@ void SHA256_hash(SHA256ctx* sha256, uint8_t dst[32])
 	u32to8(sha256->H[6], dst + 24);
 	u32to8(sha256->H[7], dst + 28);
 
+	// TODO : true cleaning
+/*
 	len = 0;
 	pad = 0;
 	memset(len8, 0, 8);
@@ -167,14 +176,42 @@ void SHA256_hash(SHA256ctx* sha256, uint8_t dst[32])
 	memset(sha256->buffer, 0, 64);
 	memset(sha256->H, 0, 8);
 	sha256->len = 0;
+*/
 	free(sha256);
 }
 
-void SHA256(uint64_t len, const uint8_t* src, uint8_t dst[32])
+void SHA256(uint64_t slen, const uint8_t* src, uint8_t dst[32])
 {
-	SHA256ctx* sha256 = SHA256_new();
-	SHA256_push(sha256, len, src);
-	SHA256_hash(sha256, dst);
+	static SHA256ctx sha256;
+	memcpy(&sha256, &initctx256, sizeof(SHA256ctx));
+
+	SHA256_push(&sha256, slen, src);
+
+	uint64_t len = sha256.len << 3;
+	uint8_t pad = (sha256.bufLen < 56 ? 56 : 120) - sha256.bufLen;
+	SHA256_push(&sha256, pad, padding);
+
+	uint8_t len8[8];
+	len8[7] = (len >>  0) & 0xFF;
+	len8[6] = (len >>  8) & 0xFF;
+	len8[5] = (len >> 16) & 0xFF;
+	len8[4] = (len >> 24) & 0xFF;
+	len8[3] = (len >> 32) & 0xFF;
+	len8[2] = (len >> 40) & 0xFF;
+	len8[1] = (len >> 48) & 0xFF;
+	len8[0] = (len >> 56) & 0xFF;
+	SHA256_push(&sha256, 8, len8);
+
+	u32to8(sha256.H[0], dst +  0);
+	u32to8(sha256.H[1], dst +  4);
+	u32to8(sha256.H[2], dst +  8);
+	u32to8(sha256.H[3], dst + 12);
+	u32to8(sha256.H[4], dst + 16);
+	u32to8(sha256.H[5], dst + 20);
+	u32to8(sha256.H[6], dst + 24);
+	u32to8(sha256.H[7], dst + 28);
+
+	// TODO : true cleaning
 }
 
 
