@@ -105,7 +105,10 @@ static void u32to8(uint32_t v, uint8_t* dst)
 	dst[2] = (v >>  8) & 0xFF;
 	dst[3] = (v >>  0) & 0xFF;
 
+	// TODO : true cleaning
+/*
 	v = 0;
+*/
 }
 
 void SHA1_hash(SHA1ctx* sha1, uint8_t dst[20])
@@ -171,4 +174,6 @@ void SHA1(uint64_t slen, const uint8_t* src, uint8_t dst[20])
 	u32to8(sha1.H[2], dst +  8);
 	u32to8(sha1.H[3], dst + 12);
 	u32to8(sha1.H[4], dst + 16);
+
+	// TODO : true cleaning
 }

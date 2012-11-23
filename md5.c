@@ -156,20 +156,20 @@ void MD5_hash(MD5ctx* md5, uint8_t dst[16])
 
 void MD5(uint64_t slen, const uint8_t* src, uint8_t dst[16])
 {
-	static MD5ctx ctx;
-	memcpy(&ctx, &initctx, sizeof(MD5ctx));
+	static MD5ctx md5;
+	memcpy(&md5, &initctx, sizeof(MD5ctx));
 
-	MD5_push(&ctx, slen, src);
+	MD5_push(&md5, slen, src);
 
-	uint64_t len = ctx.len << 3;
-	uint8_t pad  = (ctx.bufLen < 56 ? 56 : 120) - ctx.bufLen;
-	MD5_push(&ctx, pad, padding);
-	MD5_push(&ctx, 8, (uint8_t*) &len);
+	uint64_t len = md5.len << 3;
+	uint8_t pad  = (md5.bufLen < 56 ? 56 : 120) - md5.bufLen;
+	MD5_push(&md5, pad, padding);
+	MD5_push(&md5, 8, (uint8_t*) &len);
 
-	memcpy(dst +  0, &ctx.A, 4);
-	memcpy(dst +  4, &ctx.B, 4);
-	memcpy(dst +  8, &ctx.C, 4);
-	memcpy(dst + 12, &ctx.D, 4);
+	memcpy(dst +  0, &md5.A, 4);
+	memcpy(dst +  4, &md5.B, 4);
+	memcpy(dst +  8, &md5.C, 4);
+	memcpy(dst + 12, &md5.D, 4);
 
 	// TODO : true cleaning
 }
