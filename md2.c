@@ -50,9 +50,7 @@ static uint8_t* padding[] =
 MD2ctx* MD2_new()
 {
 	MD2ctx* ret = malloc(sizeof(MD2ctx));
-	ret->bufLen = 0;
-	memset(ret->C, 0, 16);
-	memset(ret->X, 0, 16);
+	memset(ret, 0, sizeof(MD2ctx));
 	return ret;
 }
 
@@ -79,10 +77,14 @@ void MD2_block(MD2ctx* md2, const uint8_t block[16], bool updateCheckSum)
 			t = X[j] ^= S[t];
 		t += i;
 	}
-	t = 0;
 
 	memcpy(md2->X, X, 16);
+
+	// TODO : true cleaning
+/*
+	t = 0;
 	memset(X, 0, 48);
+*/
 }
 
 void MD2_push(MD2ctx* md2, uint64_t len, const uint8_t* data)
@@ -105,8 +107,11 @@ void MD2_push(MD2ctx* md2, uint64_t len, const uint8_t* data)
 	memcpy(md2->buffer + md2->bufLen, data + i, len - i);
 	md2->bufLen += len - i;
 
+	// TODO : true cleaning
+/*
 	availBuf = 0;
 	i = 0;
+*/
 }
 
 void MD2_hash(MD2ctx* md2, uint8_t dst[16])
@@ -116,17 +121,23 @@ void MD2_hash(MD2ctx* md2, uint8_t dst[16])
 	MD2_block(md2, md2->C, false);
 	memcpy(dst, md2->X, 16);
 
+	// TODO : true cleaning
+/*
 	pad = 0;
-	md2->bufLen = 0;
-	memset(md2->buffer, 0, 16);
-	memset(md2->C, 0, 16);
-	memset(md2->X, 0, 16);
+	memset(md2, 0, sizeof(MD2ctx));
+*/
 	free(md2);
 }
 
-void MD2(uint64_t len, const uint8_t* src, uint8_t dst[16])
+void MD2(uint64_t slen, const uint8_t* src, uint8_t dst[16])
 {
-	MD2ctx* md2 = MD2_new();
-	MD2_push(md2, len, src);
-	MD2_hash(md2, dst);
+	static MD2ctx md2;
+	memset(&md2, 0, sizeof(MD2ctx));
+
+	MD2_push(&md2, slen, src);
+
+	uint8_t pad = 16 - md2.bufLen;
+	MD2_push(&md2, pad, padding[pad]);
+	MD2_block(&md2, md2.C, false);
+	memcpy(dst, md2.X, 16);
 }
