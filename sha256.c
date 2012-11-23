@@ -216,19 +216,17 @@ void SHA256(uint64_t slen, const uint8_t* src, uint8_t dst[32])
 
 
 
+static const SHA224ctx initctx224 =
+{
+	0, {0},
+	{0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4},
+	0
+};
+
 SHA224ctx* SHA224_new()
 {
-	SHA224ctx* ret = malloc(sizeof(SHA256ctx));
-	ret->bufLen = 0;
-	ret->H[0] = 0xc1059ed8;
-	ret->H[1] = 0x367cd507;
-	ret->H[2] = 0x3070dd17;
-	ret->H[3] = 0xf70e5939;
-	ret->H[4] = 0xffc00b31;
-	ret->H[5] = 0x68581511;
-	ret->H[6] = 0x64f98fa7;
-	ret->H[7] = 0xbefa4fa4;
-	ret->len = 0;
+	SHA224ctx* ret = malloc(sizeof(SHA224ctx));
+	memcpy(ret, &initctx224, sizeof(SHA224ctx));
 	return ret;
 }
 
@@ -263,6 +261,8 @@ void SHA224_hash(SHA224ctx* sha224, uint8_t dst[28])
 	u32to8(sha224->H[6], dst + 24);
 	//u32to8(sha224->H[7], dst + 28);
 
+	// TODO : true cleaning
+/*
 	len = 0;
 	pad = 0;
 	memset(len8, 0, 8);
@@ -271,11 +271,39 @@ void SHA224_hash(SHA224ctx* sha224, uint8_t dst[28])
 	memset(sha224->H, 0, 8);
 	sha224->len = 0;
 	free(sha224);
+*/
 }
 
-void SHA224(uint64_t len, const uint8_t* src, uint8_t dst[28])
+void SHA224(uint64_t slen, const uint8_t* src, uint8_t dst[28])
 {
-	SHA224ctx* sha224 = SHA224_new();
-	SHA224_push(sha224, len, src);
-	SHA224_hash(sha224, dst);
+	static SHA224ctx sha224;
+	memcpy(&sha224, &initctx224, sizeof(SHA224ctx));
+
+	SHA224_push(&sha224, slen, src);
+
+	uint64_t len = sha224.len << 3;
+	uint8_t pad = (sha224.bufLen < 56 ? 56 : 120) - sha224.bufLen;
+	SHA224_push(&sha224, pad, padding);
+
+	uint8_t len8[8];
+	len8[7] = (len >>  0) & 0xFF;
+	len8[6] = (len >>  8) & 0xFF;
+	len8[5] = (len >> 16) & 0xFF;
+	len8[4] = (len >> 24) & 0xFF;
+	len8[3] = (len >> 32) & 0xFF;
+	len8[2] = (len >> 40) & 0xFF;
+	len8[1] = (len >> 48) & 0xFF;
+	len8[0] = (len >> 56) & 0xFF;
+	SHA224_push(&sha224, 8, len8);
+
+	u32to8(sha224.H[0], dst +  0);
+	u32to8(sha224.H[1], dst +  4);
+	u32to8(sha224.H[2], dst +  8);
+	u32to8(sha224.H[3], dst + 12);
+	u32to8(sha224.H[4], dst + 16);
+	u32to8(sha224.H[5], dst + 20);
+	u32to8(sha224.H[6], dst + 24);
+	//u32to8(sha224.H[7], dst + 28);
+
+	// TODO : true cleaning
 }
