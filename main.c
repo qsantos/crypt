@@ -68,6 +68,7 @@ void checkDigestFile(void(digest)(uint64_t, const uint8_t*, uint8_t*), uint8_t h
 
 int main()
 {
+
 	// validity checks
 /*
 	checkDigestFile(MD2,    16, "tests/md2");
@@ -78,6 +79,7 @@ int main()
 	checkDigestFile(SHA224, 28, "tests/sha224");
 	checkDigestFile(SHA512, 64, "tests/sha512");
 	checkDigestFile(SHA384, 48, "tests/sha384");
+	return 0;
 */
 	
 	// stdin digest

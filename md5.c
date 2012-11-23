@@ -89,11 +89,13 @@ static void MD5_block(MD5ctx* md5, const uint8_t block[64])
 	md5->D += DD;
 	
 	// TODO : true clearing
+/*
 	memset(X, 0, 16);
 	AA = 0;
 	BB = 0;
 	CC = 0;
 	DD = 0;
+*/
 }
 
 void MD5_push(MD5ctx* md5, uint64_t len, const uint8_t* data)
@@ -110,52 +112,37 @@ void MD5_push(MD5ctx* md5, uint64_t len, const uint8_t* data)
 		while (i + 63 < len)
 		{
 			MD5_block(md5, data + i);
-			i+= 64;
+			i += 64;
 		}
 	}
 	memcpy(md5->buffer + md5->bufLen, data + i, len - i);
 	md5->bufLen += len - i;
 	md5->len += len;
 	
+	// TODO : true cleaning
+/*
 	i = 0;
 	availBuf = 0;
-}
-
-static void u32to8(uint32_t v, uint8_t* dst)
-{
-	dst[0] = (v >>  0) & 0xFF;
-	dst[1] = (v >>  8) & 0xFF;
-	dst[2] = (v >> 16) & 0xFF;
-	dst[3] = (v >> 24) & 0xFF;
-	
-	v = 0;
+*/
 }
 
 void MD5_hash(MD5ctx* md5, uint8_t dst[16])
 {
 	uint64_t len = md5->len << 3;
-	uint8_t pad = (md5->bufLen < 56 ? 56 : 120) - md5->bufLen;
+	uint8_t pad  = (md5->bufLen < 56 ? 56 : 120) - md5->bufLen;
 	MD5_push(md5, pad, padding);
+	MD5_push(md5, 8, (uint8_t*) &len);
 	
-	uint8_t len8[8];
-	len8[0] = (len >>  0) & 0xFF;
-	len8[1] = (len >>  8) & 0xFF;
-	len8[2] = (len >> 16) & 0xFF;
-	len8[3] = (len >> 24) & 0xFF;
-	len8[4] = (len >> 32) & 0xFF;
-	len8[5] = (len >> 40) & 0xFF;
-	len8[6] = (len >> 48) & 0xFF;
-	len8[7] = (len >> 56) & 0xFF;
-	MD5_push(md5, 8, len8);
+	memcpy(dst +  0, &md5->A, 4);
+	memcpy(dst +  4, &md5->B, 4);
+	memcpy(dst +  8, &md5->C, 4);
+	memcpy(dst + 12, &md5->D, 4);
 	
-	u32to8(md5->A, dst +  0);
-	u32to8(md5->B, dst +  4);
-	u32to8(md5->C, dst +  8);
-	u32to8(md5->D, dst + 12);
-	
+	// TODO : true cleaning
+/*
+	memset(len8, 0, 8);
 	len = 0;
 	pad = 0;
-	memset(len8, 0, 8);
 	md5->bufLen = 0;
 	memset(md5->buffer, 0, 64);
 	md5->A = 0;
@@ -163,6 +150,7 @@ void MD5_hash(MD5ctx* md5, uint8_t dst[16])
 	md5->C = 0;
 	md5->D = 0;
 	md5->len = 0;
+*/
 	free(md5);
 }
 
