@@ -55,10 +55,10 @@ static void SHA256_block(SHA256ctx* sha256, const uint8_t block[64])
 	uint32_t W[64];
 	for (uint8_t t = 0; t < 16; t++)
 		W[t] = (block[t*4] << 24) | (block[t*4+1] << 16) | (block[t*4+2] << 8) | (block[t*4+3] << 0);
-	
+
 	for (uint8_t t = 16; t < 64; t++)
 		W[t] = Sigma1(W[t-2]) + W[t-7] + Sigma0(W[t-15]) + W[t-16];
-	
+
 	uint32_t a = sha256->H[0];
 	uint32_t b = sha256->H[1];
 	uint32_t c = sha256->H[2];
@@ -67,7 +67,7 @@ static void SHA256_block(SHA256ctx* sha256, const uint8_t block[64])
 	uint32_t f = sha256->H[5];
 	uint32_t g = sha256->H[6];
 	uint32_t h = sha256->H[7];
-	
+
 	uint32_t T1;
 	uint32_t T2;
 	for (uint8_t t = 0; t < 64; t++)
@@ -78,7 +78,7 @@ static void SHA256_block(SHA256ctx* sha256, const uint8_t block[64])
 	}
 	T1 = 0;
 	T2 = 0;
-	
+
 	sha256->H[0] += a;
 	sha256->H[1] += b;
 	sha256->H[2] += c;
@@ -87,7 +87,7 @@ static void SHA256_block(SHA256ctx* sha256, const uint8_t block[64])
 	sha256->H[5] += f;
 	sha256->H[6] += g;
 	sha256->H[7] += h;
-	
+
 	memset(W, 0, 64);
 	a = 0;
 	b = 0;
@@ -109,7 +109,7 @@ void SHA256_push(SHA256ctx* sha256, uint64_t len, const uint8_t* data)
 		SHA256_block(sha256, sha256->buffer);
 		i = availBuf;
 		sha256->bufLen = 0;
-		
+
 		while (i + 63 < len)
 		{
 			SHA256_block(sha256, data + i);
@@ -119,7 +119,7 @@ void SHA256_push(SHA256ctx* sha256, uint64_t len, const uint8_t* data)
 	memcpy(sha256->buffer + sha256->bufLen, data + i, len - i);
 	sha256->bufLen += len - i;
 	sha256->len += len;
-	
+
 	i = 0;
 	availBuf = 0;
 }
@@ -130,7 +130,7 @@ static void u32to8(uint32_t v, uint8_t* dst)
 	dst[1] = (v >> 16) & 0xFF;
 	dst[2] = (v >>  8) & 0xFF;
 	dst[3] = (v >>  0) & 0xFF;
-	
+
 	v = 0;
 }
 
@@ -139,7 +139,7 @@ void SHA256_hash(SHA256ctx* sha256, uint8_t dst[32])
 	uint64_t len = sha256->len << 3;
 	uint8_t pad = (sha256->bufLen < 56 ? 56 : 120) - sha256->bufLen;
 	SHA256_push(sha256, pad, padding);
-	
+
 	uint8_t len8[8];
 	len8[7] = (len >>  0) & 0xFF;
 	len8[6] = (len >>  8) & 0xFF;
@@ -150,7 +150,7 @@ void SHA256_hash(SHA256ctx* sha256, uint8_t dst[32])
 	len8[1] = (len >> 48) & 0xFF;
 	len8[0] = (len >> 56) & 0xFF;
 	SHA256_push(sha256, 8, len8);
-	
+
 	u32to8(sha256->H[0], dst +  0);
 	u32to8(sha256->H[1], dst +  4);
 	u32to8(sha256->H[2], dst +  8);
@@ -159,7 +159,7 @@ void SHA256_hash(SHA256ctx* sha256, uint8_t dst[32])
 	u32to8(sha256->H[5], dst + 20);
 	u32to8(sha256->H[6], dst + 24);
 	u32to8(sha256->H[7], dst + 28);
-	
+
 	len = 0;
 	pad = 0;
 	memset(len8, 0, 8);
@@ -205,7 +205,7 @@ void SHA224_hash(SHA224ctx* sha224, uint8_t dst[28])
 	uint64_t len = sha224->len << 3;
 	uint8_t pad = (sha224->bufLen < 56 ? 56 : 120) - sha224->bufLen;
 	SHA224_push(sha224, pad, padding);
-	
+
 	uint8_t len8[8];
 	len8[7] = (len >>  0) & 0xFF;
 	len8[6] = (len >>  8) & 0xFF;
@@ -216,7 +216,7 @@ void SHA224_hash(SHA224ctx* sha224, uint8_t dst[28])
 	len8[1] = (len >> 48) & 0xFF;
 	len8[0] = (len >> 56) & 0xFF;
 	SHA224_push(sha224, 8, len8);
-	
+
 	u32to8(sha224->H[0], dst +  0);
 	u32to8(sha224->H[1], dst +  4);
 	u32to8(sha224->H[2], dst +  8);
@@ -225,7 +225,7 @@ void SHA224_hash(SHA224ctx* sha224, uint8_t dst[28])
 	u32to8(sha224->H[5], dst + 20);
 	u32to8(sha224->H[6], dst + 24);
 	//u32to8(sha224->H[7], dst + 28);
-	
+
 	len = 0;
 	pad = 0;
 	memset(len8, 0, 8);

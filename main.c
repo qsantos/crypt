@@ -80,7 +80,7 @@ int main()
 	checkDigestFile(SHA384, 48, "tests/sha384");
 	return 0;
 */
-	
+
 	// stdin digest
 	uint8_t result[20];
 	DIGEST_FILE(stdin, MD5, result);
@@ -99,18 +99,18 @@ int main()
 	//for (uint8_t i = 0; i < MSG_LEN; i++)
 	//	printf("%.2X", R[i]);
 	//putchar('\n');
-	
+
 	uint8_t O1[CIP_LEN];
 	Crypt(O1, R, MSG_LEN, mode, K, I);
 	//for (uint8_t i = 0; i < CIP_LEN; i++)
 	//	printf("%.2X", O1[i]);
 	//putchar('\n');
-	
+
 	uint8_t O2[MSG_LEN];
 	Decrypt(O2, O1, CIP_LEN, mode, K, I);
 	//for (uint8_t i = 0; i < MSG_LEN; i++)
 	//	printf("%.2X", O2[i]);
 	//putchar('\n');
-	
+
 	return 0;
 }

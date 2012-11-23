@@ -31,7 +31,7 @@ uint32_t mod8(uint32_t a, uint32_t b)
 		ma <<= 1;
 	}
 	ma >>= 1;
-	
+
 	// pads b to a
 	aa = a;
 	uint32_t bb = b;
@@ -46,7 +46,7 @@ uint32_t mod8(uint32_t a, uint32_t b)
 		aa >>= 1;
 		pb <<= 1;
 	}
-	
+
 	// applies xor on a with b to turn bits of a to zero
 	while (pb > b)
 	{

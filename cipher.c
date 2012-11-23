@@ -21,9 +21,9 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 		Crypt  (out, out, len, mode ^ CIPHER_SUITE_EDE, KEY + 16, IV);
 		return;
 	}
-	
+
 	GET_ALGO;
-	
+
 	uint8_t I[8];
 	uint8_t O[8];
 	if (MODE(CBC) || MODE(PCBC))
@@ -38,9 +38,9 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 		else if (MODE(CBC) || MODE(PCBC))
 			for (uint8_t j = 0; j < 8; j++)
 				I[j] = in[i+j] ^ O[j];
-		
+
 		blockCrypt(KEY, I, O, true);
-		
+
 		if (MODE(CFB))
 			for (uint8_t j = 0; j < 8; j++)
 			{
@@ -53,7 +53,7 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 				I[j] = O[j];
 				O[j] ^= in[i+j];
 			}
-		
+
 		memcpy(out + i, O, 8);
 		if (MODE(PCBC))
 			for (uint8_t j = 0; j < 8; j++)
@@ -71,7 +71,7 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 			if (!I[2]) I[1]++;
 			if (!I[1]) I[0]++;
 		}
-		
+
 		i += 8;
 	}
 	uint8_t remaining = len % 8;
@@ -85,9 +85,9 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 		else if (MODE(CBC) || MODE(PCBC))
 			for (uint8_t j = 0; j < 8; j++)
 				I[j] = (j < remaining ? in[i+j] : 0) ^ O[j];
-		
+
 		blockCrypt(KEY, I, out + i, true);
-		
+
 		if (MODE(CFB) || MODE(OFB) || MODE(CTR))
 			for (uint8_t j = 0; j < 8; j++)
 				out[i+j] ^= in[i+j];
@@ -98,9 +98,9 @@ void Decrypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const 
 {
 	if (len % 8)
 		return;
-	
+
 	GET_ALGO;
-	
+
 	if (SUITE(EDE))
 	{
 		Decrypt(out, in,  len, mode ^ CIPHER_SUITE_EDE, KEY +  0, IV);
@@ -108,7 +108,7 @@ void Decrypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const 
 		Decrypt(out, out, len, mode ^ CIPHER_SUITE_EDE, KEY + 16, IV);
 		return;
 	}
-	
+
 	uint8_t I[8];
 	if (MODE(CBC) || MODE(PCBC) || MODE(CFB) || MODE(OFB) || MODE(CTR))
 		memcpy(I, IV, 8);

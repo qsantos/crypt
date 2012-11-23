@@ -23,7 +23,7 @@ static uint8_t S[256] =
 	0x6A, 0xDC, 0x37, 0xC8, 0x6C, 0xC1, 0xAB, 0xFA,  0x24, 0xE1, 0x7B, 0x08, 0x0C, 0xBD, 0xB1, 0x4A,
 	0x78, 0x88, 0x95, 0x8B, 0xE3, 0x63, 0xE8, 0x6D,  0xE9, 0xCB, 0xD5, 0xFE, 0x3B, 0x00, 0x1D, 0x39,
 	0xF2, 0xEF, 0xB7, 0x0E, 0x66, 0x58, 0xD0, 0xE4,  0xA6, 0x77, 0x72, 0xF8, 0xEB, 0x75, 0x4B, 0x0A,
-	0x31, 0x44, 0x50, 0xB4, 0x8F, 0xED, 0x1F, 0x1A,  0xDB, 0x99, 0x8D, 0x33, 0x9F, 0x11, 0x83, 0x14, 
+	0x31, 0x44, 0x50, 0xB4, 0x8F, 0xED, 0x1F, 0x1A,  0xDB, 0x99, 0x8D, 0x33, 0x9F, 0x11, 0x83, 0x14,
 };
 
 static uint8_t* padding[] =
@@ -65,11 +65,11 @@ void MD2_block(MD2ctx* md2, const uint8_t block[16], bool updateCheckSum)
 			L = md2->C[i] ^= S[block[i] ^ L];
 		L = 0;
 	}
-	
+
 	uint8_t X[48];
 	memcpy(X, md2->X, 16);
 	memcpy(X+16, block, 16);
-	
+
 	for (uint8_t i = 0; i < 16; i++)
 		X[i+32] = X[i+16] ^ X[i];
 	uint8_t t = 0;
@@ -80,7 +80,7 @@ void MD2_block(MD2ctx* md2, const uint8_t block[16], bool updateCheckSum)
 		t += i;
 	}
 	t = 0;
-	
+
 	memcpy(md2->X, X, 16);
 	memset(X, 0, 48);
 }
@@ -95,7 +95,7 @@ void MD2_push(MD2ctx* md2, uint64_t len, const uint8_t* data)
 		MD2_block(md2, md2->buffer, true);
 		i = availBuf;
 		md2->bufLen = 0;
-		
+
 		while (i + 15 < len)
 		{
 			MD2_block(md2, data + i, true);
@@ -104,7 +104,7 @@ void MD2_push(MD2ctx* md2, uint64_t len, const uint8_t* data)
 	}
 	memcpy(md2->buffer + md2->bufLen, data + i, len - i);
 	md2->bufLen += len - i;
-	
+
 	availBuf = 0;
 	i = 0;
 }
@@ -115,7 +115,7 @@ void MD2_hash(MD2ctx* md2, uint8_t dst[16])
 	MD2_push(md2, pad, padding[pad]);
 	MD2_block(md2, md2->C, false);
 	memcpy(dst, md2->X, 16);
-	
+
 	pad = 0;
 	md2->bufLen = 0;
 	memset(md2->buffer, 0, 16);

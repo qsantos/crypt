@@ -39,16 +39,16 @@ static void SHA1_block(SHA1ctx* sha1, const uint8_t block[64])
 	uint32_t W[80];
 	for (uint8_t t = 0; t < 16; t++)
 		W[t] = (block[t*4] << 24) | (block[t*4+1] << 16) | (block[t*4+2] << 8) | (block[t*4+3] << 0);
-	
+
 	for (uint8_t t = 16; t < 80; t++)
 		W[t] = ROT(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1);
-	
+
 	uint32_t A = sha1->H[0];
 	uint32_t B = sha1->H[1];
 	uint32_t C = sha1->H[2];
 	uint32_t D = sha1->H[3];
 	uint32_t E = sha1->H[4];
-	
+
 	for (uint8_t t =  0; t < 20; t++)
 		OP(F, 0x5A827999);
 	for (uint8_t t = 20; t < 40; t++)
@@ -57,13 +57,13 @@ static void SHA1_block(SHA1ctx* sha1, const uint8_t block[64])
 		OP(H, 0x8F1BBCDC);
 	for (uint8_t t = 60; t < 80; t++)
 		OP(G, 0xCA62C1D6);
-	
+
 	sha1->H[0] += A;
 	sha1->H[1] += B;
 	sha1->H[2] += C;
 	sha1->H[3] += D;
 	sha1->H[4] += E;
-	
+
 	memset(W, 0, 80);
 	A = 0;
 	B = 0;
@@ -82,7 +82,7 @@ void SHA1_push(SHA1ctx* sha1, uint64_t len, const uint8_t* data)
 		SHA1_block(sha1, sha1->buffer);
 		i = availBuf;
 		sha1->bufLen = 0;
-		
+
 		while (i + 63 < len)
 		{
 			SHA1_block(sha1, data + i);
@@ -92,7 +92,7 @@ void SHA1_push(SHA1ctx* sha1, uint64_t len, const uint8_t* data)
 	memcpy(sha1->buffer + sha1->bufLen, data + i, len - i);
 	sha1->bufLen += len - i;
 	sha1->len += len;
-	
+
 	i = 0;
 	availBuf = 0;
 }
@@ -103,7 +103,7 @@ static void u32to8(uint32_t v, uint8_t* dst)
 	dst[1] = (v >> 16) & 0xFF;
 	dst[2] = (v >>  8) & 0xFF;
 	dst[3] = (v >>  0) & 0xFF;
-	
+
 	v = 0;
 }
 
@@ -112,7 +112,7 @@ void SHA1_hash(SHA1ctx* sha1, uint8_t dst[20])
 	uint64_t len = sha1->len << 3;
 	uint8_t pad = (sha1->bufLen < 56 ? 56 : 120) - sha1->bufLen;
 	SHA1_push(sha1, pad, padding);
-	
+
 	uint8_t len8[8];
 	len8[7] = (len >>  0) & 0xFF;
 	len8[6] = (len >>  8) & 0xFF;
@@ -123,13 +123,13 @@ void SHA1_hash(SHA1ctx* sha1, uint8_t dst[20])
 	len8[1] = (len >> 48) & 0xFF;
 	len8[0] = (len >> 56) & 0xFF;
 	SHA1_push(sha1, 8, len8);
-	
+
 	u32to8(sha1->H[0], dst +  0);
 	u32to8(sha1->H[1], dst +  4);
 	u32to8(sha1->H[2], dst +  8);
 	u32to8(sha1->H[3], dst + 12);
 	u32to8(sha1->H[4], dst + 16);
-	
+
 	len = 0;
 	pad = 0;
 	memset(len8, 0, 8);
