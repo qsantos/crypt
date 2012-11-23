@@ -68,7 +68,6 @@ void checkDigestFile(void(digest)(uint64_t, const uint8_t*, uint8_t*), uint8_t h
 
 int main()
 {
-
 	// validity checks
 /*
 	checkDigestFile(MD2,    16, "tests/md2");
