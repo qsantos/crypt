@@ -37,15 +37,12 @@ static const uint32_t T[] =
 	0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391,
 };
 
+static const MD5ctx initctx = { 0, {0}, 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0};
+
 MD5ctx* MD5_new()
 {
 	MD5ctx* ret = malloc(sizeof(MD5ctx));
-	ret->bufLen = 0;
-	ret->A = 0x67452301;
-	ret->B = 0xEFCDAB89;
-	ret->C = 0x98BADCFE;
-	ret->D = 0x10325476;
-	ret->len = 0;
+	memcpy(ret, &initctx, sizeof(MD5ctx));
 	return ret;
 }
 
@@ -91,6 +88,7 @@ static void MD5_block(MD5ctx* md5, const uint8_t block[64])
 	md5->C += CC;
 	md5->D += DD;
 	
+	// TODO : true clearing
 	memset(X, 0, 16);
 	AA = 0;
 	BB = 0;
