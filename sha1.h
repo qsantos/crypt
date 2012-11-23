@@ -17,6 +17,6 @@ void SHA1_push(SHA1ctx* sha1, uint64_t len, const uint8_t* data);
 void SHA1_hash(SHA1ctx* sha1, uint8_t dst[20]); // sets hash in dst and frees sha1
 
 // one-call digest (NOT THREAD-SAFE)
-void SHA1(uint64_t len, const uint8_t* src, uint8_t dst[20]);
+void SHA1(uint64_t slen, const uint8_t* src, uint8_t dst[20]);
 
 #endif

@@ -68,8 +68,6 @@ void checkDigestFile(void(digest)(uint64_t, const uint8_t*, uint8_t*), uint8_t h
 
 int main()
 {
-	checkDigestFile(SHA1,   20, "tests/sha1");
-	return 0;
 	// validity checks
 /*
 	checkDigestFile(MD2,    16, "tests/md2");
@@ -85,7 +83,7 @@ int main()
 
 	// stdin digest
 	uint8_t result[20];
-	DIGEST_FILE(stdin, MD5, result);
+	DIGEST_FILE(stdin, SHA1, result);
 	for (uint8_t i = 0; i < 20; i++)
 		printf("%.2x", result[i]);
 	putchar('\n');

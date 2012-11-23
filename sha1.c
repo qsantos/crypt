@@ -144,9 +144,31 @@ void SHA1_hash(SHA1ctx* sha1, uint8_t dst[20])
 	free(sha1);
 }
 
-void SHA1(uint64_t len, const uint8_t* src, uint8_t dst[20])
+void SHA1(uint64_t slen, const uint8_t* src, uint8_t dst[20])
 {
-	SHA1ctx* sha1 = SHA1_new();
-	SHA1_push(sha1, len, src);
-	SHA1_hash(sha1, dst);
+	static SHA1ctx sha1;
+	memcpy(&sha1, &initctx, sizeof(SHA1ctx));
+
+	SHA1_push(&sha1, slen, src);
+
+	uint64_t len = sha1.len << 3;
+	uint8_t pad = (sha1.bufLen < 56 ? 56 : 120) - sha1.bufLen;
+	SHA1_push(&sha1, pad, padding);
+
+	uint8_t len8[8];
+	len8[7] = (len >>  0) & 0xFF;
+	len8[6] = (len >>  8) & 0xFF;
+	len8[5] = (len >> 16) & 0xFF;
+	len8[4] = (len >> 24) & 0xFF;
+	len8[3] = (len >> 32) & 0xFF;
+	len8[2] = (len >> 40) & 0xFF;
+	len8[1] = (len >> 48) & 0xFF;
+	len8[0] = (len >> 56) & 0xFF;
+	SHA1_push(&sha1, 8, len8);
+
+	u32to8(sha1.H[0], dst +  0);
+	u32to8(sha1.H[1], dst +  4);
+	u32to8(sha1.H[2], dst +  8);
+	u32to8(sha1.H[3], dst + 12);
+	u32to8(sha1.H[4], dst + 16);
 }
