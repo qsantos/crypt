@@ -18,6 +18,8 @@ typedef struct
 MD5ctx* MD5_new();
 void MD5_push(MD5ctx* md5, uint64_t len, const uint8_t* data);
 void MD5_hash(MD5ctx* md5, uint8_t dst[16]); // sets hash in dst and frees md5
+
+// one-call digest (NOT THREAD-SAFE)
 void MD5(uint64_t len, const uint8_t* src, uint8_t dst[16]);
 
 #endif
