@@ -13,7 +13,13 @@
 	ENC(AES256) ? AES256 :\
 	ENC(AES192) ? AES192 :\
 	ENC(AES128) ? AES128 :\
-		       DES
+	              DES
+
+#define BLOCKSZ (\
+	ENC(AES256) ? 32 :\
+	ENC(AES192) ? 24 :\
+	              16)
+
 void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const uint8_t* KEY, const uint8_t* IV)
 {
 	if (CHAIN(EDE))
@@ -26,31 +32,32 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 
 	GET_ENC;
 
-	uint8_t I[8];
-	uint8_t O[8];
+	uint8_t I[32];
+	uint8_t O[32];
+	uint8_t size = BLOCKSZ;
 	if (MODE(CBC) || MODE(PCBC))
-		memcpy(O, IV, 8);
+		memcpy(O, IV, size);
 	else if (MODE(CFB) || MODE(OFB) || MODE(CTR))
-		memcpy(I, IV, 8);
+		memcpy(I, IV, size);
 	uint32_t i = 0;
 	while (i+7 < len)
 	{
 		if (MODE(ECB))
-			memcpy(I, in + i, 8);
+			memcpy(I, in + i, size);
 		else if (MODE(CBC) || MODE(PCBC))
-			for (uint8_t j = 0; j < 8; j++)
+			for (uint8_t j = 0; j < size; j++)
 				I[j] = in[i+j] ^ O[j];
 
 		blockCrypt(KEY, I, O, false);
 
 		if (MODE(CFB))
-			for (uint8_t j = 0; j < 8; j++)
+			for (uint8_t j = 0; j < size; j++)
 			{
 				O[j] ^= in[i+j];
 				I[j] = O[j];
 			}
 		else if (MODE(OFB))
-			for (uint8_t j = 0; j < 8; j++)
+			for (uint8_t j = 0; j < size; j++)
 			{
 				I[j] = O[j];
 				O[j] ^= in[i+j];
@@ -58,47 +65,45 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 
 		memcpy(out + i, O, 8);
 		if (MODE(PCBC))
-			for (uint8_t j = 0; j < 8; j++)
+			for (uint8_t j = 0; j < size; j++)
 				O[j] ^= in[i+j];
 		else if (MODE(CTR))
 		{
-			for (uint8_t j = 0; j < 8; j++)
+			for (uint8_t j = 0; j < size; j++)
 				out[i+j] ^= in[i+j];
 			I[7]++;
-			if (!I[7]) I[6]++;
-			if (!I[6]) I[5]++;
-			if (!I[5]) I[4]++;
-			if (!I[4]) I[3]++;
-			if (!I[3]) I[2]++;
-			if (!I[2]) I[1]++;
-			if (!I[1]) I[0]++;
+			for (int i = 6; i >= 0; i--)
+				if (!I[i+1])
+					I[i]++;
 		}
 
-		i += 8;
+		i += size;
 	}
-	uint8_t remaining = len % 8;
+	uint8_t remaining = len % size;
 	if (remaining)
 	{
 		if (MODE(ECB))
 		{
 			memcpy(I, in + i, remaining);
-			memset(I + remaining, 0, 8-remaining);
+			memset(I + remaining, 0, size-remaining);
 		}
 		else if (MODE(CBC) || MODE(PCBC))
-			for (uint8_t j = 0; j < 8; j++)
+			for (uint8_t j = 0; j < size; j++)
 				I[j] = (j < remaining ? in[i+j] : 0) ^ O[j];
 
 		blockCrypt(KEY, I, out + i, false);
 
 		if (MODE(CFB) || MODE(OFB) || MODE(CTR))
-			for (uint8_t j = 0; j < 8; j++)
+			for (uint8_t j = 0; j < size; j++)
 				out[i+j] ^= in[i+j];
 	}
 }
 
 void Decrypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const uint8_t* KEY, const uint8_t* IV)
 {
-	if (len % 8)
+	uint8_t size = BLOCKSZ;
+
+	if (len % size)
 		return;
 
 	GET_ENC;
@@ -111,50 +116,46 @@ void Decrypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const 
 		return;
 	}
 
-	uint8_t I[8];
+	uint8_t I[32];
 	if (MODE(CBC) || MODE(PCBC) || MODE(CFB) || MODE(OFB) || MODE(CTR))
-		memcpy(I, IV, 8);
-	for (uint32_t i = 0; i < len; i+=8)
+		memcpy(I, IV, size);
+	for (uint32_t i = 0; i < len; i += size)
 	{
 		if (MODE(CFB))
 		{
 			blockCrypt(KEY, I, out + i, false);
-			for (uint8_t j = 0; j < 8; j++)
+			for (uint8_t j = 0; j < size; j++)
 				out[i+j] ^= in[i+j];
-			memcpy(I, in + i, 8);
+			memcpy(I, in + i, size);
 		}
 		else if (MODE(OFB))
 		{
 			blockCrypt(KEY, I, out + i, false);
-			memcpy(I, out + i, 8);
-			for (uint8_t j = 0; j < 8; j++)
+			memcpy(I, out + i, size);
+			for (uint8_t j = 0; j < size; j++)
 				out[i+j] ^= in[i+j];
 		}
 		else if (MODE(CTR))
 		{
 			blockCrypt(KEY, I, out + i, false);
-			for (uint8_t j = 0; j < 8; j++)
+			for (uint8_t j = 0; j < size; j++)
 				out[i+j] ^= in[i+j];
 			I[7]++;
-			if (!I[7]) I[6]++;
-			if (!I[6]) I[5]++;
-			if (!I[5]) I[4]++;
-			if (!I[4]) I[3]++;
-			if (!I[3]) I[2]++;
-			if (!I[2]) I[1]++;
-			if (!I[1]) I[0]++;
+			for (int i = 6; i >= 0; i--)
+				if (!I[i+1])
+					I[i]++;
 		}
 		else
 		{
 			blockCrypt(KEY, in + i, out + i, true);
 			if (MODE(CBC))
 			{
-				for (uint8_t j = 0; j < 8; j++)
+				for (uint8_t j = 0; j < size; j++)
 					out[i+j] ^= I[j];
-				memcpy(I, in + i, 8);
+				memcpy(I, in + i, size);
 			}
 			else if (MODE(PCBC))
-				for (uint8_t j = 0; j < 8; j++)
+				for (uint8_t j = 0; j < size; j++)
 				{
 					out[i+j] ^= I[j];
 					I[j] = in[i+j] ^ out[i+j];

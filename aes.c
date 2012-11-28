@@ -88,16 +88,17 @@ static uint8_t dot8(uint8_t a, uint8_t b)
 	return mod8(prod8(a, b), M);
 }
 
+#define C0(X) (((X)>> 0)&0xFF)
+#define C1(X) (((X)>> 8)&0xFF)
+#define C2(X) (((X)>>16)&0xFF)
+#define C3(X) (((X)>>24)&0xFF)
 static uint32_t prod32(uint32_t a, uint32_t b)
 {
 	uint32_t d = 0;
-	d |= dot8(a&0xF000,b&0x000F)^dot8(a&0x000F,b&0x00F0)^dot8(a&0x00F0,b&0x0F00)^dot8(a&0x0F00,b&0xF000);
-	d <<= 4;
-	d |= dot8(a&0x0F00,b&0x000F)^dot8(a&0xF000,b&0x00F0)^dot8(a&0x000F,b&0x0F00)^dot8(a&0x00F0,b&0xF000);
-	d <<= 4;
-	d |= dot8(a&0x00F0,b&0x000F)^dot8(a&0x0F00,b&0x00F0)^dot8(a&0xF000,b&0x0F00)^dot8(a&0x000F,b&0xF000);
-	d <<= 4;
-	d |= dot8(a&0x000F,b&0x000F)^dot8(a&0x00F0,b&0x00F0)^dot8(a&0x0F00,b&0x0F00)^dot8(a&0xF000,b&0xF000);
+	d |= dot8(C3(a), C0(b)) ^ dot8(C2(a), C1(b)) ^ dot8(C1(a), C2(b)) ^ dot8(C0(a), C3(b)); d <<= 8;
+	d |= dot8(C2(a), C0(b)) ^ dot8(C1(a), C1(b)) ^ dot8(C0(a), C2(b)) ^ dot8(C3(a), C3(b)); d <<= 8;
+	d |= dot8(C1(a), C0(b)) ^ dot8(C0(a), C1(b)) ^ dot8(C3(a), C2(b)) ^ dot8(C2(a), C3(b)); d <<= 8;
+	d |= dot8(C0(a), C0(b)) ^ dot8(C3(a), C1(b)) ^ dot8(C2(a), C2(b)) ^ dot8(C1(a), C3(b));
 	return d;
 }
 
@@ -174,6 +175,8 @@ static uint32_t Rcon(uint32_t i)
 #define ROTL(x,n) (((x) << n) | ((x) >> (32-n)))
 #define ROTR(x,n) (((x) >> n) | ((x) << (32-n)))
 
+#define DEBUG(MSG) {printf("%s:\n", MSG);for(int i=0;i<4;i++){for (int j=0;j<4;j++)printf("%.2x ", state[4*j+i]);printf("\n");}printf("\n");}
+#define ROUND(W) {printf("Round:\n");for(int i=0;i<4;i++){for (int j=0;j<4;j++)printf("%.2x ", (W)[4*j+i]);printf("\n");}printf("\n");}
 void AES(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse, uint8_t Nk, uint8_t Nr)
 {
 	(void) inverse;
@@ -192,37 +195,48 @@ void AES(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse, uint
 
 	uint8_t state[16];
 	memcpy(state, in, 16);
+
+	DEBUG("Start");
 	AddRoundKey(state, (uint8_t*) w);
+	ROUND((uint8_t*) w);
 
 	for (uint8_t round = 1; round < 10; round++)
 	{
+		printf("\n");
+		printf("%i\n", round);
+		DEBUG("Start");
 		SubBytes(state);
+		DEBUG("SubBytes");
 		ShiftRows(state);
+		DEBUG("ShiftRows");
 		MixColumns(state);
-		AddRoundKey(state, (uint8_t*) w + round*4);
+		DEBUG("MixColumns");
+		AddRoundKey(state, (uint8_t*) w + round*16);
+		ROUND((uint8_t*) w + round*16);
 	}
 
+	DEBUG("Start");
 	SubBytes(state);
+	DEBUG("SubBytes");
 	ShiftRows(state);
-	AddRoundKey(state, KEY);
+	DEBUG("ShiftRows");
+	AddRoundKey(state, (uint8_t*) w + 10*16);
+	DEBUG("Output");
 
 	memcpy(out, state, 16);
 }
 
 void AES128(const uint8_t KEY[16], const uint8_t in[16], uint8_t out[16], bool inverse)
 {
-puts("128");
 	AES(KEY, in, out, inverse, 4, 10);
 }
 
 void AES192(const uint8_t KEY[24], const uint8_t in[16], uint8_t out[16], bool inverse)
 {
-puts("192");
 	AES(KEY, in, out, inverse, 6, 12);
 }
 
 void AES256(const uint8_t KEY[32], const uint8_t in[16], uint8_t out[16], bool inverse)
 {
-puts("256");
 	AES(KEY, in, out, inverse, 8, 14);
 }
