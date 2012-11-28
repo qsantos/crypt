@@ -1,4 +1,4 @@
-CFLAGS  = -Wall -Werror -pedantic -std=c99 -O3 -D_XOPEN_SOURCE=700
+CFLAGS  = -Wall -Werror -pedantic -std=c99 -O3 -D_XOPEN_SOURCE=600
 LDFLAGS = -O3
 TARGET  = crypt
 SRC     = aes.c cipher.c des.c main.c md2.c md4.c md5.c sha1.c sha256.c sha512.c

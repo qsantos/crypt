@@ -178,7 +178,7 @@ static void f(uint8_t R[4], uint8_t K[6], uint8_t out[4])
 
 #define CD_LSHIFT(C,s) C = ((C << s) | (C >> (28-s))) & 0xFFFFFFF
 #define CD_RSHIFT(C,s) C = ((C >> s) | (C << (28-s))) & 0xFFFFFFF
-void DES(const uint8_t KEY[8], const uint8_t in[8], uint8_t out[8], bool encipher)
+void DES(const uint8_t KEY[8], const uint8_t in[8], uint8_t out[8], bool inverse)
 {
 	uint8_t p = 0;
 	uint8_t LR[2][8];
@@ -190,7 +190,7 @@ void DES(const uint8_t KEY[8], const uint8_t in[8], uint8_t out[8], bool enciphe
 	uint32_t D = ((CD[3] & 0xF) << 24) | (CD[4] << 16) | (CD[5] << 8) | (CD[6] << 0);
 	for (uint8_t i = 0; i < 16; i++)
 	{
-		if (encipher)
+		if (!inverse)
 		{
 			CD_LSHIFT(C, shifts[i]);
 			CD_LSHIFT(D, shifts[i]);
@@ -204,7 +204,7 @@ void DES(const uint8_t KEY[8], const uint8_t in[8], uint8_t out[8], bool enciphe
 		CD[6] = D >> 0;
 		uint8_t K[6];
 		permute(PC2, 6, CD, K);
-		if (!encipher)
+		if (inverse)
 		{
 			CD_RSHIFT(C, shifts[15-i]);
 			CD_RSHIFT(D, shifts[15-i]);

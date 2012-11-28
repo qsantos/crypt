@@ -9,7 +9,7 @@
 #define SUITE(s) ((mode & 0x08) == CIPHER_SUITE_##s)
 #define ALGO(a)  ((mode & 0x10) == CIPHER_ALGO_##a)
 
-#define GET_ALGO void (*blockCrypt)(const uint8_t KEY[8], const uint8_t in[8], uint8_t out[8], bool encipher) =\
+#define GET_ALGO void (*blockCrypt)(const uint8_t KEY[8], const uint8_t in[8], uint8_t out[8], bool inverse) =\
 	ALGO(AES) ? AES :\
 		DES
 void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const uint8_t* KEY, const uint8_t* IV)
@@ -39,7 +39,7 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 			for (uint8_t j = 0; j < 8; j++)
 				I[j] = in[i+j] ^ O[j];
 
-		blockCrypt(KEY, I, O, true);
+		blockCrypt(KEY, I, O, false);
 
 		if (MODE(CFB))
 			for (uint8_t j = 0; j < 8; j++)
@@ -86,7 +86,7 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 			for (uint8_t j = 0; j < 8; j++)
 				I[j] = (j < remaining ? in[i+j] : 0) ^ O[j];
 
-		blockCrypt(KEY, I, out + i, true);
+		blockCrypt(KEY, I, out + i, false);
 
 		if (MODE(CFB) || MODE(OFB) || MODE(CTR))
 			for (uint8_t j = 0; j < 8; j++)
@@ -116,21 +116,21 @@ void Decrypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const 
 	{
 		if (MODE(CFB))
 		{
-			blockCrypt(KEY, I, out + i, true);
+			blockCrypt(KEY, I, out + i, false);
 			for (uint8_t j = 0; j < 8; j++)
 				out[i+j] ^= in[i+j];
 			memcpy(I, in + i, 8);
 		}
 		else if (MODE(OFB))
 		{
-			blockCrypt(KEY, I, out + i, true);
+			blockCrypt(KEY, I, out + i, false);
 			memcpy(I, out + i, 8);
 			for (uint8_t j = 0; j < 8; j++)
 				out[i+j] ^= in[i+j];
 		}
 		else if (MODE(CTR))
 		{
-			blockCrypt(KEY, I, out + i, true);
+			blockCrypt(KEY, I, out + i, false);
 			for (uint8_t j = 0; j < 8; j++)
 				out[i+j] ^= in[i+j];
 			I[7]++;
@@ -144,7 +144,7 @@ void Decrypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const 
 		}
 		else
 		{
-			blockCrypt(KEY, in + i, out + i, false);
+			blockCrypt(KEY, in + i, out + i, true);
 			if (MODE(CBC))
 			{
 				for (uint8_t j = 0; j < 8; j++)

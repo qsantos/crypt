@@ -69,6 +69,7 @@ void checkDigestFile(void(digest)(uint64_t, const uint8_t*, uint8_t*), uint8_t h
 int main()
 {
 	// validity checks
+/*
 	checkDigestFile(MD2,    16, "tests/md2");
 	checkDigestFile(MD4,    16, "tests/md4");
 	checkDigestFile(MD5,    16, "tests/md5");
@@ -78,19 +79,22 @@ int main()
 	checkDigestFile(SHA512, 64, "tests/sha512");
 	checkDigestFile(SHA384, 48, "tests/sha384");
 	return 0;
+*/
 
 	// stdin digest
+/*
 	uint8_t result[20];
 	DIGEST_FILE(stdin, SHA1, result);
 	for (uint8_t i = 0; i < 20; i++)
 		printf("%.2x", result[i]);
 	putchar('\n');
 	return 0;
+*/
 
 	// DES
 #define MSG_LEN 8
 #define CIP_LEN MSG_LEN + 7-((MSG_LEN-1) % 8)
-	uint8_t mode = CIPHER_ALGO_DES | CIPHER_MODE_ECB;
+	uint8_t mode = CIPHER_ALGO_AES | CIPHER_MODE_ECB;
 	const uint8_t* R = (const uint8_t*) "\x81\x02\x03\x04\xAB\xCD\xEF\x12";
 	const uint8_t* K = (const uint8_t*) "\x01\x02\x03\x04\x45\x23\x12\x78";
 	const uint8_t* I = (const uint8_t*) "\x34\x42\x42\x42\x17\x17\x42\x42";
