@@ -66,7 +66,7 @@ static void MD4_block(MD4_CTX* md4, const uint8_t block[64])
 */
 }
 
-void MD4Update(MD4_CTX* md4, uint64_t len, const uint8_t* data)
+void MD4Update(MD4_CTX* md4, const uint8_t* data, uint64_t len)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 64 - md4->bufLen;
@@ -98,9 +98,8 @@ void MD4Final(MD4_CTX* md4, uint8_t dst[16])
 {
 	uint64_t len = md4->len << 3;
 	uint8_t pad = (md4->bufLen < 56 ? 56 : 120) - md4->bufLen;
-	MD4Update(md4, pad, padding);
-
-	MD4Update(md4, 8, (uint8_t*) &len);
+	MD4Update(md4, padding, pad);
+	MD4Update(md4, (uint8_t*) &len, 8);
 
 	memcpy(dst +  0, &md4->A, 4);
 	memcpy(dst +  4, &md4->B, 4);
@@ -119,6 +118,6 @@ void MD4(uint64_t slen, const uint8_t* src, uint8_t dst[16])
 {
 	MD4_CTX md4;
 	MD4Init  (&md4);
-	MD4Update(&md4, slen, src);
+	MD4Update(&md4, src, slen);
 	MD4Final (&md4, dst);
 }

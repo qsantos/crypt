@@ -115,7 +115,7 @@ static void SHA512_block(SHA512_CTX* sha512, const uint8_t block[128])
 */
 }
 
-void SHA512Update(SHA512_CTX* sha512, uint64_t len, const uint8_t* data)
+void SHA512Update(SHA512_CTX* sha512, const uint8_t* data, uint64_t len)
 {
 	uint64_t i = 0;
 	uint8_t availBuf = 128 - sha512->bufLen;
@@ -167,7 +167,7 @@ void SHA512Final(SHA512_CTX* sha512, uint8_t dst[32])
 	uint64_t len0 = sha512->len[0];
 	uint64_t len1 = sha512->len[1];
 	uint8_t pad = (sha512->bufLen < 112 ? 112 : 240) - sha512->bufLen;
-	SHA512Update(sha512, pad, padding);
+	SHA512Update(sha512, padding, pad);
 
 	uint8_t len8[16];
 	len8[15] = (len0 >>  0) & 0xFF;
@@ -186,7 +186,7 @@ void SHA512Final(SHA512_CTX* sha512, uint8_t dst[32])
 	len8[ 2] = (len1 >> 40) & 0xFF;
 	len8[ 1] = (len1 >> 48) & 0xFF;
 	len8[ 0] = (len1 >> 56) & 0xFF;
-	SHA512Update(sha512, 16, len8);
+	SHA512Update(sha512, len8, 16);
 
 	u64to8(sha512->H[0], dst +  0);
 	u64to8(sha512->H[1], dst +  8);
@@ -214,7 +214,7 @@ void SHA512(uint64_t slen, const uint8_t* src, uint8_t dst[32])
 {
 	SHA512_CTX sha512;
 	SHA512Init  (&sha512);
-	SHA512Update(&sha512, slen, src);
+	SHA512Update(&sha512, src, slen);
 	SHA512Final (&sha512, dst);
 }
 
@@ -232,9 +232,9 @@ void SHA384Init(SHA384_CTX* sha384)
 	memcpy(sha384, &initctx384, sizeof(SHA384_CTX));
 }
 
-void SHA384Update(SHA384_CTX* sha384, uint64_t len, const uint8_t* data)
+void SHA384Update(SHA384_CTX* sha384, const uint8_t* data, uint64_t len)
 {
-	SHA512Update(sha384, len, data);
+	SHA512Update(sha384, data, len);
 }
 
 void SHA384Final(SHA384_CTX* sha384, uint8_t dst[32])
@@ -242,7 +242,7 @@ void SHA384Final(SHA384_CTX* sha384, uint8_t dst[32])
 	uint64_t len0 = sha384->len[0];
 	uint64_t len1 = sha384->len[1];
 	uint8_t pad = (sha384->bufLen < 112 ? 112 : 240) - sha384->bufLen;
-	SHA384Update(sha384, pad, padding);
+	SHA384Update(sha384, padding, pad);
 
 	uint8_t len8[16];
 	len8[15] = (len0 >>  0) & 0xFF;
@@ -261,7 +261,7 @@ void SHA384Final(SHA384_CTX* sha384, uint8_t dst[32])
 	len8[ 2] = (len1 >> 40) & 0xFF;
 	len8[ 1] = (len1 >> 48) & 0xFF;
 	len8[ 0] = (len1 >> 56) & 0xFF;
-	SHA384Update(sha384, 16, len8);
+	SHA384Update(sha384, len8, 16);
 
 	u64to8(sha384->H[0], dst +  0);
 	u64to8(sha384->H[1], dst +  8);
@@ -289,6 +289,6 @@ void SHA384(uint64_t slen, const uint8_t* src, uint8_t dst[32])
 {
 	SHA384_CTX sha384;
 	SHA384Init  (&sha384);
-	SHA384Update(&sha384, slen, src);
+	SHA384Update(&sha384, src, slen);
 	SHA384Final (&sha384, dst);
 }

@@ -85,7 +85,7 @@ void MD2_block(MD2_CTX* md2, const uint8_t block[16], bool updateCheckSum)
 */
 }
 
-void MD2Update(MD2_CTX* md2, uint64_t len, const uint8_t* data)
+void MD2Update(MD2_CTX* md2, const uint8_t* data, uint64_t len)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 16 - md2->bufLen;
@@ -115,7 +115,7 @@ void MD2Update(MD2_CTX* md2, uint64_t len, const uint8_t* data)
 void MD2Final(MD2_CTX* md2, uint8_t dst[16])
 {
 	uint8_t pad = 16 - md2->bufLen;
-	MD2Update(md2, pad, padding[pad]);
+	MD2Update(md2, padding[pad], pad);
 	MD2_block(md2, md2->C, false);
 	memcpy(dst, md2->X, 16);
 
@@ -130,6 +130,6 @@ void MD2(uint64_t slen, const uint8_t* src, uint8_t dst[16])
 {
 	MD2_CTX md2;
 	MD2Init  (&md2);
-	MD2Update(&md2, slen, src);
+	MD2Update(&md2, src, slen);
 	MD2Final (&md2, dst);
 }

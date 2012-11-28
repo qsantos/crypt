@@ -13,7 +13,7 @@ typedef struct
 } SHA1_CTX;
 
 void SHA1Init  (SHA1_CTX* sha1);
-void SHA1Update(SHA1_CTX* sha1, uint64_t len, const uint8_t* data);
+void SHA1Update(SHA1_CTX* sha1, const uint8_t* data, uint64_t len);
 void SHA1Final (SHA1_CTX* sha1, uint8_t dst[20]); // sets hash in dst and frees sha1
 
 void SHA1(uint64_t slen, const uint8_t* src, uint8_t dst[20]);

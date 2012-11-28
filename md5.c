@@ -96,7 +96,7 @@ static void MD5_block(MD5_CTX* md5, const uint8_t block[64])
 */
 }
 
-void MD5Update(MD5_CTX* md5, uint64_t len, const uint8_t* data)
+void MD5Update(MD5_CTX* md5, const uint8_t* data, uint64_t len)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 64 - md5->bufLen;
@@ -128,8 +128,8 @@ void MD5Final(MD5_CTX* md5, uint8_t dst[16])
 {
 	uint64_t len = md5->len << 3;
 	uint8_t pad  = (md5->bufLen < 56 ? 56 : 120) - md5->bufLen;
-	MD5Update(md5, pad, padding);
-	MD5Update(md5, 8, (uint8_t*) &len);
+	MD5Update(md5, padding, pad);
+	MD5Update(md5, (uint8_t*) &len, 8);
 
 	memcpy(dst +  0, &md5->A, 4);
 	memcpy(dst +  4, &md5->B, 4);
@@ -155,6 +155,6 @@ void MD5(uint64_t slen, const uint8_t* src, uint8_t dst[16])
 {
 	MD5_CTX md5;
 	MD5Init  (&md5);
-	MD5Update(&md5, slen, src);
+	MD5Update(&md5, src, slen);
 	MD5Final (&md5, dst);
 }
