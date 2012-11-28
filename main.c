@@ -69,7 +69,8 @@ int main(int argc, char** argv)
 	(void) argc;
 	(void) argv;
 
-	// validity checks
+	// digest checks
+/*
 	checkDigestFile(MD2,    16, "tests/md2");
 	checkDigestFile(MD4,    16, "tests/md4");
 	checkDigestFile(MD5,    16, "tests/md5");
@@ -79,6 +80,15 @@ int main(int argc, char** argv)
 	checkDigestFile(SHA512, 64, "tests/sha512");
 	checkDigestFile(SHA384, 48, "tests/sha384");
 	return 0;
+*/
+
+	uint8_t* key  = (uint8_t*) "Jefe";
+	uint8_t* data = (uint8_t*) "what do ya want for nothing?";
+	uint8_t digest[16];
+	HMAC(data, 28, key, 4, digest);
+	for (uint8_t i = 0; i < 16; i++)
+		printf("%.2x", digest[i]);
+	putchar('\n');
 
 	// stdin digest
 /*
