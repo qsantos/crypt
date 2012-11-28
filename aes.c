@@ -60,6 +60,8 @@ static uint32_t mod8(uint32_t a, uint32_t b)
 	uint32_t bb = b;
 	while (bb)
 	{
+		if (!aa)
+			return a;
 		aa >>= 1;
 		bb >>= 1;
 	}
@@ -71,7 +73,7 @@ static uint32_t mod8(uint32_t a, uint32_t b)
 	}
 
 	// applies xor on a with b to turn bits of a to zero
-	while (pb > b)
+	while (pb >= b)
 	{
 		if (a & ma)
 			a ^= pb;
@@ -152,20 +154,76 @@ static void AddRoundKey(uint8_t state[16], const uint8_t w[16])
 		state[i] ^= w[i];
 }
 
-void AES(const uint8_t KEY[16], const uint8_t in[16], uint8_t out[16], bool inverse)
+static uint32_t SubWord(uint32_t x)
+{
+	uint8_t* a = (uint8_t*) &x;
+	a[0] = SBox[a[0]];
+	a[1] = SBox[a[1]];
+	a[2] = SBox[a[2]];
+	a[3] = SBox[a[3]];
+	return x;
+}
+
+static uint32_t Rcon(uint32_t i)
+{
+	uint32_t r = 0;
+	((uint8_t*) &r)[0] = mod8(1 << (i-1), M);
+	return r;
+}
+
+#define ROTL(x,n) (((x) << n) | ((x) >> (32-n)))
+#define ROTR(x,n) (((x) >> n) | ((x) << (32-n)))
+
+static void print32(uint32_t x)
+{
+	uint8_t* a = (uint8_t*) &x;
+	printf("%.2x%.2x%.2x%.2x    ", a[0], a[1], a[2], a[3]);
+}
+
+void AES(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse, uint8_t Nk, uint8_t Nr)
 {
 	(void) inverse;
 
+	uint32_t w[4*(1+Nr)];
+	memcpy(w, KEY, 4*Nk);
+	for (uint32_t i = Nk; i < 4*(1+Nr); i++)
+	{
+		uint32_t m = w[i-1];
+		printf("%2i    ", i);
+		print32(m);
+		if (i % Nk == 0)
+		{
+			print32(ROTR(m,8));
+			print32(SubWord(ROTR(m,8)));
+			print32(Rcon(i/Nk));
+			m = SubWord(ROTR(m, 8)) ^ Rcon(i/Nk);
+			print32(m);
+		}
+		else if (Nk > 6 && i % Nk == 4)
+		{
+			printf("            ");
+			m = SubWord(m);
+			print32(m);
+			printf("                        ");
+		}
+		else
+			printf("                                                ");
+		print32(w[i-Nk]);
+		print32(w[i-Nk] ^ m);
+		printf("\n");
+		w[i] = w[i-Nk] ^ m;
+	}
+
 	uint8_t state[16];
 	memcpy(state, in, 16);
-	AddRoundKey(state, KEY);
+	AddRoundKey(state, (uint8_t*) w);
 
 	for (uint8_t round = 1; round < 10; round++)
 	{
 		SubBytes(state);
 		ShiftRows(state);
 		MixColumns(state);
-		AddRoundKey(state, KEY);
+		AddRoundKey(state, (uint8_t*) w + round*4);
 	}
 
 	SubBytes(state);
@@ -173,4 +231,22 @@ void AES(const uint8_t KEY[16], const uint8_t in[16], uint8_t out[16], bool inve
 	AddRoundKey(state, KEY);
 
 	memcpy(out, state, 16);
+}
+
+void AES128(const uint8_t KEY[16], const uint8_t in[16], uint8_t out[16], bool inverse)
+{
+puts("128");
+	AES(KEY, in, out, inverse, 4, 10);
+}
+
+void AES192(const uint8_t KEY[24], const uint8_t in[16], uint8_t out[16], bool inverse)
+{
+puts("192");
+	AES(KEY, in, out, inverse, 6, 12);
+}
+
+void AES256(const uint8_t KEY[32], const uint8_t in[16], uint8_t out[16], bool inverse)
+{
+puts("256");
+	AES(KEY, in, out, inverse, 8, 14);
 }

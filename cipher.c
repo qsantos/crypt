@@ -6,23 +6,25 @@
 #include "aes.h"
 
 #define MODE(m)  ((mode & 0x07) == CIPHER_MODE_##m)
-#define SUITE(s) ((mode & 0x08) == CIPHER_SUITE_##s)
-#define ALGO(a)  ((mode & 0x10) == CIPHER_ALGO_##a)
+#define CHAIN(s) ((mode & 0x08) == CIPHER_CHAIN_##s)
+#define ENC(a)   ((mode & 0x30) == CIPHER_ENC_##a)
 
-#define GET_ALGO void (*blockCrypt)(const uint8_t KEY[8], const uint8_t in[8], uint8_t out[8], bool inverse) =\
-	ALGO(AES) ? AES :\
-		DES
+#define GET_ENC void (*blockCrypt)(const uint8_t KEY[8], const uint8_t in[8], uint8_t out[8], bool inverse) =\
+	ENC(AES256) ? AES256 :\
+	ENC(AES192) ? AES192 :\
+	ENC(AES128) ? AES128 :\
+		       DES
 void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const uint8_t* KEY, const uint8_t* IV)
 {
-	if (SUITE(EDE))
+	if (CHAIN(EDE))
 	{
-		Crypt  (out, in,  len, mode ^ CIPHER_SUITE_EDE, KEY +  0, IV);
-		Decrypt(out, out, len, mode ^ CIPHER_SUITE_EDE, KEY +  8, IV);
-		Crypt  (out, out, len, mode ^ CIPHER_SUITE_EDE, KEY + 16, IV);
+		Crypt  (out, in,  len, mode ^ CIPHER_CHAIN_EDE, KEY +  0, IV);
+		Decrypt(out, out, len, mode ^ CIPHER_CHAIN_EDE, KEY +  8, IV);
+		Crypt  (out, out, len, mode ^ CIPHER_CHAIN_EDE, KEY + 16, IV);
 		return;
 	}
 
-	GET_ALGO;
+	GET_ENC;
 
 	uint8_t I[8];
 	uint8_t O[8];
@@ -99,13 +101,13 @@ void Decrypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const 
 	if (len % 8)
 		return;
 
-	GET_ALGO;
+	GET_ENC;
 
-	if (SUITE(EDE))
+	if (CHAIN(EDE))
 	{
-		Decrypt(out, in,  len, mode ^ CIPHER_SUITE_EDE, KEY +  0, IV);
-		Crypt  (out, out, len, mode ^ CIPHER_SUITE_EDE, KEY +  8, IV);
-		Decrypt(out, out, len, mode ^ CIPHER_SUITE_EDE, KEY + 16, IV);
+		Decrypt(out, in,  len, mode ^ CIPHER_CHAIN_EDE, KEY +  0, IV);
+		Crypt  (out, out, len, mode ^ CIPHER_CHAIN_EDE, KEY +  8, IV);
+		Decrypt(out, out, len, mode ^ CIPHER_CHAIN_EDE, KEY + 16, IV);
 		return;
 	}
 
