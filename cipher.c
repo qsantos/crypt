@@ -9,7 +9,7 @@
 #define CHAIN(s) ((mode & 0x08) == CIPHER_CHAIN_##s)
 #define ENC(a)   ((mode & 0x30) == CIPHER_ENC_##a)
 
-#define GET_ENC void (*blockCrypt)(const uint8_t KEY[8], const uint8_t in[8], uint8_t out[8], bool inverse) =\
+#define GET_ENC void (*blockCrypt)(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse) =\
 	ENC(AES256) ? AES256 :\
 	ENC(AES192) ? AES192 :\
 	ENC(AES128) ? AES128 :\
@@ -40,7 +40,7 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 	else if (MODE(CFB) || MODE(OFB) || MODE(CTR))
 		memcpy(I, IV, size);
 	uint32_t i = 0;
-	while (i+7 < len)
+	while (i+size-1 < len)
 	{
 		if (MODE(ECB))
 			memcpy(I, in + i, size);
@@ -63,7 +63,7 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 				O[j] ^= in[i+j];
 			}
 
-		memcpy(out + i, O, 8);
+		memcpy(out + i, O, size);
 		if (MODE(PCBC))
 			for (uint8_t j = 0; j < size; j++)
 				O[j] ^= in[i+j];
@@ -71,8 +71,8 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 		{
 			for (uint8_t j = 0; j < size; j++)
 				out[i+j] ^= in[i+j];
-			I[7]++;
-			for (int i = 6; i >= 0; i--)
+			I[size-1]++;
+			for (int i = size-2; i >= 0; i--)
 				if (!I[i+1])
 					I[i]++;
 		}
@@ -140,8 +140,8 @@ void Decrypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const 
 			blockCrypt(KEY, I, out + i, false);
 			for (uint8_t j = 0; j < size; j++)
 				out[i+j] ^= in[i+j];
-			I[7]++;
-			for (int i = 6; i >= 0; i--)
+			I[size-1]++;
+			for (int i = size-2; i >= 0; i--)
 				if (!I[i+1])
 					I[i]++;
 		}
