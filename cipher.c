@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "des.h"
+#include "rijndael.h"
 #include "aes.h"
 
 #define MODE(m)  ((mode & 0x07) == CIPHER_MODE_##m)

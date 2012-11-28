@@ -1,7 +1,7 @@
 // Reference:
 // Federal Information Processing Standards Publication
 // (FIPS PUB) 197, Advanced Encryption Standard, 26 November 2001.
-#include "aes.h"
+#include "rijndael.h"
 
 #include <string.h>
 
@@ -173,7 +173,7 @@ static uint32_t Rcon(uint32_t i)
 #define ROTL(x,n) (((x) << n) | ((x) >> (32-n)))
 #define ROTR(x,n) (((x) >> n) | ((x) << (32-n)))
 
-void AES(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse, uint8_t Nk, uint8_t Nr)
+void Rijndael(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse, uint8_t Nk, uint8_t Nr)
 {
 	(void) inverse;
 
@@ -209,17 +209,17 @@ void AES(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse, uint
 	memcpy(out, state, 16);
 }
 
-void AES128(const uint8_t KEY[16], const uint8_t in[16], uint8_t out[16], bool inverse)
+void Rijndael128(const uint8_t KEY[16], const uint8_t in[16], uint8_t out[16], bool inverse)
 {
-	AES(KEY, in, out, inverse, 4, 10);
+	Rijndael(KEY, in, out, inverse, 4, 10);
 }
 
-void AES192(const uint8_t KEY[24], const uint8_t in[16], uint8_t out[16], bool inverse)
+void Rijndael192(const uint8_t KEY[24], const uint8_t in[16], uint8_t out[16], bool inverse)
 {
-	AES(KEY, in, out, inverse, 6, 12);
+	Rijndael(KEY, in, out, inverse, 6, 12);
 }
 
-void AES256(const uint8_t KEY[32], const uint8_t in[16], uint8_t out[16], bool inverse)
+void Rijndael256(const uint8_t KEY[32], const uint8_t in[16], uint8_t out[16], bool inverse)
 {
-	AES(KEY, in, out, inverse, 8, 14);
+	Rijndael(KEY, in, out, inverse, 8, 14);
 }
