@@ -283,24 +283,26 @@ void Rijndael(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse,
 	uint8_t state[16];
 	memcpy(state, in, 16);
 
-	AddRoundKey(state, (uint8_t*) w);
-
 	if (inverse)
 	{
-		for (uint8_t round = 1; round < 10; round++)
+		AddRoundKey(state, (uint8_t*) w + Nr*16);
+
+		for (uint8_t round = Nr-1; round >= 1; round--)
 		{
-			InvSubBytes(state);
 			InvShiftRows(state);
-			InvMixColumns(state);
+			InvSubBytes(state);
 			AddRoundKey(state, (uint8_t*) w + round*16);
+			InvMixColumns(state);
 		}
-		InvSubBytes(state);
 		InvShiftRows(state);
-		AddRoundKey(state, (uint8_t*) w + 10*16);
+		InvSubBytes(state);
+		AddRoundKey(state, (uint8_t*) w);
 	}
 	else
 	{
-		for (uint8_t round = 1; round < 10; round++)
+		AddRoundKey(state, (uint8_t*) w);
+
+		for (uint8_t round = 1; round < Nr; round++)
 		{
 			SubBytes(state);
 			ShiftRows(state);
@@ -309,7 +311,7 @@ void Rijndael(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse,
 		}
 		SubBytes(state);
 		ShiftRows(state);
-		AddRoundKey(state, (uint8_t*) w + 10*16);
+		AddRoundKey(state, (uint8_t*) w + Nr*16);
 	}
 
 	memcpy(out, state, 16);
