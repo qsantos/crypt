@@ -15,9 +15,9 @@ typedef struct
 	uint64_t len;
 } MD4ctx;
 
-MD4ctx* MD4_new();
-void MD4_push(MD4ctx* md4, uint64_t len, const uint8_t* data);
-void MD4_hash(MD4ctx* md4, uint8_t dst[16]); // sets hash in dst and frees md4
+void MD4Init  (MD4ctx* md4);
+void MD4Update(MD4ctx* md4, uint64_t len, const uint8_t* data);
+void MD4Final (MD4ctx* md4, uint8_t dst[16]); // sets hash in dst and frees md4
 
 // one-call digest (NOT THREAD-SAFE)
 void MD4(uint64_t slen, const uint8_t* src, uint8_t dst[16]);

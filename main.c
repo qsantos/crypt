@@ -57,13 +57,14 @@ void checkDigestFile(void(digest)(uint64_t, const uint8_t*, uint8_t*), uint8_t h
 #define DIGEST_FILE(F, DIGEST, OUTPUT)             \
 {                                                  \
 	uint8_t buffer[1024];                      \
-	DIGEST##ctx* ctx = DIGEST##_new();         \
+	DIGEST##ctx ctx;                           \
+	DIGEST##Init(&ctx);                        \
 	while (!feof(F))                           \
 	{                                          \
 		int n = fread(buffer, 1, 1024, F); \
-		DIGEST##_push(ctx, n, buffer);     \
+		DIGEST##Update(ctx, n, buffer);    \
 	}                                          \
-	DIGEST##_hash(ctx, OUTPUT);                \
+	DIGEST##Final(ctx, OUTPUT);                \
 }
 
 int main()

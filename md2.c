@@ -47,11 +47,9 @@ static uint8_t* padding[] =
 	(uint8_t*)"\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10"
 };
 
-MD2ctx* MD2_new()
+void MD2Init(MD2ctx* md2)
 {
-	MD2ctx* ret = malloc(sizeof(MD2ctx));
-	memset(ret, 0, sizeof(MD2ctx));
-	return ret;
+	memset(md2, 0, sizeof(MD2ctx));
 }
 
 void MD2_block(MD2ctx* md2, const uint8_t block[16], bool updateCheckSum)
@@ -87,7 +85,7 @@ void MD2_block(MD2ctx* md2, const uint8_t block[16], bool updateCheckSum)
 */
 }
 
-void MD2_push(MD2ctx* md2, uint64_t len, const uint8_t* data)
+void MD2Update(MD2ctx* md2, uint64_t len, const uint8_t* data)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 16 - md2->bufLen;
@@ -114,10 +112,10 @@ void MD2_push(MD2ctx* md2, uint64_t len, const uint8_t* data)
 */
 }
 
-void MD2_hash(MD2ctx* md2, uint8_t dst[16])
+void MD2Final(MD2ctx* md2, uint8_t dst[16])
 {
 	uint8_t pad = 16 - md2->bufLen;
-	MD2_push(md2, pad, padding[pad]);
+	MD2Update(md2, pad, padding[pad]);
 	MD2_block(md2, md2->C, false);
 	memcpy(dst, md2->X, 16);
 
@@ -126,18 +124,17 @@ void MD2_hash(MD2ctx* md2, uint8_t dst[16])
 	pad = 0;
 	memset(md2, 0, sizeof(MD2ctx));
 */
-	free(md2);
 }
 
 void MD2(uint64_t slen, const uint8_t* src, uint8_t dst[16])
 {
 	static MD2ctx md2;
-	memset(&md2, 0, sizeof(MD2ctx));
+	MD2Init(&md2);
 
-	MD2_push(&md2, slen, src);
+	MD2Update(&md2, slen, src);
 
 	uint8_t pad = 16 - md2.bufLen;
-	MD2_push(&md2, pad, padding[pad]);
+	MD2Update(&md2, pad, padding[pad]);
 	MD2_block(&md2, md2.C, false);
 	memcpy(dst, md2.X, 16);
 }

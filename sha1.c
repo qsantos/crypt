@@ -13,11 +13,9 @@ static const uint8_t* padding = (uint8_t*)
 
 static const SHA1ctx initctx = { 0, {0}, {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0}, 0 };
 
-SHA1ctx* SHA1_new()
+void SHA1Init(SHA1ctx* sha1)
 {
-	SHA1ctx* ret = malloc(sizeof(SHA1ctx));
-	memcpy(ret, &initctx, sizeof(SHA1ctx));
-	return ret;
+	memcpy(sha1, &initctx, sizeof(SHA1ctx));
 }
 
 #define F(B,C,D) (((B) & (C)) | (~(B) & (D)))
@@ -71,7 +69,7 @@ static void SHA1_block(SHA1ctx* sha1, const uint8_t block[64])
 */
 }
 
-void SHA1_push(SHA1ctx* sha1, uint64_t len, const uint8_t* data)
+void SHA1Update(SHA1ctx* sha1, uint64_t len, const uint8_t* data)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 64 - sha1->bufLen;
@@ -112,11 +110,11 @@ static void u32to8(uint32_t v, uint8_t* dst)
 */
 }
 
-void SHA1_hash(SHA1ctx* sha1, uint8_t dst[20])
+void SHA1Final(SHA1ctx* sha1, uint8_t dst[20])
 {
 	uint64_t len = sha1->len << 3;
 	uint8_t pad = (sha1->bufLen < 56 ? 56 : 120) - sha1->bufLen;
-	SHA1_push(sha1, pad, padding);
+	SHA1Update(sha1, pad, padding);
 
 	uint8_t len8[8];
 	len8[7] = (len >>  0) & 0xFF;
@@ -127,7 +125,7 @@ void SHA1_hash(SHA1ctx* sha1, uint8_t dst[20])
 	len8[2] = (len >> 40) & 0xFF;
 	len8[1] = (len >> 48) & 0xFF;
 	len8[0] = (len >> 56) & 0xFF;
-	SHA1_push(sha1, 8, len8);
+	SHA1Update(sha1, 8, len8);
 
 	u32to8(sha1->H[0], dst +  0);
 	u32to8(sha1->H[1], dst +  4);
@@ -145,19 +143,18 @@ void SHA1_hash(SHA1ctx* sha1, uint8_t dst[20])
 	memset(sha1->H, 0, 5);
 	sha1->len = 0;
 */
-	free(sha1);
 }
 
 void SHA1(uint64_t slen, const uint8_t* src, uint8_t dst[20])
 {
 	static SHA1ctx sha1;
-	memcpy(&sha1, &initctx, sizeof(SHA1ctx));
+	SHA1Init(&sha1);
 
-	SHA1_push(&sha1, slen, src);
+	SHA1Update(&sha1, slen, src);
 
 	uint64_t len = sha1.len << 3;
 	uint8_t pad = (sha1.bufLen < 56 ? 56 : 120) - sha1.bufLen;
-	SHA1_push(&sha1, pad, padding);
+	SHA1Update(&sha1, pad, padding);
 
 	uint8_t len8[8];
 	len8[7] = (len >>  0) & 0xFF;
@@ -168,7 +165,7 @@ void SHA1(uint64_t slen, const uint8_t* src, uint8_t dst[20])
 	len8[2] = (len >> 40) & 0xFF;
 	len8[1] = (len >> 48) & 0xFF;
 	len8[0] = (len >> 56) & 0xFF;
-	SHA1_push(&sha1, 8, len8);
+	SHA1Update(&sha1, 8, len8);
 
 	u32to8(sha1.H[0], dst +  0);
 	u32to8(sha1.H[1], dst +  4);

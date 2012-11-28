@@ -39,11 +39,9 @@ static const uint32_t T[] =
 
 static const MD5ctx initctx = { 0, {0}, 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0};
 
-MD5ctx* MD5_new()
+void MD5Init(MD5ctx* md5)
 {
-	MD5ctx* ret = malloc(sizeof(MD5ctx));
-	memcpy(ret, &initctx, sizeof(MD5ctx));
-	return ret;
+	memcpy(md5, &initctx, sizeof(MD5ctx));
 }
 
 #define F(X,Y,Z) (((X) & (Y)) | (~(X) & (Z)))
@@ -98,7 +96,7 @@ static void MD5_block(MD5ctx* md5, const uint8_t block[64])
 */
 }
 
-void MD5_push(MD5ctx* md5, uint64_t len, const uint8_t* data)
+void MD5Update(MD5ctx* md5, uint64_t len, const uint8_t* data)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 64 - md5->bufLen;
@@ -126,12 +124,12 @@ void MD5_push(MD5ctx* md5, uint64_t len, const uint8_t* data)
 */
 }
 
-void MD5_hash(MD5ctx* md5, uint8_t dst[16])
+void MD5Final(MD5ctx* md5, uint8_t dst[16])
 {
 	uint64_t len = md5->len << 3;
 	uint8_t pad  = (md5->bufLen < 56 ? 56 : 120) - md5->bufLen;
-	MD5_push(md5, pad, padding);
-	MD5_push(md5, 8, (uint8_t*) &len);
+	MD5Update(md5, pad, padding);
+	MD5Update(md5, 8, (uint8_t*) &len);
 
 	memcpy(dst +  0, &md5->A, 4);
 	memcpy(dst +  4, &md5->B, 4);
@@ -151,20 +149,19 @@ void MD5_hash(MD5ctx* md5, uint8_t dst[16])
 	md5->D = 0;
 	md5->len = 0;
 */
-	free(md5);
 }
 
 void MD5(uint64_t slen, const uint8_t* src, uint8_t dst[16])
 {
 	static MD5ctx md5;
-	memcpy(&md5, &initctx, sizeof(MD5ctx));
+	MD5Init(&md5);
 
-	MD5_push(&md5, slen, src);
+	MD5Update(&md5, slen, src);
 
 	uint64_t len = md5.len << 3;
 	uint8_t pad  = (md5.bufLen < 56 ? 56 : 120) - md5.bufLen;
-	MD5_push(&md5, pad, padding);
-	MD5_push(&md5, 8, (uint8_t*) &len);
+	MD5Update(&md5, pad, padding);
+	MD5Update(&md5, 8, (uint8_t*) &len);
 
 	memcpy(dst +  0, &md5.A, 4);
 	memcpy(dst +  4, &md5.B, 4);
