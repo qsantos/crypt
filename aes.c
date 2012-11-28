@@ -175,8 +175,6 @@ static uint32_t Rcon(uint32_t i)
 #define ROTL(x,n) (((x) << n) | ((x) >> (32-n)))
 #define ROTR(x,n) (((x) >> n) | ((x) << (32-n)))
 
-#define DEBUG(MSG) {printf("%s:\n", MSG);for(int i=0;i<4;i++){for (int j=0;j<4;j++)printf("%.2x ", state[4*j+i]);printf("\n");}printf("\n");}
-#define ROUND(W) {printf("Round:\n");for(int i=0;i<4;i++){for (int j=0;j<4;j++)printf("%.2x ", (W)[4*j+i]);printf("\n");}printf("\n");}
 void AES(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse, uint8_t Nk, uint8_t Nr)
 {
 	(void) inverse;
@@ -196,32 +194,19 @@ void AES(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse, uint
 	uint8_t state[16];
 	memcpy(state, in, 16);
 
-	DEBUG("Start");
 	AddRoundKey(state, (uint8_t*) w);
-	ROUND((uint8_t*) w);
 
 	for (uint8_t round = 1; round < 10; round++)
 	{
-		printf("\n");
-		printf("%i\n", round);
-		DEBUG("Start");
 		SubBytes(state);
-		DEBUG("SubBytes");
 		ShiftRows(state);
-		DEBUG("ShiftRows");
 		MixColumns(state);
-		DEBUG("MixColumns");
 		AddRoundKey(state, (uint8_t*) w + round*16);
-		ROUND((uint8_t*) w + round*16);
 	}
 
-	DEBUG("Start");
 	SubBytes(state);
-	DEBUG("SubBytes");
 	ShiftRows(state);
-	DEBUG("ShiftRows");
 	AddRoundKey(state, (uint8_t*) w + 10*16);
-	DEBUG("Output");
 
 	memcpy(out, state, 16);
 }

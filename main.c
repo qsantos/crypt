@@ -105,9 +105,9 @@ int main()
 
 	uint8_t O1[16];
 	Crypt(O1, R, 16, mode, K, NULL);
-//	for (uint8_t i = 0; i < CIP_LEN; i++)
-//		printf("%.2x", O1[i]);
-//	putchar('\n');
+	for (uint8_t i = 0; i < 16; i++)
+		printf("%.2x", O1[i]);
+	putchar('\n');
 
 /*
 	uint8_t O2[MSG_LEN];
