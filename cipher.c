@@ -4,22 +4,21 @@
 
 #include "des.h"
 #include "rijndael.h"
-#include "aes.h"
 
 #define MODE(m)  ((mode & 0x07) == CIPHER_MODE_##m)
 #define CHAIN(s) ((mode & 0x08) == CIPHER_CHAIN_##s)
 #define ENC(a)   ((mode & 0x30) == CIPHER_ENC_##a)
 
 #define GET_ENC void (*blockCrypt)(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse) =\
-	ENC(AES256) ? AES256 :\
-	ENC(AES192) ? AES192 :\
-	ENC(AES128) ? AES128 :\
-	              DES
+	ENC(RIJNDAEL256) ? Rijndael256 :\
+	ENC(RIJNDAEL192) ? Rijndael192 :\
+	ENC(RIJNDAEL128) ? Rijndael128 :\
+	                   DES
 
 #define BLOCKSZ (\
-	ENC(AES256) ? 32 :\
-	ENC(AES192) ? 24 :\
-	              16)
+	ENC(RIJNDAEL256) ? 32 :\
+	ENC(RIJNDAEL192) ? 24 :\
+	                   16)
 
 void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const uint8_t* KEY, const uint8_t* IV)
 {
