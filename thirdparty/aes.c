@@ -1,3 +1,5 @@
+// compute the S-Box and inverse S-Box matrices
+
 #include <stdint.h>
 #include <stdio.h>
 
@@ -159,6 +161,8 @@ int main(int argc, char** argv)
 	(void) argc;
 	(void) argv;
 
+	uint8_t SBox[256]; // we keep it for inverse computation
+
 	printf("uint8_t SBox[] =\n");
 	printf("{\n");
 	for (uint32_t i = 0; i < 256; )
@@ -168,11 +172,28 @@ int main(int argc, char** argv)
 		{
 			uint8_t b = inverse(i);
 			b = b ^ ROTR(b,4) ^ ROTR(b,5) ^ ROTR(b,6) ^ ROTR(b,7) ^ 0x63;
+			SBox[i] = b;
 			printf("0x%.2x, ", b);
 		}
 		printf("\n");
 	}
 	printf("};\n");
+
+	// this part use the SBox matrix generated before
+	printf("uint8_t ISBox[] =\n");
+	printf("{\n");
+	for (uint32_t i = 0; i < 256; )
+	{
+		printf("\t");
+		for (uint8_t j = 0; j < 16; j++, i++)
+		{
+			uint8_t k;
+			for (k = 0; SBox[k] != i; k++);
+			printf("0x%.2x, ", k);
+		}
+		printf("\n");
+	}
+	printf("}\n");
 
 	return 0;
 }

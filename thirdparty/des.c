@@ -1,3 +1,7 @@
+// fixes the array indexes
+// original indexes start at 1
+// converted indexes start at 0
+
 #include <stdint.h>
 #include <stdio.h>
 

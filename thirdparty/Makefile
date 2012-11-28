@@ -1,5 +1,5 @@
 CFLAGS  = -Wall -Wextra -Werror -pedantic -ansi -std=c99 -O3
-TARGETS = des_arrays_start_at_0 aes_sbox
+TARGETS = des aes
 
 all: $(TARGETS)
 
