@@ -11,11 +11,11 @@ static const uint8_t* padding = (uint8_t*)
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
 
-static const SHA1ctx initctx = { 0, {0}, {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0}, 0 };
+static const SHA1_CTX initctx = { 0, {0}, {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0}, 0 };
 
-void SHA1Init(SHA1ctx* sha1)
+void SHA1Init(SHA1_CTX* sha1)
 {
-	memcpy(sha1, &initctx, sizeof(SHA1ctx));
+	memcpy(sha1, &initctx, sizeof(SHA1_CTX));
 }
 
 #define F(B,C,D) (((B) & (C)) | (~(B) & (D)))
@@ -28,7 +28,7 @@ void SHA1Init(SHA1ctx* sha1)
 	E = D; D = C; C = ROT(B, 30); B = A; A = TEMP; \
 	TEMP = 0; \
 }
-static void SHA1_block(SHA1ctx* sha1, const uint8_t block[64])
+static void SHA1_block(SHA1_CTX* sha1, const uint8_t block[64])
 {
 	uint32_t W[80];
 	for (uint8_t t = 0; t < 16; t++)
@@ -69,7 +69,7 @@ static void SHA1_block(SHA1ctx* sha1, const uint8_t block[64])
 */
 }
 
-void SHA1Update(SHA1ctx* sha1, uint64_t len, const uint8_t* data)
+void SHA1Update(SHA1_CTX* sha1, uint64_t len, const uint8_t* data)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 64 - sha1->bufLen;
@@ -110,7 +110,7 @@ static void u32to8(uint32_t v, uint8_t* dst)
 */
 }
 
-void SHA1Final(SHA1ctx* sha1, uint8_t dst[20])
+void SHA1Final(SHA1_CTX* sha1, uint8_t dst[20])
 {
 	uint64_t len = sha1->len << 3;
 	uint8_t pad = (sha1->bufLen < 56 ? 56 : 120) - sha1->bufLen;
@@ -147,7 +147,7 @@ void SHA1Final(SHA1ctx* sha1, uint8_t dst[20])
 
 void SHA1(uint64_t slen, const uint8_t* src, uint8_t dst[20])
 {
-	SHA1ctx sha1;
+	SHA1_CTX sha1;
 	SHA1Init  (&sha1);
 	SHA1Update(&sha1, slen, src);
 	SHA1Final (&sha1, dst);

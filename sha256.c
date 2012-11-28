@@ -25,16 +25,16 @@ static const uint32_t K[] =
 	0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,  0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
 };
 
-static const SHA256ctx initctx256 =
+static const SHA256_CTX initctx256 =
 {
 	0, {0},
 	{0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19},
 	0
 };
 
-void SHA256Init(SHA256ctx* sha256)
+void SHA256Init(SHA256_CTX* sha256)
 {
-	memcpy(sha256, &initctx256, sizeof(SHA256ctx));
+	memcpy(sha256, &initctx256, sizeof(SHA256_CTX));
 }
 
 #define  Ch(x,y,z) (((x) & (y)) | (~(x) & (z)))
@@ -46,7 +46,7 @@ void SHA256Init(SHA256ctx* sha256)
 #define   Sum1(x) (ROTR(x, 6) ^ ROTR(x,11) ^ ROTR(x,25))
 #define Sigma0(x) (ROTR(x, 7) ^ ROTR(x,18) ^ SHR (x, 3))
 #define Sigma1(x) (ROTR(x,17) ^ ROTR(x,19) ^ SHR (x,10))
-static void SHA256_block(SHA256ctx* sha256, const uint8_t block[64])
+static void SHA256_block(SHA256_CTX* sha256, const uint8_t block[64])
 {
 	uint32_t W[64];
 	for (uint8_t t = 0; t < 16; t++)
@@ -98,7 +98,7 @@ static void SHA256_block(SHA256ctx* sha256, const uint8_t block[64])
 */
 }
 
-void SHA256Update(SHA256ctx* sha256, uint64_t len, const uint8_t* data)
+void SHA256Update(SHA256_CTX* sha256, uint64_t len, const uint8_t* data)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 64 - sha256->bufLen;
@@ -139,7 +139,7 @@ static void u32to8(uint32_t v, uint8_t* dst)
 */
 }
 
-void SHA256Final(SHA256ctx* sha256, uint8_t dst[32])
+void SHA256Final(SHA256_CTX* sha256, uint8_t dst[32])
 {
 	uint64_t len = sha256->len << 3;
 	uint8_t pad = (sha256->bufLen < 56 ? 56 : 120) - sha256->bufLen;
@@ -179,7 +179,7 @@ void SHA256Final(SHA256ctx* sha256, uint8_t dst[32])
 
 void SHA256(uint64_t slen, const uint8_t* src, uint8_t dst[32])
 {
-	SHA256ctx sha256;
+	SHA256_CTX sha256;
 	SHA256Init  (&sha256);
 	SHA256Update(&sha256, slen, src);
 	SHA256Final (&sha256, dst);
@@ -187,24 +187,24 @@ void SHA256(uint64_t slen, const uint8_t* src, uint8_t dst[32])
 
 
 
-static const SHA224ctx initctx224 =
+static const SHA224_CTX initctx224 =
 {
 	0, {0},
 	{0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4},
 	0
 };
 
-void SHA224Init(SHA224ctx* sha224)
+void SHA224Init(SHA224_CTX* sha224)
 {
-	memcpy(sha224, &initctx224, sizeof(SHA224ctx));
+	memcpy(sha224, &initctx224, sizeof(SHA224_CTX));
 }
 
-void SHA224Update(SHA224ctx* sha224, uint64_t len, const uint8_t* data)
+void SHA224Update(SHA224_CTX* sha224, uint64_t len, const uint8_t* data)
 {
 	SHA256Update(sha224, len, data);
 }
 
-void SHA224Final(SHA224ctx* sha224, uint8_t dst[28])
+void SHA224Final(SHA224_CTX* sha224, uint8_t dst[28])
 {
 	uint64_t len = sha224->len << 3;
 	uint8_t pad = (sha224->bufLen < 56 ? 56 : 120) - sha224->bufLen;
@@ -244,7 +244,7 @@ void SHA224Final(SHA224ctx* sha224, uint8_t dst[28])
 
 void SHA224(uint64_t slen, const uint8_t* src, uint8_t dst[28])
 {
-	SHA224ctx sha224;
+	SHA224_CTX sha224;
 	SHA224Init  (&sha224);
 	SHA224Update(&sha224, slen, src);
 	SHA224Final (&sha224, dst);

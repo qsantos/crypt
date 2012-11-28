@@ -7,6 +7,7 @@
 #include "sha1.h"
 #include "sha256.h"
 #include "sha512.h"
+#include "hmac.h"
 #include "cipher.h"
 
 void checkDigestStr(void(digest)(uint64_t, const uint8_t*, uint8_t*), char* str, char* hash, uint8_t hashLen)
@@ -53,14 +54,14 @@ void checkDigestFile(void(digest)(uint64_t, const uint8_t*, uint8_t*), uint8_t h
 #define DIGEST_FILE(F, DIGEST, OUTPUT)             \
 {                                                  \
 	uint8_t buffer[1024];                      \
-	DIGEST##ctx ctx;                           \
-	DIGEST##Init(&ctx);                        \
+	DIGEST##_CTX _CTX;                         \
+	DIGEST##Init(&_CTX);                       \
 	while (!feof(F))                           \
 	{                                          \
 		int n = fread(buffer, 1, 1024, F); \
-		DIGEST##Update(ctx, n, buffer);    \
+		DIGEST##Update(_CTX, n, buffer);   \
 	}                                          \
-	DIGEST##Final(ctx, OUTPUT);                \
+	DIGEST##Final(_CTX, OUTPUT);               \
 }
 
 int main(int argc, char** argv)

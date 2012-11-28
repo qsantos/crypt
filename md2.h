@@ -10,11 +10,11 @@ typedef struct
 	uint8_t buffer[16];
 	uint8_t C[16];
 	uint8_t X[16];
-} MD2ctx;
+} MD2_CTX;
 
-void MD2Init  (MD2ctx* md2);
-void MD2Update(MD2ctx* md2, uint64_t len, const uint8_t* data);
-void MD2Final (MD2ctx* md2, uint8_t dst[16]); // sets hash in dst and frees md2
+void MD2Init  (MD2_CTX* md2);
+void MD2Update(MD2_CTX* md2, uint64_t len, const uint8_t* data);
+void MD2Final (MD2_CTX* md2, uint8_t dst[16]); // sets hash in dst and frees md2
 
 void MD2(uint64_t slen, const uint8_t* src, uint8_t dst[16]);
 

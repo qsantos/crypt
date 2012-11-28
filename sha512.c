@@ -41,16 +41,16 @@ static const uint64_t K[] =
 	0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817,
 };
 
-static const SHA512ctx initctx512 =
+static const SHA512_CTX initctx512 =
 {
 	0, {0},
 	{ 0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1, 0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179 },
 	{0, 0}
 };
 
-void SHA512Init(SHA512ctx* sha512)
+void SHA512Init(SHA512_CTX* sha512)
 {
-	memcpy(sha512, &initctx512, sizeof(SHA512ctx));
+	memcpy(sha512, &initctx512, sizeof(SHA512_CTX));
 }
 
 static uint64_t Ch (uint64_t x, uint64_t y, uint64_t z) { return (x & y) | (~x & z);          }
@@ -63,7 +63,7 @@ static uint64_t Sum1  (uint64_t x) { return ROTR(x,14) ^ ROTR(x,18) ^ ROTR(x,41)
 static uint64_t Sigma0(uint64_t x) { return ROTR(x, 1) ^ ROTR(x, 8) ^ SHR (x, 7); }
 static uint64_t Sigma1(uint64_t x) { return ROTR(x,19) ^ ROTR(x,61) ^ SHR (x, 6); }
 #define B64(i) ((uint64_t)(block[t*8+i]))
-static void SHA512_block(SHA512ctx* sha512, const uint8_t block[128])
+static void SHA512_block(SHA512_CTX* sha512, const uint8_t block[128])
 {
 	uint64_t W[80];
 	for (uint8_t t = 0; t < 16; t++)
@@ -115,7 +115,7 @@ static void SHA512_block(SHA512ctx* sha512, const uint8_t block[128])
 */
 }
 
-void SHA512Update(SHA512ctx* sha512, uint64_t len, const uint8_t* data)
+void SHA512Update(SHA512_CTX* sha512, uint64_t len, const uint8_t* data)
 {
 	uint64_t i = 0;
 	uint8_t availBuf = 128 - sha512->bufLen;
@@ -162,7 +162,7 @@ static void u64to8(uint64_t v, uint8_t* dst)
 	v = 0;
 }
 
-void SHA512Final(SHA512ctx* sha512, uint8_t dst[32])
+void SHA512Final(SHA512_CTX* sha512, uint8_t dst[32])
 {
 	uint64_t len0 = sha512->len[0];
 	uint64_t len1 = sha512->len[1];
@@ -212,7 +212,7 @@ void SHA512Final(SHA512ctx* sha512, uint8_t dst[32])
 
 void SHA512(uint64_t slen, const uint8_t* src, uint8_t dst[32])
 {
-	SHA512ctx sha512;
+	SHA512_CTX sha512;
 	SHA512Init  (&sha512);
 	SHA512Update(&sha512, slen, src);
 	SHA512Final (&sha512, dst);
@@ -220,24 +220,24 @@ void SHA512(uint64_t slen, const uint8_t* src, uint8_t dst[32])
 
 
 
-static const SHA384ctx initctx384 =
+static const SHA384_CTX initctx384 =
 {
 	0, {0},
 	{ 0xcbbb9d5dc1059ed8, 0x629a292a367cd507, 0x9159015a3070dd17, 0x152fecd8f70e5939, 0x67332667ffc00b31, 0x8eb44a8768581511, 0xdb0c2e0d64f98fa7, 0x47b5481dbefa4fa4},
 	{0, 0}
 };
 
-void SHA384Init(SHA384ctx* sha384)
+void SHA384Init(SHA384_CTX* sha384)
 {
-	memcpy(sha384, &initctx384, sizeof(SHA384ctx));
+	memcpy(sha384, &initctx384, sizeof(SHA384_CTX));
 }
 
-void SHA384Update(SHA384ctx* sha384, uint64_t len, const uint8_t* data)
+void SHA384Update(SHA384_CTX* sha384, uint64_t len, const uint8_t* data)
 {
 	SHA512Update(sha384, len, data);
 }
 
-void SHA384Final(SHA384ctx* sha384, uint8_t dst[32])
+void SHA384Final(SHA384_CTX* sha384, uint8_t dst[32])
 {
 	uint64_t len0 = sha384->len[0];
 	uint64_t len1 = sha384->len[1];
@@ -287,7 +287,7 @@ void SHA384Final(SHA384ctx* sha384, uint8_t dst[32])
 
 void SHA384(uint64_t slen, const uint8_t* src, uint8_t dst[32])
 {
-	SHA384ctx sha384;
+	SHA384_CTX sha384;
 	SHA384Init  (&sha384);
 	SHA384Update(&sha384, slen, src);
 	SHA384Final (&sha384, dst);

@@ -13,11 +13,11 @@ typedef struct
 	uint32_t C;
 	uint32_t D;
 	uint64_t len;
-} MD5ctx;
+} MD5_CTX;
 
-void MD5Init  (MD5ctx* md5);
-void MD5Update(MD5ctx* md5, uint64_t len, const uint8_t* data);
-void MD5Final (MD5ctx* md5, uint8_t dst[16]); // sets hash in dst and frees md5
+void MD5Init  (MD5_CTX* md5);
+void MD5Update(MD5_CTX* md5, uint64_t len, const uint8_t* data);
+void MD5Final (MD5_CTX* md5, uint8_t dst[16]); // sets hash in dst and frees md5
 
 void MD5(uint64_t slen, const uint8_t* src, uint8_t dst[16]);
 

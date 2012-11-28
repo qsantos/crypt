@@ -1,7 +1,7 @@
 CFLAGS  = -Wall -Werror -pedantic -std=c99 -O3 -D_XOPEN_SOURCE=700
 LDFLAGS = -O3
 TARGET  = crypt
-SRC     = main.c md2.c md4.c md5.c sha1.c sha256.c sha512.c des.c rijndael.c cipher.c
+SRC     = main.c md2.c md4.c md5.c sha1.c sha256.c sha512.c hmac.c des.c rijndael.c cipher.c
 OBJ     = $(SRC:.c=.o)
 
 all: $(TARGET)

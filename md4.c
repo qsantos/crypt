@@ -11,11 +11,11 @@ static const uint8_t* padding = (uint8_t*)
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
 
-static const MD4ctx initctx = { 0, {0}, 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0};
+static const MD4_CTX initctx = { 0, {0}, 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0};
 
-void MD4Init(MD4ctx* md4)
+void MD4Init(MD4_CTX* md4)
 {
-	memcpy(md4, &initctx, sizeof(MD4ctx));
+	memcpy(md4, &initctx, sizeof(MD4_CTX));
 }
 
 #define F(X,Y,Z) (((X) & (Y)) | (~(X) & (Z)))
@@ -25,7 +25,7 @@ void MD4Init(MD4ctx* md4)
 #define OP1(a,b,c,d,k,s) md4->a = ROT(md4->a + F(md4->b,md4->c,md4->d) + X[k] + 0x00000000, s);
 #define OP2(a,b,c,d,k,s) md4->a = ROT(md4->a + G(md4->b,md4->c,md4->d) + X[k] + 0x5A827999, s);
 #define OP3(a,b,c,d,k,s) md4->a = ROT(md4->a + H(md4->b,md4->c,md4->d) + X[k] + 0x6ED9EBA1, s);
-static void MD4_block(MD4ctx* md4, const uint8_t block[64])
+static void MD4_block(MD4_CTX* md4, const uint8_t block[64])
 {
 	uint32_t X[16];
 	for (uint8_t i = 0; i < 16; i++)
@@ -66,7 +66,7 @@ static void MD4_block(MD4ctx* md4, const uint8_t block[64])
 */
 }
 
-void MD4Update(MD4ctx* md4, uint64_t len, const uint8_t* data)
+void MD4Update(MD4_CTX* md4, uint64_t len, const uint8_t* data)
 {
 	uint32_t i = 0;
 	uint8_t availBuf = 64 - md4->bufLen;
@@ -94,7 +94,7 @@ void MD4Update(MD4ctx* md4, uint64_t len, const uint8_t* data)
 */
 }
 
-void MD4Final(MD4ctx* md4, uint8_t dst[16])
+void MD4Final(MD4_CTX* md4, uint8_t dst[16])
 {
 	uint64_t len = md4->len << 3;
 	uint8_t pad = (md4->bufLen < 56 ? 56 : 120) - md4->bufLen;
@@ -111,13 +111,13 @@ void MD4Final(MD4ctx* md4, uint8_t dst[16])
 /*
 	len = 0;
 	pad = 0;
-	memset(md4, 0, sizeof(MD4ctx));
+	memset(md4, 0, sizeof(MD4_CTX));
 */
 }
 
 void MD4(uint64_t slen, const uint8_t* src, uint8_t dst[16])
 {
-	MD4ctx md4;
+	MD4_CTX md4;
 	MD4Init  (&md4);
 	MD4Update(&md4, slen, src);
 	MD4Final (&md4, dst);
