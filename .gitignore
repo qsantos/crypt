@@ -1,2 +1,4 @@
 *.o
 crypt
+aes_sbox
+des_arrays_start_at_0
