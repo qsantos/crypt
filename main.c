@@ -28,15 +28,13 @@ void checkDigestStr(void(digest)(uint64_t, const uint8_t*, uint8_t*), char* str,
 void checkDigestFile(void(digest)(uint64_t, const uint8_t*, uint8_t*), uint8_t hashLen, const char* file)
 {
 	FILE* f = fopen(file, "r");
-	if (f)
-	{
-		printf("Checking '%s'\n", file);
-	}
-	else
+	if (!f)
 	{
 		fprintf(stderr, "Could not open '%s'\n", file);
 		return;
 	}
+
+	printf("Checking '%s'\n", file);
 	char* line = NULL;
 	size_t n_line = 0;
 	while (1)
@@ -47,9 +45,7 @@ void checkDigestFile(void(digest)(uint64_t, const uint8_t*, uint8_t*), uint8_t h
 		char* hash = strtok(line, " ");
 		char* str  = strtok(NULL, "\n");
 		if (hash && str)
-		{
 			checkDigestStr(digest, str, hash, hashLen);
-		}
 	}
 	fclose(f);
 }
@@ -67,8 +63,11 @@ void checkDigestFile(void(digest)(uint64_t, const uint8_t*, uint8_t*), uint8_t h
 	DIGEST##Final(ctx, OUTPUT);                \
 }
 
-int main()
+int main(int argc, char** argv)
 {
+	(void) argc;
+	(void) argv;
+
 	// validity checks
 	checkDigestFile(MD2,    16, "tests/md2");
 	checkDigestFile(MD4,    16, "tests/md4");
@@ -89,6 +88,4 @@ int main()
 	putchar('\n');
 	return 0;
 */
-
-	return 0;
 }
