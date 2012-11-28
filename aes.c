@@ -174,12 +174,6 @@ static uint32_t Rcon(uint32_t i)
 #define ROTL(x,n) (((x) << n) | ((x) >> (32-n)))
 #define ROTR(x,n) (((x) >> n) | ((x) << (32-n)))
 
-static void print32(uint32_t x)
-{
-	uint8_t* a = (uint8_t*) &x;
-	printf("%.2x%.2x%.2x%.2x    ", a[0], a[1], a[2], a[3]);
-}
-
 void AES(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse, uint8_t Nk, uint8_t Nr)
 {
 	(void) inverse;
@@ -189,28 +183,10 @@ void AES(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse, uint
 	for (uint32_t i = Nk; i < 4*(1+Nr); i++)
 	{
 		uint32_t m = w[i-1];
-		printf("%2i    ", i);
-		print32(m);
 		if (i % Nk == 0)
-		{
-			print32(ROTR(m,8));
-			print32(SubWord(ROTR(m,8)));
-			print32(Rcon(i/Nk));
 			m = SubWord(ROTR(m, 8)) ^ Rcon(i/Nk);
-			print32(m);
-		}
 		else if (Nk > 6 && i % Nk == 4)
-		{
-			printf("            ");
 			m = SubWord(m);
-			print32(m);
-			printf("                        ");
-		}
-		else
-			printf("                                                ");
-		print32(w[i-Nk]);
-		print32(w[i-Nk] ^ m);
-		printf("\n");
 		w[i] = w[i-Nk] ^ m;
 	}
 
