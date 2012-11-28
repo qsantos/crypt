@@ -4,8 +4,6 @@
 #include "aes.h"
 
 #include <string.h>
-#include <stdio.h>   // TODO
-#include <unistd.h>  // TODO
 
 #define M (0x011B)     // irreductible polynomial
 #define A (0x03010102) // used to mix columns

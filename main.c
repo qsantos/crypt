@@ -91,31 +91,5 @@ int main()
 	return 0;
 */
 
-	// DES
-	uint8_t mode = CIPHER_ENC_AES128 | CIPHER_MODE_ECB;
-
-	const uint8_t K[16] =
-	{
-		0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c
-	};
-	const uint8_t R[16] =
-	{
-		0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34,
-	};
-
-	uint8_t O1[16];
-	Crypt(O1, R, 16, mode, K, NULL);
-	for (uint8_t i = 0; i < 16; i++)
-		printf("%.2x", O1[i]);
-	putchar('\n');
-
-/*
-	uint8_t O2[MSG_LEN];
-	Decrypt(O2, O1, CIP_LEN, mode, K, I);
-	//for (uint8_t i = 0; i < MSG_LEN; i++)
-	//	printf("%.2X", O2[i]);
-	//putchar('\n');
-*/
-
 	return 0;
 }
