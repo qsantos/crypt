@@ -19,6 +19,6 @@ void MD5Init  (MD5_CTX* md5);
 void MD5Update(MD5_CTX* md5, const uint8_t* data, uint64_t len);
 void MD5Final (MD5_CTX* md5, uint8_t dst[16]); // sets hash in dst and frees md5
 
-void MD5(uint64_t slen, const uint8_t* src, uint8_t dst[16]);
+void MD5(uint8_t dst[16], const uint8_t* src, uint64_t slen);
 
 #endif

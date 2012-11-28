@@ -151,7 +151,7 @@ void MD5Final(MD5_CTX* md5, uint8_t dst[16])
 */
 }
 
-void MD5(uint64_t slen, const uint8_t* src, uint8_t dst[16])
+void MD5(uint8_t dst[16], const uint8_t* src, uint64_t slen)
 {
 	MD5_CTX md5;
 	MD5Init  (&md5);

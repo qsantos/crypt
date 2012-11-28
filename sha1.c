@@ -145,7 +145,7 @@ void SHA1Final(SHA1_CTX* sha1, uint8_t dst[20])
 */
 }
 
-void SHA1(uint64_t slen, const uint8_t* src, uint8_t dst[20])
+void SHA1(uint8_t dst[20], const uint8_t* src, uint64_t slen)
 {
 	SHA1_CTX sha1;
 	SHA1Init  (&sha1);

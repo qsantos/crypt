@@ -126,7 +126,7 @@ void MD2Final(MD2_CTX* md2, uint8_t dst[16])
 */
 }
 
-void MD2(uint64_t slen, const uint8_t* src, uint8_t dst[16])
+void MD2(uint8_t dst[16], const uint8_t* src, uint64_t slen)
 {
 	MD2_CTX md2;
 	MD2Init  (&md2);

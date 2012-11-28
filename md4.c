@@ -114,7 +114,7 @@ void MD4Final(MD4_CTX* md4, uint8_t dst[16])
 */
 }
 
-void MD4(uint64_t slen, const uint8_t* src, uint8_t dst[16])
+void MD4(uint8_t dst[16], const uint8_t* src, uint64_t slen)
 {
 	MD4_CTX md4;
 	MD4Init  (&md4);

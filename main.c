@@ -10,10 +10,10 @@
 #include "hmac.h"
 #include "cipher.h"
 
-void checkDigestStr(void(digest)(uint64_t, const uint8_t*, uint8_t*), char* str, char* hash, uint8_t hashLen)
+void checkDigestStr(void(digest)(uint8_t*, const uint8_t*, uint64_t), char* str, char* hash, uint8_t hashLen)
 {
 	uint8_t result[64];
-	digest(strlen(str), (uint8_t*) str, result);
+	digest(result, (uint8_t*) str, strlen(str));
 	for (uint8_t i = 0; i < 16; i++)
 	{
 		char digit[3];
@@ -26,7 +26,7 @@ void checkDigestStr(void(digest)(uint64_t, const uint8_t*, uint8_t*), char* str,
 	}
 }
 
-void checkDigestFile(void(digest)(uint64_t, const uint8_t*, uint8_t*), uint8_t hashLen, const char* file)
+void checkDigestFile(void(digest)(uint8_t*, const uint8_t*, uint64_t), uint8_t hashLen, const char* file)
 {
 	FILE* f = fopen(file, "r");
 	if (!f)

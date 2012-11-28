@@ -210,7 +210,7 @@ void SHA512Final(SHA512_CTX* sha512, uint8_t dst[32])
 */
 }
 
-void SHA512(uint64_t slen, const uint8_t* src, uint8_t dst[32])
+void SHA512(uint8_t dst[64], const uint8_t* src, uint64_t slen)
 {
 	SHA512_CTX sha512;
 	SHA512Init  (&sha512);
@@ -285,7 +285,7 @@ void SHA384Final(SHA384_CTX* sha384, uint8_t dst[32])
 */
 }
 
-void SHA384(uint64_t slen, const uint8_t* src, uint8_t dst[32])
+void SHA384(uint8_t dst[32], const uint8_t* src, uint64_t slen)
 {
 	SHA384_CTX sha384;
 	SHA384Init  (&sha384);

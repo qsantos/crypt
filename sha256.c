@@ -177,7 +177,7 @@ void SHA256Final(SHA256_CTX* sha256, uint8_t dst[32])
 */
 }
 
-void SHA256(uint64_t slen, const uint8_t* src, uint8_t dst[32])
+void SHA256(uint8_t dst[32], const uint8_t* src, uint64_t slen)
 {
 	SHA256_CTX sha256;
 	SHA256Init  (&sha256);
@@ -242,7 +242,7 @@ void SHA224Final(SHA224_CTX* sha224, uint8_t dst[28])
 */
 }
 
-void SHA224(uint64_t slen, const uint8_t* src, uint8_t dst[28])
+void SHA224(uint8_t dst[28], const uint8_t* src, uint64_t slen)
 {
 	SHA224_CTX sha224;
 	SHA224Init  (&sha224);
