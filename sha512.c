@@ -212,45 +212,10 @@ void SHA512Final(SHA512ctx* sha512, uint8_t dst[32])
 
 void SHA512(uint64_t slen, const uint8_t* src, uint8_t dst[32])
 {
-	static SHA512ctx sha512;
-	SHA512Init(&sha512);
-
+	SHA512ctx sha512;
+	SHA512Init  (&sha512);
 	SHA512Update(&sha512, slen, src);
-
-	uint64_t len0 = sha512.len[0];
-	uint64_t len1 = sha512.len[1];
-	uint8_t pad = (sha512.bufLen < 112 ? 112 : 240) - sha512.bufLen;
-	SHA512Update(&sha512, pad, padding);
-
-	uint8_t len8[16];
-	len8[15] = (len0 >>  0) & 0xFF;
-	len8[14] = (len0 >>  8) & 0xFF;
-	len8[13] = (len0 >> 16) & 0xFF;
-	len8[12] = (len0 >> 24) & 0xFF;
-	len8[11] = (len0 >> 32) & 0xFF;
-	len8[10] = (len0 >> 40) & 0xFF;
-	len8[ 9] = (len0 >> 48) & 0xFF;
-	len8[ 8] = (len0 >> 56) & 0xFF;
-	len8[ 7] = (len1 >>  0) & 0xFF;
-	len8[ 6] = (len1 >>  8) & 0xFF;
-	len8[ 5] = (len1 >> 16) & 0xFF;
-	len8[ 4] = (len1 >> 24) & 0xFF;
-	len8[ 3] = (len1 >> 32) & 0xFF;
-	len8[ 2] = (len1 >> 40) & 0xFF;
-	len8[ 1] = (len1 >> 48) & 0xFF;
-	len8[ 0] = (len1 >> 56) & 0xFF;
-	SHA512Update(&sha512, 16, len8);
-
-	u64to8(sha512.H[0], dst +  0);
-	u64to8(sha512.H[1], dst +  8);
-	u64to8(sha512.H[2], dst + 16);
-	u64to8(sha512.H[3], dst + 24);
-	u64to8(sha512.H[4], dst + 32);
-	u64to8(sha512.H[5], dst + 40);
-	u64to8(sha512.H[6], dst + 48);
-	u64to8(sha512.H[7], dst + 56);
-
-	// TODO : true cleaning
+	SHA512Final (&sha512, dst);
 }
 
 
@@ -322,43 +287,8 @@ void SHA384Final(SHA384ctx* sha384, uint8_t dst[32])
 
 void SHA384(uint64_t slen, const uint8_t* src, uint8_t dst[32])
 {
-	static SHA384ctx sha384;
-	SHA384Init(&sha384);
-
+	SHA384ctx sha384;
+	SHA384Init  (&sha384);
 	SHA384Update(&sha384, slen, src);
-
-	uint64_t len0 = sha384.len[0];
-	uint64_t len1 = sha384.len[1];
-	uint8_t pad = (sha384.bufLen < 112 ? 112 : 240) - sha384.bufLen;
-	SHA384Update(&sha384, pad, padding);
-
-	uint8_t len8[16];
-	len8[15] = (len0 >>  0) & 0xFF;
-	len8[14] = (len0 >>  8) & 0xFF;
-	len8[13] = (len0 >> 16) & 0xFF;
-	len8[12] = (len0 >> 24) & 0xFF;
-	len8[11] = (len0 >> 32) & 0xFF;
-	len8[10] = (len0 >> 40) & 0xFF;
-	len8[ 9] = (len0 >> 48) & 0xFF;
-	len8[ 8] = (len0 >> 56) & 0xFF;
-	len8[ 7] = (len1 >>  0) & 0xFF;
-	len8[ 6] = (len1 >>  8) & 0xFF;
-	len8[ 5] = (len1 >> 16) & 0xFF;
-	len8[ 4] = (len1 >> 24) & 0xFF;
-	len8[ 3] = (len1 >> 32) & 0xFF;
-	len8[ 2] = (len1 >> 40) & 0xFF;
-	len8[ 1] = (len1 >> 48) & 0xFF;
-	len8[ 0] = (len1 >> 56) & 0xFF;
-	SHA384Update(&sha384, 16, len8);
-
-	u64to8(sha384.H[0], dst +  0);
-	u64to8(sha384.H[1], dst +  8);
-	u64to8(sha384.H[2], dst + 16);
-	u64to8(sha384.H[3], dst + 24);
-	u64to8(sha384.H[4], dst + 32);
-	u64to8(sha384.H[5], dst + 40);
-	//u64to8(sha384.H[6], dst + 48);
-	//u64to8(sha384.H[7], dst + 56);
-
-	// TODO : true cleaning
+	SHA384Final (&sha384, dst);
 }

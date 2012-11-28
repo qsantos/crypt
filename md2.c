@@ -128,13 +128,8 @@ void MD2Final(MD2ctx* md2, uint8_t dst[16])
 
 void MD2(uint64_t slen, const uint8_t* src, uint8_t dst[16])
 {
-	static MD2ctx md2;
-	MD2Init(&md2);
-
+	MD2ctx md2;
+	MD2Init  (&md2);
 	MD2Update(&md2, slen, src);
-
-	uint8_t pad = 16 - md2.bufLen;
-	MD2Update(&md2, pad, padding[pad]);
-	MD2_block(&md2, md2.C, false);
-	memcpy(dst, md2.X, 16);
+	MD2Final (&md2, dst);
 }

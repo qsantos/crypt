@@ -117,21 +117,8 @@ void MD4Final(MD4ctx* md4, uint8_t dst[16])
 
 void MD4(uint64_t slen, const uint8_t* src, uint8_t dst[16])
 {
-	static MD4ctx md4;
-	MD4Init(&md4);
-
+	MD4ctx md4;
+	MD4Init  (&md4);
 	MD4Update(&md4, slen, src);
-
-	uint64_t len = md4.len << 3;
-	uint8_t pad = (md4.bufLen < 56 ? 56 : 120) - md4.bufLen;
-	MD4Update(&md4, pad, padding);
-
-	MD4Update(&md4, 8, (uint8_t*) &len);
-
-	memcpy(dst +  0, &md4.A, 4);
-	memcpy(dst +  4, &md4.B, 4);
-	memcpy(dst +  8, &md4.C, 4);
-	memcpy(dst + 12, &md4.D, 4);
-
-	// TODO : true cleaning
+	MD4Final (&md4, dst);
 }

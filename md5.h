@@ -19,7 +19,6 @@ void MD5Init  (MD5ctx* md5);
 void MD5Update(MD5ctx* md5, uint64_t len, const uint8_t* data);
 void MD5Final (MD5ctx* md5, uint8_t dst[16]); // sets hash in dst and frees md5
 
-// one-call digest (NOT THREAD-SAFE)
 void MD5(uint64_t slen, const uint8_t* src, uint8_t dst[16]);
 
 #endif

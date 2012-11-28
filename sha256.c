@@ -179,36 +179,10 @@ void SHA256Final(SHA256ctx* sha256, uint8_t dst[32])
 
 void SHA256(uint64_t slen, const uint8_t* src, uint8_t dst[32])
 {
-	static SHA256ctx sha256;
-	SHA256Init(&sha256);
-
+	SHA256ctx sha256;
+	SHA256Init  (&sha256);
 	SHA256Update(&sha256, slen, src);
-
-	uint64_t len = sha256.len << 3;
-	uint8_t pad = (sha256.bufLen < 56 ? 56 : 120) - sha256.bufLen;
-	SHA256Update(&sha256, pad, padding);
-
-	uint8_t len8[8];
-	len8[7] = (len >>  0) & 0xFF;
-	len8[6] = (len >>  8) & 0xFF;
-	len8[5] = (len >> 16) & 0xFF;
-	len8[4] = (len >> 24) & 0xFF;
-	len8[3] = (len >> 32) & 0xFF;
-	len8[2] = (len >> 40) & 0xFF;
-	len8[1] = (len >> 48) & 0xFF;
-	len8[0] = (len >> 56) & 0xFF;
-	SHA256Update(&sha256, 8, len8);
-
-	u32to8(sha256.H[0], dst +  0);
-	u32to8(sha256.H[1], dst +  4);
-	u32to8(sha256.H[2], dst +  8);
-	u32to8(sha256.H[3], dst + 12);
-	u32to8(sha256.H[4], dst + 16);
-	u32to8(sha256.H[5], dst + 20);
-	u32to8(sha256.H[6], dst + 24);
-	u32to8(sha256.H[7], dst + 28);
-
-	// TODO : true cleaning
+	SHA256Final (&sha256, dst);
 }
 
 
@@ -270,34 +244,8 @@ void SHA224Final(SHA224ctx* sha224, uint8_t dst[28])
 
 void SHA224(uint64_t slen, const uint8_t* src, uint8_t dst[28])
 {
-	static SHA224ctx sha224;
-	SHA224Init(&sha224);
-
+	SHA224ctx sha224;
+	SHA224Init  (&sha224);
 	SHA224Update(&sha224, slen, src);
-
-	uint64_t len = sha224.len << 3;
-	uint8_t pad = (sha224.bufLen < 56 ? 56 : 120) - sha224.bufLen;
-	SHA224Update(&sha224, pad, padding);
-
-	uint8_t len8[8];
-	len8[7] = (len >>  0) & 0xFF;
-	len8[6] = (len >>  8) & 0xFF;
-	len8[5] = (len >> 16) & 0xFF;
-	len8[4] = (len >> 24) & 0xFF;
-	len8[3] = (len >> 32) & 0xFF;
-	len8[2] = (len >> 40) & 0xFF;
-	len8[1] = (len >> 48) & 0xFF;
-	len8[0] = (len >> 56) & 0xFF;
-	SHA224Update(&sha224, 8, len8);
-
-	u32to8(sha224.H[0], dst +  0);
-	u32to8(sha224.H[1], dst +  4);
-	u32to8(sha224.H[2], dst +  8);
-	u32to8(sha224.H[3], dst + 12);
-	u32to8(sha224.H[4], dst + 16);
-	u32to8(sha224.H[5], dst + 20);
-	u32to8(sha224.H[6], dst + 24);
-	//u32to8(sha224.H[7], dst + 28);
-
-	// TODO : true cleaning
+	SHA224Final (&sha224, dst);
 }

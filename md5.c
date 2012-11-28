@@ -153,20 +153,8 @@ void MD5Final(MD5ctx* md5, uint8_t dst[16])
 
 void MD5(uint64_t slen, const uint8_t* src, uint8_t dst[16])
 {
-	static MD5ctx md5;
-	MD5Init(&md5);
-
+	MD5ctx md5;
+	MD5Init  (&md5);
 	MD5Update(&md5, slen, src);
-
-	uint64_t len = md5.len << 3;
-	uint8_t pad  = (md5.bufLen < 56 ? 56 : 120) - md5.bufLen;
-	MD5Update(&md5, pad, padding);
-	MD5Update(&md5, 8, (uint8_t*) &len);
-
-	memcpy(dst +  0, &md5.A, 4);
-	memcpy(dst +  4, &md5.B, 4);
-	memcpy(dst +  8, &md5.C, 4);
-	memcpy(dst + 12, &md5.D, 4);
-
-	// TODO : true cleaning
+	MD5Final (&md5, dst);
 }

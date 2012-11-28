@@ -18,7 +18,6 @@ void SHA512Init  (SHA512ctx* sha512);
 void SHA512Update(SHA512ctx* sha512, uint64_t len, const uint8_t* data);
 void SHA512Final (SHA512ctx* sha512, uint8_t dst[64]); // sets hash in dst and frees sha512
 
-// one-call digest (NOT THREAD-SAFE)
 void SHA512(uint64_t slen, const uint8_t* src, uint8_t dst[64]);
 
 
@@ -29,7 +28,6 @@ void SHA384Init  (SHA384ctx* sha384);
 void SHA384Update(SHA384ctx* sha384, uint64_t len, const uint8_t* data);
 void SHA384Final (SHA384ctx* sha384, uint8_t dst[48]); // sets hash in dst and frees sha384
 
-// one-call digest (NOT THREAD-SAFE)
 void SHA384(uint64_t slen, const uint8_t* src, uint8_t dst[48]);
 
 #endif
