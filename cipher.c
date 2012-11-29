@@ -5,9 +5,9 @@
 #include "des.h"
 #include "rijndael.h"
 
-#define MODE(m)  ((mode & 0x07) == CIPHER_MODE_##m)
-#define CHAIN(s) ((mode & 0x08) == CIPHER_CHAIN_##s)
-#define ENC(a)   ((mode & 0x30) == CIPHER_ENC_##a)
+#define ENC(a)   ((mode & 0x03) == CIPHER_##a)
+#define MODE(m)  ((mode & 0x70) == CIPHER_MODE_##m)
+#define CHAIN(s) ((mode & 0x80) == CIPHER_CHAIN_##s)
 
 #define GET_ENC void (*blockCrypt)(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse) =\
 	ENC(RIJNDAEL256) ? Rijndael256 :\
@@ -17,30 +17,30 @@
 
 uint8_t KeyLength(uint8_t mode)
 {
-	switch (mode & 0x30)
+	switch (mode & 0x03)
 	{
-	case CIPHER_ENC_DES:
-	case CIPHER_ENC_RIJNDAEL128:
+	case CIPHER_DES:
+	case CIPHER_RIJNDAEL128:
 		return 16;
-	case CIPHER_ENC_RIJNDAEL192:
+	case CIPHER_RIJNDAEL192:
 		return 24;
-	case CIPHER_ENC_RIJNDAEL256:
+	case CIPHER_RIJNDAEL256:
 		return 32;
 	default:
-		return 1;
+		return 0;
 	}
 }
 
 int8_t CipherFunCode(char* fun)
 {
 	if (!strcmp(fun, "des"))
-		return CIPHER_ENC_DES;
+		return CIPHER_DES;
 	else if (!strcmp(fun, "aes128"))
-		return CIPHER_ENC_AES128;
+		return CIPHER_AES128;
 	else if (!strcmp(fun, "aes192"))
-		return CIPHER_ENC_AES192;
+		return CIPHER_AES192;
 	else if (!strcmp(fun, "aes256"))
-		return CIPHER_ENC_AES256;
+		return CIPHER_AES256;
 	else
 		return -1;
 }
@@ -60,6 +60,9 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 	uint8_t I[32];
 	uint8_t O[32];
 	uint8_t size = KeyLength(mode);
+	if (size == 0)
+		return;
+
 	if (MODE(CBC) || MODE(PCBC))
 		memcpy(O, IV, size);
 	else if (MODE(CFB) || MODE(OFB) || MODE(CTR))
@@ -127,6 +130,8 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 void Decrypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const uint8_t* KEY, const uint8_t* IV)
 {
 	uint8_t size = KeyLength(mode);
+	if (size == 0)
+		return;
 
 	if (len % size)
 		return;
