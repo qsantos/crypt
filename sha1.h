@@ -6,10 +6,10 @@
 
 typedef struct
 {
-	uint8_t bufLen;
-	uint8_t buffer[64];
-	uint32_t H[5];
 	uint64_t len;
+	uint8_t  bufLen;
+	uint8_t  buffer[64];
+	uint32_t H[5];
 } SHA1_CTX;
 
 void SHA1Init  (SHA1_CTX* sha1);

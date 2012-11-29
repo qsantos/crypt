@@ -6,10 +6,11 @@
 
 typedef struct
 {
-	uint8_t bufLen;
-	uint8_t buffer[16];
-	uint8_t C[16];
-	uint8_t X[16];
+	uint64_t len;
+	uint8_t  bufLen;
+	uint8_t  buffer[16];
+	uint8_t  C[16];
+	uint8_t  X[16];
 } MD2_CTX;
 
 void MD2Init  (MD2_CTX* md2);

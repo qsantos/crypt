@@ -11,7 +11,7 @@ static const uint8_t* padding = (uint8_t*)
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
 
-static const SHA1_CTX initctx = { 0, {0}, {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0}, 0 };
+static const SHA1_CTX initctx = { 0, 0, {0}, {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0}};
 
 void SHA1Init(SHA1_CTX* sha1)
 {

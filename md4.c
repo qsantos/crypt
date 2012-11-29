@@ -11,7 +11,7 @@ static const uint8_t* padding = (uint8_t*)
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
 
-static const MD4_CTX initctx = { 0, {0}, 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0};
+static const MD4_CTX initctx = { 0, 0, {0}, 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476};
 
 void MD4Init(MD4_CTX* md4)
 {

@@ -43,9 +43,8 @@ static const uint64_t K[] =
 
 static const SHA512_CTX initctx512 =
 {
-	0, {0},
+	0, 0, {0},
 	{ 0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1, 0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179 },
-	{0, 0}
 };
 
 void SHA512Init(SHA512_CTX* sha512)
@@ -134,10 +133,7 @@ void SHA512Update(SHA512_CTX* sha512, const uint8_t* data, uint64_t len)
 	}
 	memcpy(sha512->buffer + sha512->bufLen, data + i, len - i);
 	sha512->bufLen += len - i;
-
-	// TODO
-	uint64_t bits = len << 3;
-	sha512->len[0] += bits;
+	sha512->len += len;
 
 
 	// TODO : true cleaning
@@ -164,8 +160,8 @@ static void u64to8(uint64_t v, uint8_t* dst)
 
 void SHA512Final(SHA512_CTX* sha512, uint8_t dst[32])
 {
-	uint64_t len0 = sha512->len[0];
-	uint64_t len1 = sha512->len[1];
+	uint64_t len0 = sha512->len << 3;
+	uint64_t len1 = 0; // TODO
 	uint8_t pad = (sha512->bufLen < 112 ? 112 : 240) - sha512->bufLen;
 	SHA512Update(sha512, padding, pad);
 
@@ -222,9 +218,8 @@ void SHA512(uint8_t dst[64], const uint8_t* src, uint64_t slen)
 
 static const SHA384_CTX initctx384 =
 {
-	0, {0},
+	0, 0, {0},
 	{ 0xcbbb9d5dc1059ed8, 0x629a292a367cd507, 0x9159015a3070dd17, 0x152fecd8f70e5939, 0x67332667ffc00b31, 0x8eb44a8768581511, 0xdb0c2e0d64f98fa7, 0x47b5481dbefa4fa4},
-	{0, 0}
 };
 
 void SHA384Init(SHA384_CTX* sha384)
@@ -239,8 +234,8 @@ void SHA384Update(SHA384_CTX* sha384, const uint8_t* data, uint64_t len)
 
 void SHA384Final(SHA384_CTX* sha384, uint8_t dst[32])
 {
-	uint64_t len0 = sha384->len[0];
-	uint64_t len1 = sha384->len[1];
+	uint64_t len0 = sha384->len << 3;
+	uint64_t len1 = 0; // TODO
 	uint8_t pad = (sha384->bufLen < 112 ? 112 : 240) - sha384->bufLen;
 	SHA384Update(sha384, padding, pad);
 

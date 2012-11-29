@@ -8,10 +8,10 @@
 
 typedef struct
 {
-	uint8_t bufLen;
-	uint8_t buffer[128];
+	uint64_t len; // TODO
+	uint8_t  bufLen;
+	uint8_t  buffer[128];
 	uint64_t H[8];
-	uint64_t len[2];
 } SHA512_CTX;
 
 void SHA512Init  (SHA512_CTX* sha512);

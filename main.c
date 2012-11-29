@@ -136,7 +136,7 @@ int main(int argc, char** argv)
 		uint8_t* digest = (uint8_t*) malloc(dlen);
 		assert(digest);
 
-		Context ctx;
+		Hash_CTX ctx;
 		HashInit(fun, &ctx);
 		FILE* in = argc >= 4 ? fopen(argv[3], "r") : stdin;
 		while (!feof(in))

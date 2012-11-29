@@ -8,10 +8,10 @@
 
 typedef struct
 {
-	uint8_t bufLen;
-	uint8_t buffer[64];
-	uint32_t H[8];
 	uint64_t len;
+	uint8_t  bufLen;
+	uint8_t  buffer[64];
+	uint32_t H[8];
 } SHA256_CTX;
 
 void SHA256Init  (SHA256_CTX* sha256);

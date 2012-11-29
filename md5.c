@@ -37,7 +37,7 @@ static const uint32_t T[] =
 	0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391,
 };
 
-static const MD5_CTX initctx = { 0, {0}, 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0};
+static const MD5_CTX initctx = { 0, 0, {0}, 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476};
 
 void MD5Init(MD5_CTX* md5)
 {

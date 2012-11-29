@@ -55,7 +55,7 @@ case HASH_##F:                \
 case HASH_##F:                             \
 	F##G((F##_CTX*) ctx, __VA_ARGS__); \
 	break;
-void HashInit(uint8_t mode, Context* ctx)
+void HashInit(uint8_t mode, Hash_CTX* ctx)
 {
 	switch (mode)
 	{
@@ -72,7 +72,7 @@ void HashInit(uint8_t mode, Context* ctx)
 	}
 }
 
-void HashUpdate(uint8_t mode, Context* ctx, const uint8_t* data, uint64_t len)
+void HashUpdate(uint8_t mode, Hash_CTX* ctx, const uint8_t* data, uint64_t len)
 {
 	switch (mode)
 	{
@@ -89,7 +89,39 @@ void HashUpdate(uint8_t mode, Context* ctx, const uint8_t* data, uint64_t len)
 	}
 }
 
-void HashFinal (uint8_t mode, Context* ctx, uint8_t* dst)
+/* the Update should be coded here and call specific *_block functions
+typedef struct
+{
+	uint64_t len;
+	uint8_t  bufLen;
+	uint8_t* buffer;
+} Any_CTX;
+
+void HashUpdate(uint8_t mode, Hash_CTX* ctx, const uint8_t* data, uint64_t len)
+{
+	Any_CTX* any = (Any_CTX*) ctx;
+
+	uint64_t i = 0;
+	uint8_t availBuf = 128 - any->bufLen;
+	if (len >= availBuf)
+	{
+	        memcpy(any->buffer + any->bufLen, data, availBuf);
+	        SHA512_block(any, any->buffer);
+	        i = availBuf;
+	        any->bufLen = 0;
+
+	        while (i + 127 < len)
+	        {
+	                SHA512_block(any, data + i);
+	                i+= 128;
+	        }
+	}
+	memcpy(any->buffer + any->bufLen, data + i, len - i);
+	any->bufLen += len - i;
+}
+*/
+
+void HashFinal (uint8_t mode, Hash_CTX* ctx, uint8_t* dst)
 {
 	switch (mode)
 	{

@@ -27,13 +27,13 @@ typedef union
 	SHA224_CTX sha224;
 	SHA512_CTX sha512;
 	SHA384_CTX sha384;
-} Context;
+} Hash_CTX;
 
 uint8_t DigestLength(uint8_t mode);
 int8_t  HashFunCode (char*   fun);
 
-void HashInit  (uint8_t mode, Context* ctx);
-void HashUpdate(uint8_t mode, Context* ctx, const uint8_t* data, uint64_t len);
-void HashFinal (uint8_t mode, Context* ctx, uint8_t* dst);
+void HashInit  (uint8_t mode, Hash_CTX* ctx);
+void HashUpdate(uint8_t mode, Hash_CTX* ctx, const uint8_t* data, uint64_t len);
+void HashFinal (uint8_t mode, Hash_CTX* ctx, uint8_t* dst);
 
 #endif

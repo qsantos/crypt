@@ -6,13 +6,13 @@
 
 typedef struct
 {
-	uint8_t bufLen;
-	uint8_t buffer[64];
+	uint64_t len;
+	uint8_t  bufLen;
+	uint8_t  buffer[64];
 	uint32_t A;
 	uint32_t B;
 	uint32_t C;
 	uint32_t D;
-	uint64_t len;
 } MD4_CTX;
 
 void MD4Init  (MD4_CTX* md4);
