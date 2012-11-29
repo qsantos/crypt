@@ -14,7 +14,7 @@ typedef struct
 
 void MD2Init  (MD2_CTX* md2);
 void MD2Update(MD2_CTX* md2, const uint8_t* data, uint64_t len);
-void MD2Final (MD2_CTX* md2, uint8_t dst[16]); // sets hash in dst and frees md2
+void MD2Final (MD2_CTX* md2, uint8_t dst[16]);
 
 void MD2(uint8_t dst[16], const uint8_t* src, uint64_t slen);
 

@@ -15,10 +15,35 @@
 	ENC(RIJNDAEL128) ? Rijndael128 :\
 	                   DES
 
-#define BLOCKSZ (\
-	ENC(RIJNDAEL256) ? 32 :\
-	ENC(RIJNDAEL192) ? 24 :\
-	                   16)
+uint8_t KeyLength(uint8_t mode)
+{
+	switch (mode & 0x30)
+	{
+	case CIPHER_ENC_DES:
+	case CIPHER_ENC_RIJNDAEL128:
+		return 16;
+	case CIPHER_ENC_RIJNDAEL192:
+		return 24;
+	case CIPHER_ENC_RIJNDAEL256:
+		return 32;
+	default:
+		return 1;
+	}
+}
+
+int8_t CipherFunCode(char* fun)
+{
+	if (!strcmp(fun, "des"))
+		return CIPHER_ENC_DES;
+	else if (!strcmp(fun, "aes128"))
+		return CIPHER_ENC_AES128;
+	else if (!strcmp(fun, "aes192"))
+		return CIPHER_ENC_AES192;
+	else if (!strcmp(fun, "aes256"))
+		return CIPHER_ENC_AES256;
+	else
+		return -1;
+}
 
 void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const uint8_t* KEY, const uint8_t* IV)
 {
@@ -34,7 +59,7 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 
 	uint8_t I[32];
 	uint8_t O[32];
-	uint8_t size = BLOCKSZ;
+	uint8_t size = KeyLength(mode);
 	if (MODE(CBC) || MODE(PCBC))
 		memcpy(O, IV, size);
 	else if (MODE(CFB) || MODE(OFB) || MODE(CTR))
@@ -101,7 +126,7 @@ void Crypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const ui
 
 void Decrypt(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const uint8_t* KEY, const uint8_t* IV)
 {
-	uint8_t size = BLOCKSZ;
+	uint8_t size = KeyLength(mode);
 
 	if (len % size)
 		return;

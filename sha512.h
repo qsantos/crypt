@@ -16,7 +16,7 @@ typedef struct
 
 void SHA512Init  (SHA512_CTX* sha512);
 void SHA512Update(SHA512_CTX* sha512, const uint8_t* data, uint64_t len);
-void SHA512Final (SHA512_CTX* sha512, uint8_t dst[64]); // sets hash in dst and frees sha512
+void SHA512Final (SHA512_CTX* sha512, uint8_t dst[64]);
 
 void SHA512(uint8_t dst[64], const uint8_t* src, uint64_t slen);
 
@@ -26,7 +26,7 @@ typedef SHA512_CTX SHA384_CTX;
 
 void SHA384Init  (SHA384_CTX* sha384);
 void SHA384Update(SHA384_CTX* sha384, const uint8_t* data, uint64_t len);
-void SHA384Final (SHA384_CTX* sha384, uint8_t dst[48]); // sets hash in dst and frees sha384
+void SHA384Final (SHA384_CTX* sha384, uint8_t dst[48]);
 
 void SHA384(uint8_t dst[48], const uint8_t* src, uint64_t slen);
 
