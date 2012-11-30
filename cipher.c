@@ -140,8 +140,8 @@ void CipherBlock(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, bool inverse)
 
 uint32_t CipherUpdate(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t len, bool inverse)
 {
-	uint8_t availBuf = ctx->blocksize - ctx->bufLen;
-	uint32_t remain  = len;
+	uint8_t  availBuf = ctx->blocksize - ctx->bufLen;
+	uint32_t remain   = len;
 	if (remain >= availBuf)
 	{
 		memcpy(ctx->buffer + ctx->bufLen, in, availBuf);
@@ -158,9 +158,9 @@ uint32_t CipherUpdate(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t
 			out    += ctx->blocksize;
 		}
 
-		memcpy(ctx->buffer, in, remain);
+		uint32_t r = len + ctx->bufLen - remain;
 		ctx->bufLen = remain;
-		return availBuf + len;
+		return r;
 	}
 	else
 	{
