@@ -2,7 +2,6 @@
 // RFC 3174
 #include "sha1.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 static const uint8_t* padding = (uint8_t*)

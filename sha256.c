@@ -3,7 +3,6 @@
 // (FIPS PUB) 180-2, Secure Hash Standard, 1 August 2002.
 #include "sha256.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 static const uint8_t* padding = (uint8_t*)
