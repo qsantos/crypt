@@ -139,6 +139,9 @@ int main(int argc, char** argv)
 		Hash_CTX ctx;
 		HashInit(fun, &ctx);
 		FILE* in = argc >= 4 ? fopen(argv[3], "r") : stdin;
+		if (!in)
+			ERROR("Could not open input file");
+
 		while (!feof(in))
 		{
 			uint8_t buffer[1024];
@@ -150,7 +153,7 @@ int main(int argc, char** argv)
 
 		for (uint8_t i = 0; i < dlen; i++)
 			printf("%.2x", digest[i]);
-		putchar('\n');
+		printf("  %s\n", argc >= 4 ? argv[3] : "-");
 
 		free(digest);
 		break;
