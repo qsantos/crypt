@@ -3,8 +3,10 @@ CPUFREQ=$(LANG=en cpufreq-info | grep -m1 "hardware limits:" | grep -Eo "\S+ GHz
 CPUFREQ=$(echo "$CPUFREQ * 1000000000" | bc)
 TESTFILE=tmp
 TESTSIZE=$((100*1024*1024))
-#dd if=/dev/urandom of=$TESTFILE count=$(($TESTSIZE/512)) 2>&1 > /dev/null
+dd if=/dev/urandom of=$TESTFILE count=$(($TESTSIZE/512)) 2>&1 > /dev/null
 echo "Test file ready"
+
+# HASH FUNCTIONS
 function bench_hash()
 {
 	name=$1
@@ -36,3 +38,22 @@ bench_hash "sha256"
 bench_hash "sha224"
 bench_hash "sha512"
 bench_hash "sha384"
+
+
+# CIPHERS
+function bench_cipher()
+{
+	name=$1
+	(time ./crypt encrypt $name $TESTFILE $TESTFILE > /dev/null) 2> our_tim
+
+	our_tim=$(grep ^user our_tim | awk -F'[\tms]' '{print $3 "*60 +" $4}' | bc)
+	our_cpb=$(echo "scale=2; $our_tim * $CPUFREQ / $TESTSIZE" | bc)
+
+	echo -e "$name:\t$our_cpb\n"
+
+	rm our_tim
+}
+bench_cipher "des"
+bench_cipher "aes128"
+bench_cipher "aes192"
+bench_cipher "aes256"
