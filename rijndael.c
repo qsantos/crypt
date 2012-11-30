@@ -189,7 +189,7 @@ static void AddRoundKey(uint8_t state[16], const uint8_t w[16])
 
 // **********************************
 // *                                *
-// *         KEY EXPANSION          *
+// *         key EXPANSION          *
 // *                                *
 // **********************************
 
@@ -266,10 +266,10 @@ static void InvMixColumns(uint8_t state[16])
 #define ROTL(x,n) (((x) << n) | ((x) >> (32-n)))
 #define ROTR(x,n) (((x) >> n) | ((x) << (32-n)))
 
-void Rijndael(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse, uint8_t Nk, uint8_t Nr)
+void Rijndael(const uint8_t* key, const uint8_t* in, uint8_t* out, bool inverse, uint8_t Nk, uint8_t Nr)
 {
 	uint32_t w[4*(1+Nr)];
-	memcpy(w, KEY, 4*Nk);
+	memcpy(w, key, 4*Nk);
 	for (uint32_t i = Nk; i < 4*(1+Nr); i++)
 	{
 		uint32_t m = w[i-1];
@@ -317,17 +317,17 @@ void Rijndael(const uint8_t* KEY, const uint8_t* in, uint8_t* out, bool inverse,
 	memcpy(out, state, 16);
 }
 
-void Rijndael128(const uint8_t KEY[16], const uint8_t in[16], uint8_t out[16], bool inverse)
+void Rijndael128(const uint8_t key[16], const uint8_t in[16], uint8_t out[16], bool inverse)
 {
-	Rijndael(KEY, in, out, inverse, 4, 10);
+	Rijndael(key, in, out, inverse, 4, 10);
 }
 
-void Rijndael192(const uint8_t KEY[24], const uint8_t in[16], uint8_t out[16], bool inverse)
+void Rijndael192(const uint8_t key[24], const uint8_t in[16], uint8_t out[16], bool inverse)
 {
-	Rijndael(KEY, in, out, inverse, 6, 12);
+	Rijndael(key, in, out, inverse, 6, 12);
 }
 
-void Rijndael256(const uint8_t KEY[32], const uint8_t in[16], uint8_t out[16], bool inverse)
+void Rijndael256(const uint8_t key[32], const uint8_t in[16], uint8_t out[16], bool inverse)
 {
-	Rijndael(KEY, in, out, inverse, 8, 14);
+	Rijndael(key, in, out, inverse, 8, 14);
 }
