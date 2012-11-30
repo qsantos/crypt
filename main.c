@@ -125,12 +125,11 @@ int main(int argc, char** argv)
 		break;
 	case HASH:
 	{
-		if (argc < 3)
-			ERROR("Hash function not provided\n");
+		if (argc < 3) ERROR("Hash function not provided\n");
+		char* filename = argc >= 4 ? argv[3] : NULL;
 		
 		int8_t fun = HashFunCode(argv[2]);
-		if (fun < 0)
-			ERROR("Invalid hash function\n");
+		if (fun < 0) ERROR("Invalid hash function\n");
 
 		uint8_t  dlen   = DigestLength(fun);
 		uint8_t* digest = (uint8_t*) malloc(dlen);
@@ -138,9 +137,8 @@ int main(int argc, char** argv)
 
 		Hash_CTX ctx;
 		HashInit(fun, &ctx);
-		FILE* in = argc >= 4 ? fopen(argv[3], "r") : stdin;
-		if (!in)
-			ERROR("Could not open input file");
+		FILE* in = filename ? fopen(filename, "r") : stdin;
+		if (!in) ERROR("Could not open input file\n");
 
 		while (!feof(in))
 		{
@@ -153,22 +151,62 @@ int main(int argc, char** argv)
 
 		for (uint8_t i = 0; i < dlen; i++)
 			printf("%.2x", digest[i]);
-		printf("  %s\n", argc >= 4 ? argv[3] : "-");
+		printf("  %s\n", filename ? filename : "-");
 
 		free(digest);
 		break;
 	}
 	case ENCRYPT:
 	case DECRYPT:
-		if (argc < 3)
-			ERROR("Cipher function not provided\n");
-		
-		int8_t fun = CipherFunCode(argv[2]);
-		if (fun < 0)
-			ERROR("Invalid cipher function\n");
+		if (argc < 3) ERROR("Cipher function not provided\n");
+		if (argc < 4) ERROR("Key file must be provided\n");
+		char* filein  = argc >= 5 ? argv[4] : NULL;
+		char* fileout = argc >= 6 ? argv[5] : NULL;
 
+		// get cipher code
+		int8_t fun = CipherFunCode(argv[2]);
+		if (fun < 0) ERROR("Invalid cipher function\n");
+
+		// load key
 		uint8_t keylen = KeyLength(fun);
-		printf("%u\n", keylen);
+		uint8_t* key = malloc(keylen);
+		assert(key);
+		FILE* k = fopen(argv[3], "r");
+		if (!k) ERROR("Could not load key from file\n");
+		int r = fread(key, 1, keylen, k);
+		fclose(k);
+		if (r != keylen) ERROR("Not enough bytes in key file\n");
+		printf("Key loaded\n");
+
+		// initialize input and output
+		FILE* in = filein ? fopen(filein, "r") : stdin;
+		if (!in) ERROR("Could not open input file\n");
+		FILE* out = fileout ? fopen(fileout, "w") : stdout;
+		if (!out) ERROR("Could not open output file\n");
+		uint8_t blocksize = BlockSize(fun);
+		uint32_t bufsz = 16*blocksize;
+		uint8_t* bufin  = malloc(bufsz); assert(in);
+		uint8_t* bufout = malloc(bufsz); assert(out);
+		printf("Deciphering in progress...\n");
+
+		// proceed to encryption/decryption
+		bool decrypt = mode == DECRYPT;
+		Cipher_CTX ctx;
+		CipherInit(&ctx, fun, key, NULL);
+		free(key);
+		while (!feof(in))
+		{
+			r = fread(bufin, 1, bufsz, in);
+			r = CipherUpdate(&ctx, bufout, bufin, r, decrypt);
+			fwrite(bufout, 1, r, out);
+		}
+		r = CipherFinal(&ctx, bufout, decrypt);
+		fwrite(bufout, 1, r, out);
+
+		free(bufout);
+		free(bufin);
+		fclose(out);
+		fclose(in);
 		break;
 	}
 	return 0;
