@@ -168,15 +168,15 @@ int main(int argc, char** argv)
 		if (fun < 0) ERROR("Invalid cipher function\n");
 
 		// load key
-		uint8_t keylen = KeyLength(fun);
-		uint8_t* key = malloc(keylen);
+		uint8_t keylength = KeyLength(fun);
+		uint8_t* key = malloc(keylength);
 		assert(key);
 		FILE* k = fopen(argv[3], "r");
 		if (!k) ERROR("Could not load key from file\n");
-		int r = fread(key, 1, keylen, k);
+		int r = fread(key, 1, keylength, k);
 		fclose(k);
-		if (r != keylen) ERROR("Not enough bytes in key file\n");
-		printf("Key loaded\n");
+		if (r != keylength) ERROR("Not enough bytes in key file\n");
+		printf("Key loaded (%i) bits\n", 8*keylength);
 
 		// initialize input and output
 		FILE* in = filein ? fopen(filein, "r") : stdin;
@@ -187,10 +187,13 @@ int main(int argc, char** argv)
 		uint32_t bufsz = 16*blocksize;
 		uint8_t* bufin  = malloc(bufsz); assert(in);
 		uint8_t* bufout = malloc(bufsz); assert(out);
-		printf("Deciphering in progress...\n");
 
 		// proceed to encryption/decryption
 		bool decrypt = mode == DECRYPT;
+		if (decrypt)
+			printf("Deciphering in progress...\n");
+		else
+			printf("Enciphering in progress...\n");
 		Cipher_CTX ctx;
 		CipherInit(&ctx, fun, key, NULL);
 		free(key);

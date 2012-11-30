@@ -159,6 +159,7 @@ uint32_t CipherUpdate(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t
 		}
 
 		uint32_t r = len + ctx->bufLen - remain;
+		memcpy(ctx->buffer, in, remain);
 		ctx->bufLen = remain;
 		return r;
 	}
