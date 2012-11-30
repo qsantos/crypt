@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "digest.h"
+#include "hash.h"
 #include "cipher.h"
 
 void checkDigestStr(void(digest)(uint8_t*, const uint8_t*, uint64_t), char* str, char* hash, uint8_t hashLen)

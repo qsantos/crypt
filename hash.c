@@ -1,4 +1,4 @@
-#include "digest.h"
+#include "hash.h"
 
 #include <string.h>
 
