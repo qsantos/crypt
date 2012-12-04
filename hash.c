@@ -2,6 +2,26 @@
 
 #include <string.h>
 
+uint8_t HashBlockSize(uint8_t mode)
+{
+	switch (mode & 0x07)
+	{
+		case HASH_MD2:
+			return 16;
+		case HASH_MD4:
+		case HASH_MD5:
+		case HASH_SHA1:
+		case HASH_SHA256:
+		case HASH_SHA224:
+			return 64;
+		case HASH_SHA512:
+		case HASH_SHA384:
+			return 128;
+		default:
+			return 0;
+	}
+}
+
 uint8_t DigestLength(uint8_t mode)
 {
 	switch (mode & 0x07)
@@ -96,29 +116,14 @@ void HashBlock(uint8_t mode, Any_CTX* ctx, const uint8_t* data)
 	}
 }
 
-void HashUpdate2(uint8_t mode, Any_CTX* ctx, const uint8_t* data, uint64_t len)
+void HashUpdate(uint8_t mode, Hash_CTX* _ctx, const uint8_t* data, uint64_t len)
 {
+	Any_CTX* ctx = (Any_CTX*) _ctx;
+	uint8_t blockSize = HashBlockSize(mode);
+	if (blockSize == 0)
+		return;
+
 	uint32_t i = 0;
-	uint8_t blockSize;
-	switch (mode)
-	{
-		case HASH_MD2:
-			blockSize = 16;
-			break;
-		case HASH_MD4:
-		case HASH_MD5:
-		case HASH_SHA1:
-		case HASH_SHA256:
-		case HASH_SHA224:
-			blockSize = 64;
-			break;
-		case HASH_SHA512:
-		case HASH_SHA384:
-			blockSize = 128;
-			break;
-		default:
-			blockSize = 0;
-	}
 	uint8_t availBuf = blockSize - ctx->bufLen;
 	if (len >= availBuf)
 	{
@@ -139,59 +144,7 @@ void HashUpdate2(uint8_t mode, Any_CTX* ctx, const uint8_t* data, uint64_t len)
 	ctx->len += len;
 }
 
-void HashUpdate(uint8_t mode, Hash_CTX* ctx, const uint8_t* data, uint64_t len)
-{
-	HashUpdate2(mode, (Any_CTX*) ctx, data, len);
-	return;
-
-	switch (mode)
-	{
-	CASEX(MD2,    Update, data, len);
-	CASEX(MD4,    Update, data, len);
-	CASEX(MD5,    Update, data, len);
-	CASEX(SHA1,   Update, data, len);
-	CASEX(SHA256, Update, data, len);
-	CASEX(SHA224, Update, data, len);
-	CASEX(SHA512, Update, data, len);
-	CASEX(SHA384, Update, data, len);
-	default:
-		break;
-	}
-}
-
-/* the Update should be coded here and call specific *_block functions
-typedef struct
-{
-	uint64_t len;
-	uint8_t  bufLen;
-	uint8_t* buffer;
-} Any_CTX;
-
-void HashUpdate(uint8_t mode, Hash_CTX* ctx, const uint8_t* data, uint64_t len)
-{
-	Any_CTX* any = (Any_CTX*) ctx;
-
-	uint64_t i = 0;
-	uint8_t availBuf = 128 - any->bufLen;
-	if (len >= availBuf)
-	{
-	        memcpy(any->buffer + any->bufLen, data, availBuf);
-	        SHA512_block(any, any->buffer);
-	        i = availBuf;
-	        any->bufLen = 0;
-
-	        while (i + 127 < len)
-	        {
-	                SHA512_block(any, data + i);
-	                i+= 128;
-	        }
-	}
-	memcpy(any->buffer + any->bufLen, data + i, len - i);
-	any->bufLen += len - i;
-}
-*/
-
-void HashFinal (uint8_t mode, Hash_CTX* ctx, uint8_t* dst)
+void HashFinal(uint8_t mode, Hash_CTX* ctx, uint8_t* dst)
 {
 	switch (mode)
 	{

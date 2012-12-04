@@ -39,9 +39,9 @@
 #define CIPHER_MODE_TOFB  (CIPHER_CHAIN_EDE | CIPHER_MODE_OFB )
 #define CIPHER_MODE_TCTR  (CIPHER_CHAIN_EDE | CIPHER_MODE_CTR )
 
-uint8_t KeyLength    (uint8_t mode);
-uint8_t BlockSize    (uint8_t mode);
-int8_t  CipherFunCode(char*   fun);
+uint8_t KeyLength      (uint8_t mode);
+uint8_t CipherBlockSize(uint8_t mode);
+int8_t  CipherFunCode  (char*   fun);
 
 
 

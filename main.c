@@ -181,7 +181,7 @@ int main(int argc, char** argv)
 		if (!in) ERROR("Could not open input file\n");
 		FILE* out = fileout ? fopen(fileout, "w") : stdout;
 		if (!out) ERROR("Could not open output file\n");
-		uint8_t blocksize = BlockSize(fun);
+		uint8_t blocksize = CipherBlockSize(fun);
 		uint32_t bufsz = 16*blocksize;
 		uint8_t* bufin  = malloc(bufsz); assert(in);
 		uint8_t* bufout = malloc(bufsz); assert(out);

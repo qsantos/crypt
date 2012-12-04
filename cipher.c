@@ -29,7 +29,7 @@ uint8_t KeyLength(uint8_t mode)
 	}
 }
 
-uint8_t BlockSize(uint8_t mode)
+uint8_t CipherBlockSize(uint8_t mode)
 {
 	switch (mode & 0x03)
 	{
@@ -63,7 +63,7 @@ void CipherInit(Cipher_CTX* ctx, uint8_t mode, const uint8_t* key, const uint8_t
 	memset(ctx, 0, sizeof(Cipher_CTX));
 	memcpy(ctx->key, key, KeyLength(mode));
 	ctx->mode      = mode;
-	ctx->blocksize = BlockSize(mode);
+	ctx->blocksize = CipherBlockSize(mode);
 	if (IV)
 		memcpy(ctx->feedback, IV, ctx->blocksize);
 }
