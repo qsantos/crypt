@@ -99,18 +99,6 @@ void SHA512Block(SHA512_CTX* sha512, const uint8_t block[128])
 	sha512->H[7] += h;
 
 	// TODO : true cleaning
-/*
-	T1 = 0;
-	T2 = 0;
-	memset(W, 0, 80);
-	a = 0;
-	b = 0;
-	c = 0;
-	d = 0;
-	e = 0;
-	f = 0;
-	g = 0;
-*/
 }
 
 void SHA512Update(SHA512_CTX* sha512, const uint8_t* data, uint64_t len)
@@ -136,11 +124,6 @@ void SHA512Update(SHA512_CTX* sha512, const uint8_t* data, uint64_t len)
 
 
 	// TODO : true cleaning
-/*
-	i = 0;
-	availBuf = 0;
-	bits = 0;
-*/
 }
 
 static void u64to8(uint64_t v, uint8_t* dst)
@@ -193,16 +176,6 @@ void SHA512Final(SHA512_CTX* sha512, uint8_t dst[32])
 	u64to8(sha512->H[7], dst + 56);
 
 	// TODO : true cleaning
-/*
-	len0 = 0;
-	len1 = 0;
-	pad = 0;
-	memset(len8, 0, 16);
-	sha512->bufLen = 0;
-	memset(sha512->buffer, 0, 128);
-	memset(sha512->H, 0, 8);
-	memset(sha512->len, 0, 2);
-*/
 }
 
 void SHA512(uint8_t dst[64], const uint8_t* src, uint64_t slen)
@@ -272,16 +245,6 @@ void SHA384Final(SHA384_CTX* sha384, uint8_t dst[32])
 	//u64to8(sha384->H[7], dst + 56);
 
 	// TODO : true cleaning
-/*
-	len0 = 0;
-	len1 = 0;
-	pad = 0;
-	memset(len8, 0, 16);
-	sha384->bufLen = 0;
-	memset(sha384->buffer, 0, 128);
-	memset(sha384->H, 0, 8);
-	memset(sha384->len, 0, 2);
-*/
 }
 
 void SHA384(uint8_t dst[32], const uint8_t* src, uint64_t slen)

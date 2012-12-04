@@ -58,14 +58,6 @@ void SHA1Block(SHA1_CTX* sha1, const uint8_t block[64])
 	sha1->H[4] += E;
 
 	// TODO : true cleaning
-/*
-	memset(W, 0, 80);
-	A = 0;
-	B = 0;
-	C = 0;
-	D = 0;
-	E = 0;
-*/
 }
 
 void SHA1Update(SHA1_CTX* sha1, const uint8_t* data, uint64_t len)
@@ -90,10 +82,6 @@ void SHA1Update(SHA1_CTX* sha1, const uint8_t* data, uint64_t len)
 	sha1->len += len;
 
 	// TODO : true cleaning
-/*
-	i = 0;
-	availBuf = 0;
-*/
 }
 
 static void u32to8(uint32_t v, uint8_t* dst)
@@ -104,9 +92,6 @@ static void u32to8(uint32_t v, uint8_t* dst)
 	dst[3] = (v >>  0) & 0xFF;
 
 	// TODO : true cleaning
-/*
-	v = 0;
-*/
 }
 
 void SHA1Final(SHA1_CTX* sha1, uint8_t dst[20])
@@ -133,15 +118,6 @@ void SHA1Final(SHA1_CTX* sha1, uint8_t dst[20])
 	u32to8(sha1->H[4], dst + 16);
 
 	// TODO : true cleaning
-/*
-	len = 0;
-	pad = 0;
-	memset(len8, 0, 8);
-	sha1->bufLen = 0;
-	memset(sha1->buffer, 0, 64);
-	memset(sha1->H, 0, 5);
-	sha1->len = 0;
-*/
 }
 
 void SHA1(uint8_t dst[20], const uint8_t* src, uint64_t slen)

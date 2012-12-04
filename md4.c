@@ -56,13 +56,6 @@ void MD4Block(MD4_CTX* md4, const uint8_t block[64])
 	md4->D += DD;
 
 	// TODO : true cleaning
-/*
-	memset(X, 0, 16);
-	AA = 0;
-	BB = 0;
-	CC = 0;
-	DD = 0;
-*/
 }
 
 void MD4Update(MD4_CTX* md4, const uint8_t* data, uint64_t len)
@@ -87,10 +80,6 @@ void MD4Update(MD4_CTX* md4, const uint8_t* data, uint64_t len)
 	md4->len += len;
 
 	// TODO : true cleaning
-/*
-	i = 0;
-	availBuf = 0;
-*/
 }
 
 void MD4Final(MD4_CTX* md4, uint8_t dst[16])
@@ -106,11 +95,6 @@ void MD4Final(MD4_CTX* md4, uint8_t dst[16])
 	memcpy(dst + 12, &md4->D, 4);
 
 	// TODO : true cleaning
-/*
-	len = 0;
-	pad = 0;
-	memset(md4, 0, sizeof(MD4_CTX));
-*/
 }
 
 void MD4(uint8_t dst[16], const uint8_t* src, uint64_t slen)

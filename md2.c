@@ -73,10 +73,6 @@ void MD2Block(MD2_CTX* md2, const uint8_t block[16])
 	memcpy(md2->X, X, 16);
 
 	// TODO : true cleaning
-/*
-	t = 0;
-	memset(X, 0, 48);
-*/
 }
 
 static void MD2BlockNoUpdate(MD2_CTX* md2, const uint8_t block[16])
@@ -119,10 +115,6 @@ void MD2Update(MD2_CTX* md2, const uint8_t* data, uint64_t len)
 	md2->bufLen += len - i;
 
 	// TODO : true cleaning
-/*
-	availBuf = 0;
-	i = 0;
-*/
 }
 
 void MD2Final(MD2_CTX* md2, uint8_t dst[16])
@@ -133,10 +125,6 @@ void MD2Final(MD2_CTX* md2, uint8_t dst[16])
 	memcpy(dst, md2->X, 16);
 
 	// TODO : true cleaning
-/*
-	pad = 0;
-	memset(md2, 0, sizeof(MD2_CTX));
-*/
 }
 
 void MD2(uint8_t dst[16], const uint8_t* src, uint64_t slen)

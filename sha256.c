@@ -83,17 +83,6 @@ void SHA256Block(SHA256_CTX* sha256, const uint8_t block[64])
 	sha256->H[7] += h;
 
 	// TODO : true cleaning
-/*
-	memset(W, 0, 64);
-	a = 0;
-	b = 0;
-	c = 0;
-	d = 0;
-	e = 0;
-	f = 0;
-	g = 0;
-	h = 0;
-*/
 }
 
 void SHA256Update(SHA256_CTX* sha256, const uint8_t* data, uint64_t len)
@@ -118,10 +107,6 @@ void SHA256Update(SHA256_CTX* sha256, const uint8_t* data, uint64_t len)
 	sha256->len += len;
 
 	// TODO : true cleaning
-/*
-	i = 0;
-	availBuf = 0;
-*/
 }
 
 static void u32to8(uint32_t v, uint8_t* dst)
@@ -132,9 +117,6 @@ static void u32to8(uint32_t v, uint8_t* dst)
 	dst[3] = (v >>  0) & 0xFF;
 
 	// TODO : true cleaning
-/*
-	v = 0;
-*/
 }
 
 void SHA256Final(SHA256_CTX* sha256, uint8_t dst[32])
@@ -164,15 +146,6 @@ void SHA256Final(SHA256_CTX* sha256, uint8_t dst[32])
 	u32to8(sha256->H[7], dst + 28);
 
 	// TODO : true cleaning
-/*
-	len = 0;
-	pad = 0;
-	memset(len8, 0, 8);
-	sha256->bufLen = 0;
-	memset(sha256->buffer, 0, 64);
-	memset(sha256->H, 0, 8);
-	sha256->len = 0;
-*/
 }
 
 void SHA256(uint8_t dst[32], const uint8_t* src, uint64_t slen)
@@ -233,15 +206,6 @@ void SHA224Final(SHA224_CTX* sha224, uint8_t dst[28])
 	//u32to8(sha224->H[7], dst + 28);
 
 	// TODO : true cleaning
-/*
-	len = 0;
-	pad = 0;
-	memset(len8, 0, 8);
-	sha224->bufLen = 0;
-	memset(sha224->buffer, 0, 64);
-	memset(sha224->H, 0, 8);
-	sha224->len = 0;
-*/
 }
 
 void SHA224(uint8_t dst[28], const uint8_t* src, uint64_t slen)
