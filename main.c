@@ -112,7 +112,7 @@ int main(int argc, char** argv)
 	switch (mode)
 	{
 	case TESTS:
-//		checkDigestFile(HASH_MD2,    "tests/md2");
+		checkDigestFile(HASH_MD2,    "tests/md2");
 		checkDigestFile(HASH_MD4,    "tests/md4");
 		checkDigestFile(HASH_MD5,    "tests/md5");
 		checkDigestFile(HASH_SHA1,   "tests/sha1");

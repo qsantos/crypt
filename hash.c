@@ -25,7 +25,7 @@ uint8_t DigestLength(uint8_t mode)
 	}
 }
 
-int8_t HashFunCode (char* fun)
+int8_t HashFunCode(char* fun)
 {
 	if (!strcmp(fun, "md2"))
 		return HASH_MD2;
@@ -83,7 +83,7 @@ void HashBlock(uint8_t mode, Any_CTX* ctx, const uint8_t* data)
 {
 	switch (mode)
 	{
-//	CASEX(MD2,    Block, data);
+	CASEX(MD2,    Block, data);
 	CASEX(MD4,    Block, data);
 	CASEX(MD5,    Block, data);
 	CASEX(SHA1,   Block, data);
@@ -99,7 +99,27 @@ void HashBlock(uint8_t mode, Any_CTX* ctx, const uint8_t* data)
 void HashUpdate2(uint8_t mode, Any_CTX* ctx, const uint8_t* data, uint64_t len)
 {
 	uint32_t i = 0;
-	uint8_t availBuf = 64 - ctx->bufLen;
+	uint8_t blockSize;
+	switch (mode)
+	{
+		case HASH_MD2:
+			blockSize = 16;
+			break;
+		case HASH_MD4:
+		case HASH_MD5:
+		case HASH_SHA1:
+		case HASH_SHA256:
+		case HASH_SHA224:
+			blockSize = 64;
+			break;
+		case HASH_SHA512:
+		case HASH_SHA384:
+			blockSize = 128;
+			break;
+		default:
+			blockSize = 0;
+	}
+	uint8_t availBuf = blockSize - ctx->bufLen;
 	if (len >= availBuf)
 	{
 		memcpy(ctx->buffer + ctx->bufLen, data, availBuf);
@@ -107,10 +127,11 @@ void HashUpdate2(uint8_t mode, Any_CTX* ctx, const uint8_t* data, uint64_t len)
 		i = availBuf;
 		ctx->bufLen = 0;
 
-		while (i + 63 < len)
+		uint8_t last = len - blockSize;
+		while (i <= last)
 		{
 			HashBlock(mode, ctx, data + i);
-			i+= 64;
+			i+= blockSize;
 		}
 	}
 	memcpy(ctx->buffer + ctx->bufLen, data + i, len - i);

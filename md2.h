@@ -15,7 +15,7 @@ typedef struct
 } MD2_CTX;
 
 void MD2Init  (MD2_CTX* md2);
-void MD2Block (MD2_CTX* md2, const uint8_t block[16], bool updateCheckSum);
+void MD2Block (MD2_CTX* md2, const uint8_t block[16]);
 void MD2Update(MD2_CTX* md2, const uint8_t* data, uint64_t len);
 void MD2Final (MD2_CTX* md2, uint8_t dst[16]);
 
