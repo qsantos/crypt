@@ -61,7 +61,7 @@ static uint64_t Sum1  (uint64_t x) { return ROTR(x,14) ^ ROTR(x,18) ^ ROTR(x,41)
 static uint64_t Sigma0(uint64_t x) { return ROTR(x, 1) ^ ROTR(x, 8) ^ SHR (x, 7); }
 static uint64_t Sigma1(uint64_t x) { return ROTR(x,19) ^ ROTR(x,61) ^ SHR (x, 6); }
 #define B64(i) ((uint64_t)(block[t*8+i]))
-static void SHA512_block(SHA512_CTX* sha512, const uint8_t block[128])
+void SHA512Block(SHA512_CTX* sha512, const uint8_t block[128])
 {
 	uint64_t W[80];
 	for (uint8_t t = 0; t < 16; t++)
@@ -120,13 +120,13 @@ void SHA512Update(SHA512_CTX* sha512, const uint8_t* data, uint64_t len)
 	if (len >= availBuf)
 	{
 		memcpy(sha512->buffer + sha512->bufLen, data, availBuf);
-		SHA512_block(sha512, sha512->buffer);
+		SHA512Block(sha512, sha512->buffer);
 		i = availBuf;
 		sha512->bufLen = 0;
 
 		while (i + 127 < len)
 		{
-			SHA512_block(sha512, data + i);
+			SHA512Block(sha512, data + i);
 			i+= 128;
 		}
 	}
@@ -224,6 +224,11 @@ static const SHA384_CTX initctx384 =
 void SHA384Init(SHA384_CTX* sha384)
 {
 	memcpy(sha384, &initctx384, sizeof(SHA384_CTX));
+}
+
+void SHA384Block(SHA384_CTX* sha384, const uint8_t block[128])
+{
+	SHA512Block(sha384, block);
 }
 
 void SHA384Update(SHA384_CTX* sha384, const uint8_t* data, uint64_t len)

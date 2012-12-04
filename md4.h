@@ -16,6 +16,7 @@ typedef struct
 } MD4_CTX;
 
 void MD4Init  (MD4_CTX* md4);
+void MD4Block (MD4_CTX* md4, const uint8_t block[64]);
 void MD4Update(MD4_CTX* md4, const uint8_t* data, uint64_t len);
 void MD4Final (MD4_CTX* md4, uint8_t dst[16]);
 

@@ -2,6 +2,7 @@
 #define MD2_H
 
 // MD2 provides a 16 byte hash
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef struct
@@ -14,6 +15,7 @@ typedef struct
 } MD2_CTX;
 
 void MD2Init  (MD2_CTX* md2);
+void MD2Block (MD2_CTX* md2, const uint8_t block[16], bool updateCheckSum);
 void MD2Update(MD2_CTX* md2, const uint8_t* data, uint64_t len);
 void MD2Final (MD2_CTX* md2, uint8_t dst[16]);
 

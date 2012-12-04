@@ -27,7 +27,7 @@ void SHA1Init(SHA1_CTX* sha1)
 	E = D; D = C; C = ROT(B, 30); B = A; A = TEMP; \
 	TEMP = 0; \
 }
-static void SHA1_block(SHA1_CTX* sha1, const uint8_t block[64])
+void SHA1Block(SHA1_CTX* sha1, const uint8_t block[64])
 {
 	uint32_t W[80];
 	for (uint8_t t = 0; t < 16; t++)
@@ -75,13 +75,13 @@ void SHA1Update(SHA1_CTX* sha1, const uint8_t* data, uint64_t len)
 	if (len >= availBuf)
 	{
 		memcpy(sha1->buffer + sha1->bufLen, data, availBuf);
-		SHA1_block(sha1, sha1->buffer);
+		SHA1Block(sha1, sha1->buffer);
 		i = availBuf;
 		sha1->bufLen = 0;
 
 		while (i + 63 < len)
 		{
-			SHA1_block(sha1, data + i);
+			SHA1Block(sha1, data + i);
 			i+= 64;
 		}
 	}

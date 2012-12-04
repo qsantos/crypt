@@ -24,7 +24,7 @@ void MD4Init(MD4_CTX* md4)
 #define OP1(a,b,c,d,k,s) md4->a = ROT(md4->a + F(md4->b,md4->c,md4->d) + X[k] + 0x00000000, s);
 #define OP2(a,b,c,d,k,s) md4->a = ROT(md4->a + G(md4->b,md4->c,md4->d) + X[k] + 0x5A827999, s);
 #define OP3(a,b,c,d,k,s) md4->a = ROT(md4->a + H(md4->b,md4->c,md4->d) + X[k] + 0x6ED9EBA1, s);
-static void MD4_block(MD4_CTX* md4, const uint8_t block[64])
+void MD4Block(MD4_CTX* md4, const uint8_t block[64])
 {
 	uint32_t X[16];
 	for (uint8_t i = 0; i < 16; i++)
@@ -72,13 +72,13 @@ void MD4Update(MD4_CTX* md4, const uint8_t* data, uint64_t len)
 	if (len >= availBuf)
 	{
 		memcpy(md4->buffer + md4->bufLen, data, availBuf);
-		MD4_block(md4, md4->buffer);
+		MD4Block(md4, md4->buffer);
 		i = availBuf;
 		md4->bufLen = 0;
 
 		while (i + 63 < len)
 		{
-			MD4_block(md4, data + i);
+			MD4Block(md4, data + i);
 			i+= 64;
 		}
 	}

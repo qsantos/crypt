@@ -36,4 +36,6 @@ void HashInit  (uint8_t mode, Hash_CTX* ctx);
 void HashUpdate(uint8_t mode, Hash_CTX* ctx, const uint8_t* data, uint64_t len);
 void HashFinal (uint8_t mode, Hash_CTX* ctx, uint8_t* dst);
 
+void Hash(uint8_t mode, uint8_t* digest, const uint8_t* data, uint64_t len);
+
 #endif

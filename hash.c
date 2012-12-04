@@ -72,8 +72,57 @@ void HashInit(uint8_t mode, Hash_CTX* ctx)
 	}
 }
 
+typedef struct
+{
+	uint64_t len;
+	uint8_t  bufLen;
+	uint8_t  buffer[64];
+} Any_CTX;
+
+void HashBlock(uint8_t mode, Any_CTX* ctx, const uint8_t* data)
+{
+	switch (mode)
+	{
+//	CASEX(MD2,    Block, data);
+	CASEX(MD4,    Block, data);
+	CASEX(MD5,    Block, data);
+	CASEX(SHA1,   Block, data);
+	CASEX(SHA256, Block, data);
+	CASEX(SHA224, Block, data);
+	CASEX(SHA512, Block, data);
+	CASEX(SHA384, Block, data);
+	default:
+		break;
+	}
+}
+
+void HashUpdate2(uint8_t mode, Any_CTX* ctx, const uint8_t* data, uint64_t len)
+{
+	uint32_t i = 0;
+	uint8_t availBuf = 64 - ctx->bufLen;
+	if (len >= availBuf)
+	{
+		memcpy(ctx->buffer + ctx->bufLen, data, availBuf);
+		HashBlock(mode, ctx, ctx->buffer);
+		i = availBuf;
+		ctx->bufLen = 0;
+
+		while (i + 63 < len)
+		{
+			HashBlock(mode, ctx, data + i);
+			i+= 64;
+		}
+	}
+	memcpy(ctx->buffer + ctx->bufLen, data + i, len - i);
+	ctx->bufLen += len - i;
+	ctx->len += len;
+}
+
 void HashUpdate(uint8_t mode, Hash_CTX* ctx, const uint8_t* data, uint64_t len)
 {
+	HashUpdate2(mode, (Any_CTX*) ctx, data, len);
+	return;
+
 	switch (mode)
 	{
 	CASEX(MD2,    Update, data, len);
@@ -136,4 +185,12 @@ void HashFinal (uint8_t mode, Hash_CTX* ctx, uint8_t* dst)
 	default:
 		break;
 	}
+}
+
+void Hash(uint8_t mode, uint8_t* digest, const uint8_t* data, uint64_t len)
+{
+	Hash_CTX ctx;
+	HashInit  (mode, &ctx);
+	HashUpdate(mode, &ctx, data, len);
+	HashFinal (mode, &ctx, digest);
 }

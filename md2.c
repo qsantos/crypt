@@ -2,7 +2,6 @@
 // RFC 1319
 #include "md2.h"
 
-#include <stdbool.h>
 #include <string.h>
 
 static uint8_t S[256] =
@@ -51,7 +50,7 @@ void MD2Init(MD2_CTX* md2)
 	memset(md2, 0, sizeof(MD2_CTX));
 }
 
-void MD2_block(MD2_CTX* md2, const uint8_t block[16], bool updateCheckSum)
+void MD2Block(MD2_CTX* md2, const uint8_t block[16], bool updateCheckSum)
 {
 	if (updateCheckSum)
 	{
@@ -91,13 +90,13 @@ void MD2Update(MD2_CTX* md2, const uint8_t* data, uint64_t len)
 	if (len >= availBuf)
 	{
 		memcpy(md2->buffer + md2->bufLen, data, availBuf);
-		MD2_block(md2, md2->buffer, true);
+		MD2Block(md2, md2->buffer, true);
 		i = availBuf;
 		md2->bufLen = 0;
 
 		while (i + 15 < len)
 		{
-			MD2_block(md2, data + i, true);
+			MD2Block(md2, data + i, true);
 			i+= 16;
 		}
 	}
@@ -115,7 +114,7 @@ void MD2Final(MD2_CTX* md2, uint8_t dst[16])
 {
 	uint8_t pad = 16 - md2->bufLen;
 	MD2Update(md2, padding[pad], pad);
-	MD2_block(md2, md2->C, false);
+	MD2Block(md2, md2->C, false);
 	memcpy(dst, md2->X, 16);
 
 	// TODO : true cleaning

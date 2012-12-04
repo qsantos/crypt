@@ -44,7 +44,7 @@ void SHA256Init(SHA256_CTX* sha256)
 #define   Sum1(x) (ROTR(x, 6) ^ ROTR(x,11) ^ ROTR(x,25))
 #define Sigma0(x) (ROTR(x, 7) ^ ROTR(x,18) ^ SHR (x, 3))
 #define Sigma1(x) (ROTR(x,17) ^ ROTR(x,19) ^ SHR (x,10))
-static void SHA256_block(SHA256_CTX* sha256, const uint8_t block[64])
+void SHA256Block(SHA256_CTX* sha256, const uint8_t block[64])
 {
 	uint32_t W[64];
 	for (uint8_t t = 0; t < 16; t++)
@@ -103,13 +103,13 @@ void SHA256Update(SHA256_CTX* sha256, const uint8_t* data, uint64_t len)
 	if (len >= availBuf)
 	{
 		memcpy(sha256->buffer + sha256->bufLen, data, availBuf);
-		SHA256_block(sha256, sha256->buffer);
+		SHA256Block(sha256, sha256->buffer);
 		i = availBuf;
 		sha256->bufLen = 0;
 
 		while (i + 63 < len)
 		{
-			SHA256_block(sha256, data + i);
+			SHA256Block(sha256, data + i);
 			i+= 64;
 		}
 	}
@@ -194,6 +194,11 @@ static const SHA224_CTX initctx224 =
 void SHA224Init(SHA224_CTX* sha224)
 {
 	memcpy(sha224, &initctx224, sizeof(SHA224_CTX));
+}
+
+void SHA224Block(SHA224_CTX* sha224, const uint8_t block[64])
+{
+	SHA256Block(sha224, block);
 }
 
 void SHA224Update(SHA224_CTX* sha224, const uint8_t* data, uint64_t len)

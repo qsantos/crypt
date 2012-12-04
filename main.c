@@ -6,23 +6,7 @@
 #include "hash.h"
 #include "cipher.h"
 
-void checkDigestStr(void(digest)(uint8_t*, const uint8_t*, uint64_t), char* str, char* hash, uint8_t hashLen)
-{
-	uint8_t result[64];
-	digest(result, (uint8_t*) str, strlen(str));
-	for (uint8_t i = 0; i < 16; i++)
-	{
-		char digit[3];
-		snprintf(digit, 3, "%.2x", result[i]);
-		if (digit[0] != hash[2*i] || digit[1] != hash[2*i+1])
-		{
-			printf("'%s' got wrong hash\n", str);
-			break;
-		}
-	}
-}
-
-void checkDigestFile(void(digest)(uint8_t*, const uint8_t*, uint64_t), uint8_t hashLen, const char* file)
+void checkDigestFile(uint8_t mode, const char* file)
 {
 	FILE* f = fopen(file, "r");
 	if (!f)
@@ -42,7 +26,21 @@ void checkDigestFile(void(digest)(uint8_t*, const uint8_t*, uint64_t), uint8_t h
 		char* hash = strtok(line, " ");
 		char* str  = strtok(NULL, "\n");
 		if (hash && str)
-			checkDigestStr(digest, str, hash, hashLen);
+		{
+			uint8_t result[64];
+			Hash(mode, result, (uint8_t*) str, strlen(str));
+			uint32_t hashLen = DigestLength(mode);
+			for (uint8_t i = 0; i < hashLen; i++)
+			{
+				char digit[3];
+				snprintf(digit, 3, "%.2x", result[i]);
+				if (digit[0] != hash[2*i] || digit[1] != hash[2*i+1])
+				{
+					printf("'%s' got wrong hash\n", str);
+					break;
+				}
+			}
+		}
 	}
 	fclose(f);
 }
@@ -114,14 +112,14 @@ int main(int argc, char** argv)
 	switch (mode)
 	{
 	case TESTS:
-		checkDigestFile(MD2,    16, "tests/md2");
-		checkDigestFile(MD4,    16, "tests/md4");
-		checkDigestFile(MD5,    16, "tests/md5");
-		checkDigestFile(SHA1,   20, "tests/sha1");
-		checkDigestFile(SHA256, 32, "tests/sha256");
-		checkDigestFile(SHA224, 28, "tests/sha224");
-		checkDigestFile(SHA512, 64, "tests/sha512");
-		checkDigestFile(SHA384, 48, "tests/sha384");
+//		checkDigestFile(HASH_MD2,    "tests/md2");
+		checkDigestFile(HASH_MD4,    "tests/md4");
+		checkDigestFile(HASH_MD5,    "tests/md5");
+		checkDigestFile(HASH_SHA1,   "tests/sha1");
+		checkDigestFile(HASH_SHA256, "tests/sha256");
+		checkDigestFile(HASH_SHA224, "tests/sha224");
+		checkDigestFile(HASH_SHA512, "tests/sha512");
+		checkDigestFile(HASH_SHA384, "tests/sha384");
 		break;
 	case HASH:
 	{

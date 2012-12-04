@@ -49,7 +49,7 @@ void MD5Init(MD5_CTX* md5)
 #define I(X,Y,Z) ((Y) ^ ((X) | ~(Z)))
 #define ROT(x,n) (((x) << n) | ((x) >> (32-n)))
 #define OP(f,a,b,c,d,k,s,i) md5->a = md5->b + ROT(md5->a + f(md5->b,md5->c,md5->d) + X[k] + T[i], s);
-static void MD5_block(MD5_CTX* md5, const uint8_t block[64])
+void MD5Block(MD5_CTX* md5, const uint8_t block[64])
 {
 	uint32_t X[16];
 	for (uint8_t i = 0; i < 16; i++)
@@ -102,13 +102,13 @@ void MD5Update(MD5_CTX* md5, const uint8_t* data, uint64_t len)
 	if (len >= availBuf)
 	{
 		memcpy(md5->buffer + md5->bufLen, data, availBuf);
-		MD5_block(md5, md5->buffer);
+		MD5Block(md5, md5->buffer);
 		i = availBuf;
 		md5->bufLen = 0;
 
 		while (i + 63 < len)
 		{
-			MD5_block(md5, data + i);
+			MD5Block(md5, data + i);
 			i += 64;
 		}
 	}
