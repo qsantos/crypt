@@ -26,9 +26,7 @@ void MD4Init(MD4_CTX* md4)
 #define OP3(a,b,c,d,k,s) md4->a = ROT(md4->a + H(md4->b,md4->c,md4->d) + X[k] + 0x6ED9EBA1, s);
 void MD4Block(MD4_CTX* md4, const uint8_t block[64])
 {
-	uint32_t X[16];
-	for (uint8_t i = 0; i < 16; i++)
-		X[i] = (block[i*4] << 0) | (block[i*4+1] << 8) | (block[i*4+2] << 16) | (block[i*4+3] << 24);
+	uint32_t* X = (uint32_t*) block;
 
 	uint32_t AA = md4->A;
 	uint32_t BB = md4->B;
