@@ -6,7 +6,7 @@
 #include "hash.h"
 #include "cipher.h"
 
-void checkDigestFile(uint8_t mode, const char* file)
+static void checkDigestFile(uint8_t mode, const char* file)
 {
 	FILE* f = fopen(file, "r");
 	if (!f)
@@ -53,7 +53,7 @@ void checkDigestFile(uint8_t mode, const char* file)
 	exit(1);                      \
 }
 
-void usage(int argc, char** argv)
+static void usage(int argc, char** argv)
 {
 	(void) argc;
 
