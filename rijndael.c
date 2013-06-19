@@ -270,7 +270,8 @@ void Rijndael(const uint8_t* key, const uint8_t* in, uint8_t* out, bool inverse,
 {
 	uint32_t w[4*(1+Nr)];
 	memcpy(w, key, 4*Nk);
-	for (uint32_t i = Nk; i < 4*(1+Nr); i++)
+	uint32_t end = 4*(Nr+1);
+	for (uint32_t i = Nk; i < end; i++)
 	{
 		uint32_t m = w[i-1];
 		if (i % Nk == 0)
