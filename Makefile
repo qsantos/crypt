@@ -11,7 +11,7 @@ crypt: main.o md2.o md4.o md5.o sha1.o sha256.o sha512.o hash.o hmac.o des.o rij
 generate: generate.o md5.o
 	$(CC) $(LDFLAGS) $^ -o $@
 
-sort: sort.o
+sort: sort.o util.o
 	$(CC) $(LDFLAGS) $^ -o $@
 
 %.o: %.c
