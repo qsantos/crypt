@@ -1,7 +1,6 @@
-#include <errno.h>
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/mman.h>
 
 // fix the ordering by reverting all strings (still slower)
@@ -12,18 +11,25 @@
 int main(int argc, char** argv) {
     FILE* f = fopen("test", "r+");
     if (f == NULL) {
-        fprintf(stderr, "Could not open file: %s\n", strerror(errno));
-        exit(1);
+        err(1, "could not open file '%s'", args.file);
     }
-    fseek(f, 0L, SEEK_END);
+
+    // measure file length
+    if (fseek(f, 0L, SEEK_END) < 0) {
+        err(1, "could not seek to end of file");
+    }
     size_t length = (size_t) ftell(f);
-    fseek(f, 0L, SEEK_SET);
+    if (fseek(f, 0L, SEEK_SET) < 0) {
+        err(1, "could not seek to beginning of file");
+    }
 
     uint8_t* mem = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fileno(f), 0);
+    fprintf(stderr, "Mapping\n");
     if (mem == MAP_FAILED) {
-        fprintf(stderr, "Could not mmap(): %s\n", strerror(errno));
-        exit(1);
+        err(1, "could not map file to memory");
     }
+    fprintf(stderr, "Mapped\n");
+
     size_t size = 32;
     uint8_t* stop = &mem[length];
 
@@ -51,9 +57,14 @@ int main(int argc, char** argv) {
             printf("\n");
         }
     } else {
-        printf("%e\n", (double) timing);
+        fprintf(stderr, "%e\n", (double) timing);
     }
 
-    //munmap(mem, length * 20);
-    fclose(f);
+    if (munmap(mem, length) < 0) {
+        err(1, "could not unmap");
+    }
+
+    if (fclose(f) < 0) {
+        err(1, "could not close file");
+    }
 }
