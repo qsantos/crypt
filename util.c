@@ -165,6 +165,19 @@ void swap(uint8_t* addr_a, uint8_t* addr_b, size_t size) {
     }
 }
 
+uint8_t* partition(uint8_t* start, uint8_t* stop, size_t size, uint8_t* pivot) {
+    uint8_t* i = start;
+    for (uint8_t* j = start; j < stop; j += size) {
+        if (bstrncmp(pivot, j, size) > 0) {
+            if (i != j) {
+                swap(i, j, size);
+            }
+            i += size;
+        }
+    }
+    return i;
+}
+
 void quicksort(uint8_t* start, uint8_t* stop, size_t size) {
     if (start + size >= stop) {
         return;
@@ -179,23 +192,14 @@ void quicksort(uint8_t* start, uint8_t* stop, size_t size) {
     swap(middle, pivot, size);
 
     // partition around pivot
-    uint8_t* i = start;
-    uint8_t* end_j = stop - size;
-    for (uint8_t* j = start; j < end_j; j += size) {
-        if (bstrncmp(pivot, j, size) > 0) {
-            if (i != j) {
-                swap(i, j, size);
-            }
-            i += size;
-        }
-    }
+    uint8_t* p = partition(start, stop-size, size, pivot);
 
     // position pivot in between
-    swap(i, pivot, size);
+    swap(p, pivot, size);
 
     // sort recursively
-    quicksort(start, i, size);
-    quicksort(i+size, stop, size);
+    quicksort(start, p, size);
+    quicksort(p+size, stop, size);
 }
 
 uint64_t rdtsc() {
