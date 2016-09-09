@@ -2,11 +2,12 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/mman.h>
 
-// different ordering, friendlier with unfolding (faster)
-#define REVERSE_ENDIAN_ORDERING 1
+// different ordering, friendlier with unfolding (faster) (actuall, SLOWER)
+#define REVERSE_ENDIAN_ORDERING 0
 // fully reverse the endianness of the ordering (slower)
-#define FULLY_REVERSE_ORDERING 1
+#define FULLY_REVERSE_ORDERING 0
 
 void print(uint8_t* addr, size_t size) {
     while (size-- != 0) {

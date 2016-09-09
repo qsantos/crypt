@@ -5,7 +5,7 @@
 #include <sys/mman.h>
 
 // fix the ordering by reverting all strings (still slower)
-#define REVERT_SORT_REVERT 1
+#define REVERT_SORT_REVERT 0
 
 #include "util.h"
 #include "argparse.h"
