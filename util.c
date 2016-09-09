@@ -198,15 +198,8 @@ void quicksort(uint8_t* start, uint8_t* stop, size_t size) {
     quicksort(i+size, stop, size);
 }
 
-#ifdef _WIN32  //  Windows
-#include <intrin.h>
-uint64_t rdtsc() {
-    return __rdtsc();
-}
-#else  //  Linux/GCC
 uint64_t rdtsc() {
     uint32_t lo, hi;
     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
     return (((uint64_t)hi) << 32) | lo;
 }
-#endif
