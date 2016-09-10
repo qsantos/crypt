@@ -255,7 +255,7 @@ void mergesort(uint8_t* start, uint8_t* stop, size_t size) {
     }
 }
 
-uint8_t* partition(uint8_t* start, uint8_t* stop, size_t size, uint8_t* pivot) {
+static uint8_t* partition(uint8_t* start, uint8_t* stop, size_t size, uint8_t* pivot) {
     uint8_t* i = start;
     for (uint8_t* j = start; j < stop; j += size) {
         if (bstrncmp(pivot, j, size) > 0) {
@@ -267,17 +267,19 @@ uint8_t* partition(uint8_t* start, uint8_t* stop, size_t size, uint8_t* pivot) {
     }
     return i;
 }
-
 void quicksort(uint8_t* start, uint8_t* stop, size_t size) {
-    if (start + size >= stop) {
+    long length = stop - start;
+    if (length <= (long) size) {
+        return;
+    }
+    if ((size_t) length < size*8) {
+        selectsort(start, stop, size);
         return;
     }
 
-    // find the middle
-    size_t count = ((size_t) (stop - start)) / size;
+    // choose pivot (middle element) and move it to last position
+    size_t count = (size_t) length / size;
     uint8_t* middle = start + (count / 2) * size;
-
-    // choose pivot (last element)
     uint8_t* pivot = stop - size;
     memswap(middle, pivot, size);
 
