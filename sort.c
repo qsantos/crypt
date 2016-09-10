@@ -1,4 +1,5 @@
 #include <err.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
@@ -7,9 +8,77 @@
 #define REVERT_SORT_REVERT 1
 
 #include "util.h"
+#include "argparse.h"
+
+// parsed arguments
+struct {
+    size_t blocksize;
+    char* file;
+    int checkable;
+    int timing;
+} args = {0};
+
+void usage(const char* format, ...) {
+    if (format != NULL) {
+        va_list vargs;
+        va_start(vargs, format);
+        fprintf(stderr, "Error: ");
+        vfprintf(stderr, format, vargs);
+        fprintf(stderr, "\n");
+        va_end(vargs);
+    }
+
+    fprintf(stderr,
+    "Usage: %s [OPTIONS] BLOCKSIZE FILE\n"
+    "Sort binary blocks in a size.\n"
+    "\n"
+    "Assuming FILE is made of contiguous blocks of BLOCKSIZE bytes, this\n"
+    "shorts them in lexicographical order.\n"
+    "\n"
+    "  -c --checkable     use an output format that 'sort -c' can check\n"
+    "  -t --timing        measure the time duration of the sort, in CPU cycles\n"
+    "  -h --help          display this help and exit\n"
+    ,
+    arginfo.argv[0]
+    );
+    exit(1);
+}
+
+void argparse(int argc, char** argv) {
+    size_t positional_arguments_read = 0;
+    arginfo.argc = argc;
+    arginfo.argv = argv;
+    for (arginfo.argi = 1; arginfo.argi < argc; arginfo.argi++) {
+        arginfo.arg = argv[arginfo.argi];
+        if (arg_is("--help", "-h")) {
+            usage(NULL);
+        } else if (arg_is("--checkable", "-c")) {
+            args.checkable = 1;
+        } else if (arg_is("--timing", "-t")) {
+            args.timing = 1;
+        } else if (arginfo.arg[0] == '-') {
+            usage("unknown option '%s'", arginfo.arg);
+        } else if (positional_arguments_read == 0) {
+            args.blocksize = strtoul(arginfo.arg, NULL, 0);  // TODO
+            positional_arguments_read += 1;
+        } else if (positional_arguments_read == 1) {
+            args.file = arginfo.arg;
+            positional_arguments_read += 1;
+        } else {
+            usage("too many arguments");
+        }
+    }
+    if (positional_arguments_read < 2) {
+        usage("too few arguments");
+    }
+}
 
 int main(int argc, char** argv) {
-    FILE* f = fopen("test", "r+");
+    // parse arguments
+    argparse(argc, argv);
+
+    // open file
+    FILE* f = fopen(args.file, "r+");
     if (f == NULL) {
         err(1, "could not open file '%s'", args.file);
     }
@@ -23,14 +92,13 @@ int main(int argc, char** argv) {
         err(1, "could not seek to beginning of file");
     }
 
+    // map file to memory
     uint8_t* mem = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fileno(f), 0);
-    fprintf(stderr, "Mapping\n");
     if (mem == MAP_FAILED) {
         err(1, "could not map file to memory");
     }
-    fprintf(stderr, "Mapped\n");
 
-    size_t size = 32;
+    size_t size = args.blocksize;
     uint8_t* stop = &mem[length];
 
     uint64_t timing = rdtsc();
@@ -51,12 +119,14 @@ int main(int argc, char** argv) {
 
     timing = (uint64_t) (rdtsc() - timing);
 
-    if (argc > 1) {
+    if (args.checkable) {
         for (uint8_t* i = mem; i < stop; i += size) {
             print(i, size);
             printf("\n");
         }
-    } else {
+    }
+
+    if (args.timing) {
         fprintf(stderr, "%e\n", (double) timing);
     }
 
