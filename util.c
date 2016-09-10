@@ -135,7 +135,7 @@ char bstrncmp(const uint8_t* addr_a, const uint8_t* addr_b, size_t size) {
     return 0;
 }
 
-void swap(uint8_t* addr_a, uint8_t* addr_b, size_t size) {
+void memswap(uint8_t* addr_a, uint8_t* addr_b, size_t size) {
 #if __64BITS__
     while (size >= 8) {
         uint64_t tmp = *(uint64_t*)addr_a;
@@ -170,7 +170,7 @@ uint8_t* partition(uint8_t* start, uint8_t* stop, size_t size, uint8_t* pivot) {
     for (uint8_t* j = start; j < stop; j += size) {
         if (bstrncmp(pivot, j, size) > 0) {
             if (i != j) {
-                swap(i, j, size);
+                memswap(i, j, size);
             }
             i += size;
         }
@@ -189,13 +189,13 @@ void quicksort(uint8_t* start, uint8_t* stop, size_t size) {
 
     // choose pivot (last element)
     uint8_t* pivot = stop - size;
-    swap(middle, pivot, size);
+    memswap(middle, pivot, size);
 
     // partition around pivot
     uint8_t* p = partition(start, stop-size, size, pivot);
 
     // position pivot in between
-    swap(p, pivot, size);
+    memswap(p, pivot, size);
 
     // sort recursively
     quicksort(start, p, size);
