@@ -1,12 +1,13 @@
 #!/bin/bash
 set -e
+blocksize=${1:-20}
 make
 cp test.ori test
-time ./sort -c | sort -c
-echo "Sorting is correct"
+time ./sort ${blocksize} test
+./sort ${blocksize} test -c && echo "Consistent order"
 {
 for _ in {1..16}; do
     cp test.ori test
-    ./sort
+    ./sort ${blocksize} test -t
 done
-} | sort -rn
+} 2>&1 | sort -rn
