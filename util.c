@@ -165,6 +165,96 @@ void memswap(uint8_t* addr_a, uint8_t* addr_b, size_t size) {
     }
 }
 
+void bubblesort(uint8_t* start, uint8_t* stop, size_t size) {
+    while (stop > start) {
+        uint8_t* previous = start;
+        uint8_t* newstop = 0;
+        for (uint8_t* current = start + size; current < stop; current += size) {
+            if (bstrncmp(previous, current, size) > 0) {
+                memswap(previous, current, size);
+                newstop = current;
+            }
+            previous = current;
+        }
+        stop = newstop;
+    }
+}
+
+void insertsort(uint8_t* start, uint8_t* stop, size_t size) {
+    for (uint8_t* i = start + size; i < stop; i += size) {
+        for (uint8_t* j = i; j > start; j -= size) {
+            if (bstrncmp(j - size, j, size) > 0) {
+                memswap(j - size, j, size);
+            } else {
+                break;
+            }
+        }
+    }
+}
+
+void selectsort(uint8_t* start, uint8_t* stop, size_t size) {
+    for (uint8_t* j = start; j < stop; j += size) {
+        uint8_t* i_min = j;
+        for (uint8_t* i = j+size; i < stop; i += size) {
+            if (bstrncmp(i, i_min, size) < 0) {
+                i_min = i;
+            }
+        }
+        if (i_min != j) {
+            memswap(i_min, j, size);
+        }
+    }
+}
+
+static void merge(uint8_t* start, uint8_t* middle, uint8_t* stop, size_t size, uint8_t* buffer) {
+    uint8_t* i = start;
+    uint8_t* j = middle;
+    uint8_t* k = buffer;
+    while (i < middle && j < stop) {
+        if (bstrncmp(i, j, size) < 0) {
+            memcpy(k, i, size);
+            i += size;
+        } else {
+            memcpy(k, j, size);
+            j += size;
+        }
+        k += size;
+    }
+    if (i < middle) {
+        memcpy(k, i, (size_t) (middle - i));
+    } else {
+        memcpy(k, j, (size_t) (stop - j));
+    }
+}
+void mergesort(uint8_t* start, uint8_t* stop, size_t size) {
+    size_t length = (size_t) (stop - start);
+
+    uint8_t buffer[length];
+    uint8_t* buffer0 = start;
+    uint8_t* buffer1 = buffer;
+
+    for (size_t scale = size; scale < length<<4; scale *= 2) {
+        size_t offset = 0;
+        while (offset+scale*2 < length) {
+            merge(buffer0 + offset, buffer0 + offset + scale, buffer0 + offset + scale*2, size, buffer1 + offset);
+            offset += scale * 2;
+        }
+        if (offset+scale < length) {
+            merge(buffer0+offset, buffer0+offset+scale, buffer0+length, size, buffer1+offset);
+        } else {
+            memcpy(buffer1 + offset, buffer0 + offset, length - offset);
+        }
+
+        // swap buffers
+        uint8_t* tmp = buffer0;
+        buffer0 = buffer1;
+        buffer1 = tmp;
+    }
+    if (buffer0 == buffer) {
+        memcpy(start, buffer, length);
+    }
+}
+
 uint8_t* partition(uint8_t* start, uint8_t* stop, size_t size, uint8_t* pivot) {
     uint8_t* i = start;
     for (uint8_t* j = start; j < stop; j += size) {
