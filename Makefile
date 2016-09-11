@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -Wall -Wextra -Werror -ansi -pedantic -std=c99 -O3 -D_XOPEN_SOURCE=700
+CFLAGS := -Wall -Wextra -Wpedantic -Wformat-security -Wshadow -Wconversion -Wfloat-equal -Winline -Wvector-operation-performance -Wpadded -std=c99 -O3 -D_POSIX_C_SOURCE -D_XOPEN_SOURCE=700
 LDFLAGS := -O3
 TARGETS := crypt
 
