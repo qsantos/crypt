@@ -39,8 +39,8 @@ void bytes_fromhex(uint8_t* dst, const char* hex) {
 void reverse(uint8_t* addr, size_t size) {
     uint8_t* addr_a = addr;
     uint8_t* addr_b = addr + size;
-#if __64BITS__
     size /= 2;
+#if __64BITS__
     while (size >= 8) {
         addr_b -= 8;
         uint64_t tmp = *(uint64_t*)addr_a;
@@ -49,7 +49,18 @@ void reverse(uint8_t* addr, size_t size) {
         addr_a += 8;
         size -= 8;
     }
+    if
+#else
+    while
 #endif
+    /*while*/ (size >= 4) {
+        addr_b -= 4;
+        uint32_t tmp = *(uint32_t*)addr_a;
+        *(uint32_t*)addr_a = __builtin_bswap32(*(uint32_t*)addr_b);
+        *(uint32_t*)addr_b = __builtin_bswap32(tmp);
+        addr_a += 4;
+        size -= 4;
+    }
     while (addr_a < addr_b) {
         addr_b -= 1;
         uint8_t tmp = *addr_a;
@@ -74,8 +85,11 @@ char bstrncmp(const uint8_t* addr_a, const uint8_t* addr_b, size_t size) {
             return value_a < value_b ? -1 : 1;
         }
     }
+    if
 #else
-    while (size >= 4) {
+    while
+#endif
+    /*while*/ (size >= 4) {
         size -= 4;
         addr_a -= 4;
         addr_b -= 4;
@@ -85,8 +99,17 @@ char bstrncmp(const uint8_t* addr_a, const uint8_t* addr_b, size_t size) {
             return value_a < value_b ? -1 : 1;
         }
     }
-#endif
-    while (size >= 1) {
+    if (size >= 2) {
+        size -= 2;
+        addr_a -= 2;
+        addr_b -= 2;
+        uint16_t value_a = *addr_a;
+        uint16_t value_b = *addr_b;
+        if (value_a != value_b) {
+            return value_a < value_b ? -1 : 1;
+        }
+    }
+    if (size >= 1) {
         size -= 1;
         addr_a -= 1;
         addr_b -= 1;
@@ -109,8 +132,11 @@ char bstrncmp(const uint8_t* addr_a, const uint8_t* addr_b, size_t size) {
         addr_a += 8;
         addr_b += 8;
     }
+    if
 #else
-    while (size >= 4) {
+    while
+#endif
+    /*while*/ (size >= 4) {
         uint32_t value_a = *(uint32_t*) addr_a;
         uint32_t value_b = *(uint32_t*) addr_b;
         if (value_a != value_b) {
@@ -120,9 +146,21 @@ char bstrncmp(const uint8_t* addr_a, const uint8_t* addr_b, size_t size) {
         addr_a += 4;
         addr_b += 4;
     }
+    if (size >= 2) {
+        uint16_t value_a = *(uint16_t*) addr_a;
+        uint16_t value_b = *(uint16_t*) addr_b;
+        if (value_a != value_b) {
+            return value_a < value_b ? -1 : 1;
+        }
+        size -= 2;
+        addr_a += 2;
+        addr_b += 2;
+    }
+    if
+#else
+    while
 #endif
-#endif
-    while (size >= 1) {
+    /*while*/ (size >= 1) {
         uint8_t value_a = *addr_a;
         uint8_t value_b = *addr_b;
         if (value_a != value_b) {
@@ -146,8 +184,11 @@ void memswap(uint8_t* addr_a, uint8_t* addr_b, size_t size) {
         addr_a += 8;
         addr_b += 8;
     }
+    if
 #else
-    while (size >= 4) {
+    while
+#endif
+    /*while*/ (size >= 4) {
         uint32_t tmp = *(uint32_t*)addr_a;
         *(uint32_t*)addr_a = *(uint32_t*)addr_b;
         *(uint32_t*)addr_b = tmp;
@@ -155,14 +196,18 @@ void memswap(uint8_t* addr_a, uint8_t* addr_b, size_t size) {
         addr_a += 4;
         addr_b += 4;
     }
-#endif
-    while (size) {
+    if (size >= 2) {
+        uint16_t tmp = *(uint16_t*)addr_a;
+        *(uint16_t*)addr_a = *(uint16_t*)addr_b;
+        *(uint16_t*)addr_b = tmp;
+        size -= 2;
+        addr_a += 2;
+        addr_b += 2;
+    }
+    if (size) {
         uint8_t tmp = *addr_a;
         *addr_a = *addr_b;
         *addr_b = tmp;
-        size -= 1;
-        addr_a += 1;
-        addr_b += 1;
     }
 }
 
