@@ -17,7 +17,7 @@
 \*/
 
 #ifndef HMAC_H
-#define HMAC_h
+#define HMAC_H
 
 #include <stddef.h>
 #include <stdint.h>
