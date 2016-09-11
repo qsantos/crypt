@@ -128,13 +128,13 @@ static uint32_t mod8(uint32_t a, uint32_t b)
 
 static uint8_t dot8(uint8_t a, uint8_t b)
 {
-	return mod8(prod8(a, b), M);
+	return (uint8_t) ( mod8(prod8(a, b), M) );
 }
 
-#define C0(X) (((X)>> 0)&0xFF)
-#define C1(X) (((X)>> 8)&0xFF)
-#define C2(X) (((X)>>16)&0xFF)
-#define C3(X) (((X)>>24)&0xFF)
+#define C0(X) ((uint8_t) ((X)>> 0))
+#define C1(X) ((uint8_t) ((X)>> 8))
+#define C2(X) ((uint8_t) ((X)>>16))
+#define C3(X) ((uint8_t) ((X)>>24))
 static uint32_t prod32(uint32_t a, uint32_t b)
 {
 	uint32_t d = 0;
@@ -221,10 +221,10 @@ static uint32_t SubWord(uint32_t x)
 	return x;
 }
 
-static uint32_t Rcon(uint32_t i)
+static uint32_t Rcon(size_t i)
 {
 	uint32_t r = 0;
-	((uint8_t*) &r)[0] = mod8(1 << (i-1), M);
+	((uint8_t*) &r)[0] = (uint8_t) mod8(1U << (i-1), M);
 	return r;
 }
 
@@ -284,12 +284,12 @@ static void InvMixColumns(uint8_t state[16])
 #define ROTL(x,n) (((x) << n) | ((x) >> (32-n)))
 #define ROTR(x,n) (((x) >> n) | ((x) << (32-n)))
 
-void Rijndael(const uint8_t* key, const uint8_t* in, uint8_t* out, bool inverse, uint8_t Nk, uint8_t Nr)
+void Rijndael(const uint8_t* key, const uint8_t* in, uint8_t* out, bool inverse, size_t Nk, size_t Nr)
 {
 	uint32_t w[4*(1+Nr)];
 	memcpy(w, key, 4*Nk);
-	uint32_t end = 4*(Nr+1);
-	for (uint32_t i = Nk; i < end; i++)
+	size_t end = 4*(Nr+1);
+	for (size_t i = Nk; i < end; i++)
 	{
 		uint32_t m = w[i-1];
 		if (i % Nk == 0)
@@ -306,7 +306,7 @@ void Rijndael(const uint8_t* key, const uint8_t* in, uint8_t* out, bool inverse,
 	{
 		AddRoundKey(state, (uint8_t*) w + Nr*16);
 
-		for (uint8_t round = Nr-1; round >= 1; round--)
+		for (size_t round = Nr-1; round >= 1; round--)
 		{
 			InvShiftRows(state);
 			InvSubBytes(state);

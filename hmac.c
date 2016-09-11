@@ -26,7 +26,7 @@
 
 #define B 64
 
-void HMAC(uint8_t mode, uint8_t* text, uint64_t tlen, uint8_t* key, uint64_t klen, uint8_t* digest)
+void HMAC(uint8_t mode, uint8_t* text, uint64_t tlen, uint8_t* key, size_t klen, uint8_t* digest)
 {
 	Hash_CTX ctx;
 	uint8_t ipad[B]; memset(ipad, 0, B);

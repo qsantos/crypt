@@ -71,21 +71,21 @@ void MD2Init(MD2_CTX* md2)
 void MD2Block(MD2_CTX* md2, const uint8_t block[16])
 {
 	uint8_t L = md2->C[15];
-	for (uint8_t i = 0; i < 16; i++)
+	for (int i = 0; i < 16; i++)
 		L = md2->C[i] ^= S[block[i] ^ L];
 
 	uint8_t X[48];
 	memcpy(X, md2->X, 16);
 	memcpy(X+16, block, 16);
 
-	for (uint8_t i = 0; i < 16; i++)
+	for (int i = 0; i < 16; i++)
 		X[i+32] = X[i+16] ^ X[i];
 	uint8_t t = 0;
-	for (uint8_t i = 0; i < 18; i++)
+	for (int i = 0; i < 18; i++)
 	{
-		for (uint8_t j = 0; j < 48; j++)
+		for (int j = 0; j < 48; j++)
 			t = X[j] ^= S[t];
-		t += i;
+		t = (uint8_t) (t + i);
 	}
 
 	memcpy(md2->X, X, 16);
@@ -99,23 +99,23 @@ static void MD2BlockNoUpdate(MD2_CTX* md2, const uint8_t block[16])
 	memcpy(X, md2->X, 16);
 	memcpy(X+16, block, 16);
 
-	for (uint8_t i = 0; i < 16; i++)
+	for (int i = 0; i < 16; i++)
 		X[i+32] = X[i+16] ^ X[i];
 	uint8_t t = 0;
-	for (uint8_t i = 0; i < 18; i++)
+	for (int i = 0; i < 18; i++)
 	{
-		for (uint8_t j = 0; j < 48; j++)
+		for (int j = 0; j < 48; j++)
 			t = X[j] ^= S[t];
-		t += i;
+		t  = (uint8_t) (t + i);
 	}
 
 	memcpy(md2->X, X, 16);
 }
 
-void MD2Update(MD2_CTX* md2, const uint8_t* data, uint64_t len)
+void MD2Update(MD2_CTX* md2, const uint8_t* data, size_t len)
 {
-	uint32_t i = 0;
-	uint8_t availBuf = 16 - md2->bufLen;
+	size_t i = 0;
+	size_t availBuf = 16 - md2->bufLen;
 	if (len >= availBuf)
 	{
 		memcpy(md2->buffer + md2->bufLen, data, availBuf);
@@ -137,7 +137,7 @@ void MD2Update(MD2_CTX* md2, const uint8_t* data, uint64_t len)
 
 void MD2Final(MD2_CTX* md2, uint8_t dst[16])
 {
-	uint8_t pad = 16 - md2->bufLen;
+	size_t pad = 16 - md2->bufLen;
 	MD2Update(md2, padding[pad], pad);
 	MD2BlockNoUpdate(md2, md2->C);
 	memcpy(dst, md2->X, 16);
@@ -145,7 +145,7 @@ void MD2Final(MD2_CTX* md2, uint8_t dst[16])
 	// TODO : true cleaning
 }
 
-void MD2(uint8_t dst[16], const uint8_t* src, uint64_t slen)
+void MD2(uint8_t dst[16], const uint8_t* src, size_t slen)
 {
 	MD2_CTX md2;
 	MD2Init  (&md2);

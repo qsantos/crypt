@@ -66,7 +66,7 @@ void SHA256Block(SHA256_CTX* sha256, const uint8_t block[64])
 {
 	uint32_t W[64];
 	for (uint8_t t = 0; t < 16; t++)
-		W[t] = (block[t*4] << 24) | (block[t*4+1] << 16) | (block[t*4+2] << 8) | (block[t*4+3] << 0);
+		W[t] = (uint32_t) ( (block[t*4] << 24) | (block[t*4+1] << 16) | (block[t*4+2] << 8) | (block[t*4+3] << 0) );
 
 	for (uint8_t t = 16; t < 64; t++)
 		W[t] = Sigma1(W[t-2]) + W[t-7] + Sigma0(W[t-15]) + W[t-16];
@@ -103,10 +103,10 @@ void SHA256Block(SHA256_CTX* sha256, const uint8_t block[64])
 	// TODO : true cleaning
 }
 
-void SHA256Update(SHA256_CTX* sha256, const uint8_t* data, uint64_t len)
+void SHA256Update(SHA256_CTX* sha256, const uint8_t* data, size_t len)
 {
-	uint32_t i = 0;
-	uint8_t availBuf = 64 - sha256->bufLen;
+	size_t i = 0;
+	size_t availBuf = 64 - sha256->bufLen;
 	if (len >= availBuf)
 	{
 		memcpy(sha256->buffer + sha256->bufLen, data, availBuf);
@@ -129,10 +129,10 @@ void SHA256Update(SHA256_CTX* sha256, const uint8_t* data, uint64_t len)
 
 static void u32to8(uint32_t v, uint8_t* dst)
 {
-	dst[0] = (v >> 24) & 0xFF;
-	dst[1] = (v >> 16) & 0xFF;
-	dst[2] = (v >>  8) & 0xFF;
-	dst[3] = (v >>  0) & 0xFF;
+	dst[0] = (uint8_t) (v >> 24);
+	dst[1] = (uint8_t) (v >> 16);
+	dst[2] = (uint8_t) (v >>  8);
+	dst[3] = (uint8_t) (v >>  0);
 
 	// TODO : true cleaning
 }
@@ -140,18 +140,18 @@ static void u32to8(uint32_t v, uint8_t* dst)
 void SHA256Final(SHA256_CTX* sha256, uint8_t dst[32])
 {
 	uint64_t len = sha256->len << 3;
-	uint8_t pad = (sha256->bufLen < 56 ? 56 : 120) - sha256->bufLen;
+	size_t pad = (sha256->bufLen < 56 ? 56 : 120) - sha256->bufLen;
 	SHA256Update(sha256, padding, pad);
 
 	uint8_t len8[8];
-	len8[7] = (len >>  0) & 0xFF;
-	len8[6] = (len >>  8) & 0xFF;
-	len8[5] = (len >> 16) & 0xFF;
-	len8[4] = (len >> 24) & 0xFF;
-	len8[3] = (len >> 32) & 0xFF;
-	len8[2] = (len >> 40) & 0xFF;
-	len8[1] = (len >> 48) & 0xFF;
-	len8[0] = (len >> 56) & 0xFF;
+	len8[7] = (uint8_t) (len >>  0);
+	len8[6] = (uint8_t) (len >>  8);
+	len8[5] = (uint8_t) (len >> 16);
+	len8[4] = (uint8_t) (len >> 24);
+	len8[3] = (uint8_t) (len >> 32);
+	len8[2] = (uint8_t) (len >> 40);
+	len8[1] = (uint8_t) (len >> 48);
+	len8[0] = (uint8_t) (len >> 56);
 	SHA256Update(sha256, len8, 8);
 
 	u32to8(sha256->H[0], dst +  0);
@@ -166,7 +166,7 @@ void SHA256Final(SHA256_CTX* sha256, uint8_t dst[32])
 	// TODO : true cleaning
 }
 
-void SHA256(uint8_t dst[32], const uint8_t* src, uint64_t slen)
+void SHA256(uint8_t dst[32], const uint8_t* src, size_t slen)
 {
 	SHA256_CTX sha256;
 	SHA256Init  (&sha256);
@@ -192,7 +192,7 @@ void SHA224Block(SHA224_CTX* sha224, const uint8_t block[64])
 	SHA256Block(sha224, block);
 }
 
-void SHA224Update(SHA224_CTX* sha224, const uint8_t* data, uint64_t len)
+void SHA224Update(SHA224_CTX* sha224, const uint8_t* data, size_t len)
 {
 	SHA256Update(sha224, data, len);
 }
@@ -200,18 +200,18 @@ void SHA224Update(SHA224_CTX* sha224, const uint8_t* data, uint64_t len)
 void SHA224Final(SHA224_CTX* sha224, uint8_t dst[28])
 {
 	uint64_t len = sha224->len << 3;
-	uint8_t pad = (sha224->bufLen < 56 ? 56 : 120) - sha224->bufLen;
+	size_t pad = (sha224->bufLen < 56 ? 56 : 120) - sha224->bufLen;
 	SHA224Update(sha224, padding, pad);
 
 	uint8_t len8[8];
-	len8[7] = (len >>  0) & 0xFF;
-	len8[6] = (len >>  8) & 0xFF;
-	len8[5] = (len >> 16) & 0xFF;
-	len8[4] = (len >> 24) & 0xFF;
-	len8[3] = (len >> 32) & 0xFF;
-	len8[2] = (len >> 40) & 0xFF;
-	len8[1] = (len >> 48) & 0xFF;
-	len8[0] = (len >> 56) & 0xFF;
+	len8[7] = (uint8_t) (len >>  0);
+	len8[6] = (uint8_t) (len >>  8);
+	len8[5] = (uint8_t) (len >> 16);
+	len8[4] = (uint8_t) (len >> 24);
+	len8[3] = (uint8_t) (len >> 32);
+	len8[2] = (uint8_t) (len >> 40);
+	len8[1] = (uint8_t) (len >> 48);
+	len8[0] = (uint8_t) (len >> 56);
 	SHA224Update(sha224, len8, 8);
 
 	u32to8(sha224->H[0], dst +  0);
@@ -226,7 +226,7 @@ void SHA224Final(SHA224_CTX* sha224, uint8_t dst[28])
 	// TODO : true cleaning
 }
 
-void SHA224(uint8_t dst[28], const uint8_t* src, uint64_t slen)
+void SHA224(uint8_t dst[28], const uint8_t* src, size_t slen)
 {
 	SHA224_CTX sha224;
 	SHA224Init  (&sha224);

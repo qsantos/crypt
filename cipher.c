@@ -147,7 +147,7 @@ void CipherBlock(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, bool inverse)
 		for (uint8_t i = 0; i < ctx->blocksize; i++)
 			out[i] ^= in[i];
 		bool carry = true;
-		for (int8_t i = ctx->blocksize-1; i >= 0; i--)
+		for (size_t i = ctx->blocksize; i --> 0; )
 			if (carry)
 				carry = ++ctx->feedback[i] != 0;
 		break;
@@ -156,10 +156,10 @@ void CipherBlock(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, bool inverse)
 	}
 }
 
-uint32_t CipherUpdate(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t len, bool inverse)
+size_t CipherUpdate(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, size_t len, bool inverse)
 {
-	uint8_t  availBuf = ctx->blocksize - ctx->bufLen;
-	uint32_t remain   = len;
+	size_t availBuf = ctx->blocksize - ctx->bufLen;
+	size_t remain   = len;
 	if (remain >= availBuf)
 	{
 		memcpy(ctx->buffer + ctx->bufLen, in, availBuf);
@@ -176,7 +176,7 @@ uint32_t CipherUpdate(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t
 			out    += ctx->blocksize;
 		}
 
-		uint32_t r = len + ctx->bufLen - remain;
+		size_t r = len + ctx->bufLen - remain;
 		memcpy(ctx->buffer, in, remain);
 		ctx->bufLen = remain;
 		return r;
@@ -189,7 +189,7 @@ uint32_t CipherUpdate(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t
 	}
 }
 
-uint32_t CipherFinal(Cipher_CTX* ctx, uint8_t* out, bool inverse)
+size_t CipherFinal(Cipher_CTX* ctx, uint8_t* out, bool inverse)
 {
 	if (!ctx->bufLen)
 		return 0;
@@ -199,11 +199,11 @@ uint32_t CipherFinal(Cipher_CTX* ctx, uint8_t* out, bool inverse)
 	return ctx->blocksize;
 }
 
-uint32_t Cipher(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const uint8_t* key, const uint8_t* IV, bool inverse)
+size_t Cipher(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const uint8_t* key, const uint8_t* IV, bool inverse)
 {
 	Cipher_CTX ctx;
 	CipherInit(&ctx, mode, key, IV);
-	uint32_t ret = CipherUpdate(&ctx, out, in, len, inverse);
+	size_t ret = CipherUpdate(&ctx, out, in, len, inverse);
 	ret += CipherFinal(&ctx, out, inverse);
 	return ret;
 }
@@ -218,17 +218,17 @@ void EncryptBlock(Encrypt_CTX* ctx, uint8_t* out, const uint8_t* in)
 	CipherBlock(ctx, out, in, false);
 }
 
-uint32_t EncryptUpdate(Encrypt_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t len)
+size_t EncryptUpdate(Encrypt_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t len)
 {
 	return CipherUpdate(ctx, out, in, len, false);
 }
 
-uint32_t EncryptFinal(Encrypt_CTX* ctx, uint8_t* out)
+size_t EncryptFinal(Encrypt_CTX* ctx, uint8_t* out)
 {
 	return CipherFinal(ctx, out, false);
 }
 
-uint32_t Encrypt(uint8_t* o, const uint8_t* i, uint32_t l, uint8_t m, const uint8_t* k, const uint8_t* IV)
+size_t Encrypt(uint8_t* o, const uint8_t* i, uint32_t l, uint8_t m, const uint8_t* k, const uint8_t* IV)
 {
 	return Cipher(o, i, l, m, k, IV, true);
 }
@@ -243,17 +243,17 @@ void DecryptBlock(Decrypt_CTX* ctx, uint8_t* out, const uint8_t* in)
 	CipherBlock(ctx, out, in, true);
 }
 
-uint32_t DecryptUpdate(Decrypt_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t len)
+size_t DecryptUpdate(Decrypt_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t len)
 {
 	return CipherUpdate(ctx, out, in, len, true);
 }
 
-uint32_t DecryptFinal(Decrypt_CTX* ctx, uint8_t* out)
+size_t DecryptFinal(Decrypt_CTX* ctx, uint8_t* out)
 {
 	return CipherFinal(ctx, out, true);
 }
 
-uint32_t Decrypt(uint8_t* o, const uint8_t* i, uint32_t l, uint8_t m, const uint8_t* k, const uint8_t* IV)
+size_t Decrypt(uint8_t* o, const uint8_t* i, uint32_t l, uint8_t m, const uint8_t* k, const uint8_t* IV)
 {
 	return Cipher(o, i, l, m, k, IV, true);
 }

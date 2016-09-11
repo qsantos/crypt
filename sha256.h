@@ -22,22 +22,23 @@
 // SHA-2: SHA-224/SHA-256
 // SHA256 provides a 32 byte hash
 // SHA224 provides a 28 byte hash
+#include <stddef.h>
 #include <stdint.h>
 
 typedef struct
 {
-	uint64_t len;
-	uint8_t  bufLen;
+	size_t   len;
+	size_t   bufLen;
 	uint8_t  buffer[64];
 	uint32_t H[8];
 } SHA256_CTX;
 
 void SHA256Init  (SHA256_CTX* sha256);
 void SHA256Block (SHA256_CTX* sha256, const uint8_t block[64]);
-void SHA256Update(SHA256_CTX* sha256, const uint8_t* data, uint64_t len);
+void SHA256Update(SHA256_CTX* sha256, const uint8_t* data, size_t len);
 void SHA256Final (SHA256_CTX* sha256, uint8_t dst[32]);
 
-void SHA256(uint8_t dst[32], const uint8_t* src, uint64_t slen);
+void SHA256(uint8_t dst[32], const uint8_t* src, size_t slen);
 
 
 
@@ -45,9 +46,9 @@ typedef SHA256_CTX SHA224_CTX;
 
 void SHA224Init  (SHA224_CTX* sha224);
 void SHA224Block (SHA224_CTX* sha224, const uint8_t block[64]);
-void SHA224Update(SHA224_CTX* sha224, const uint8_t* data, uint64_t len);
+void SHA224Update(SHA224_CTX* sha224, const uint8_t* data, size_t len);
 void SHA224Final (SHA224_CTX* sha224, uint8_t dst[28]);
 
-void SHA224(uint8_t dst[28], const uint8_t* src, uint64_t slen);
+void SHA224(uint8_t dst[28], const uint8_t* src, size_t slen);
 
 #endif

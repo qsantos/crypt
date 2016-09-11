@@ -144,8 +144,9 @@ int main(int argc, char** argv)
 		if (argc < 3) ERROR("Hash function not provided\n");
 		char* filename = argc >= 4 ? argv[3] : NULL;
 		
-		int8_t fun = HashFunCode(argv[2]);
-		if (fun < 0) ERROR("Invalid hash function\n");
+		int8_t _fun = HashFunCode(argv[2]);
+		if (_fun < 0) ERROR("Invalid hash function\n");
+        uint8_t fun = (uint8_t) _fun;
 
 		uint8_t  dlen   = DigestLength(fun);
 		uint8_t* digest = (uint8_t*) malloc(dlen);
@@ -159,7 +160,7 @@ int main(int argc, char** argv)
 		while (!feof(in))
 		{
 			uint8_t buffer[1024];
-			int n = fread(buffer, 1, 1024, in);
+			size_t n = fread(buffer, 1, 1024, in);
 			HashUpdate(fun, &ctx, buffer, n);
 		}
 		fclose(in);
@@ -180,8 +181,9 @@ int main(int argc, char** argv)
 		char* fileout = argc >= 6 ? argv[5] : NULL;
 
 		// get cipher code
-		int8_t fun = CipherFunCode(argv[2]);
-		if (fun < 0) ERROR("Invalid cipher function\n");
+		int8_t _fun = CipherFunCode(argv[2]);
+		if (_fun < 0) ERROR("Invalid cipher function\n");
+        uint8_t fun = (uint8_t) _fun;
 
 		// load key
 		uint8_t keylength = KeyLength(fun);
@@ -189,7 +191,7 @@ int main(int argc, char** argv)
 		assert(key);
 		FILE* k = fopen(argv[3], "r");
 		if (!k) ERROR("Could not load key from file\n");
-		int r = fread(key, 1, keylength, k);
+		size_t r = fread(key, 1, keylength, k);
 		fclose(k);
 		if (r != keylength) ERROR("Not enough bytes in key file\n");
 		printf("Key loaded (%i) bits\n", 8*keylength);
@@ -200,7 +202,7 @@ int main(int argc, char** argv)
 		FILE* out = fileout ? fopen(fileout, "w") : stdout;
 		if (!out) ERROR("Could not open output file\n");
 		uint8_t blocksize = CipherBlockSize(fun);
-		uint32_t bufsz = 16*blocksize;
+		uint32_t bufsz = 16U * blocksize;
 		uint8_t* bufin  = malloc(bufsz); assert(in);
 		uint8_t* bufout = malloc(bufsz); assert(out);
 

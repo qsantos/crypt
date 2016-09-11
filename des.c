@@ -150,7 +150,7 @@ static const uint8_t shifts[] =
 	2, 2, 2, 1,
 };
 
-static void permute(const uint8_t* P, uint8_t len, const uint8_t* in, uint8_t* out)
+static void permute(const uint8_t* permutation, uint8_t len, const uint8_t* in, uint8_t* out)
 {
 	uint8_t b = 0;
 	for (uint8_t i = 0; i < len; i++)
@@ -158,8 +158,8 @@ static void permute(const uint8_t* P, uint8_t len, const uint8_t* in, uint8_t* o
 		uint8_t v = 0;
 		for (uint8_t j = 0; j < 8; j++)
 		{
-			uint8_t bit = P[b];
-			v |= ( (in[bit/8] << (bit%8)) & 0x80 ) >> j;
+			uint8_t bit = permutation[b];
+			v |= (uint8_t) ( ( (in[bit/8] << (bit%8)) & 0x80 ) >> j );
 			b++;
 		}
 		out[i] = v;
@@ -175,20 +175,20 @@ static void f(uint8_t R[4], uint8_t K[6], uint8_t out[4])
 
 	const uint8_t B[] =
 	{
-		cur[0] >> 2,
-		(cur[0] & 0x03) << 4 | (cur[1] >> 4),
-		(cur[1] & 0x0F) << 2 | (cur[2] >> 6),
-		cur[2] & 0x3F,
-		cur[3] >> 2,
-		(cur[3] & 0x03) << 4 | (cur[4] >> 4),
-		(cur[4] & 0x0F) << 2 | (cur[5] >> 6),
-		cur[5] & 0x3F,
+		(uint8_t) ( cur[0] >> 2 ),
+		(uint8_t) ( (cur[0] & 0x03) << 4 | (cur[1] >> 4) ),
+		(uint8_t) ( (cur[1] & 0x0F) << 2 | (cur[2] >> 6) ),
+		(uint8_t) ( cur[2] & 0x3F ),
+		(uint8_t) ( cur[3] >> 2 ),
+		(uint8_t) ( (cur[3] & 0x03) << 4 | (cur[4] >> 4) ),
+		(uint8_t) ( (cur[4] & 0x0F) << 2 | (cur[5] >> 6) ),
+		(uint8_t) ( cur[5] & 0x3F ),
 	};
 	uint8_t s = 0;
 	for (uint8_t i = 0; i < 4; i++)
 	{
-		cur[i]  = S[s << 6 | B[s]] << 4; s++;
-		cur[i] |= S[s << 6 | B[s]]; s++;
+		cur[i]  = (uint8_t) ( S[s << 6 | B[s]] << 4 ); s++;
+		cur[i] |= (uint8_t) ( S[s << 6 | B[s]] << 0 ); s++;
 	}
 
 	permute(P, 4, cur, out);
@@ -198,14 +198,14 @@ static void f(uint8_t R[4], uint8_t K[6], uint8_t out[4])
 #define CD_RSHIFT(C,s) C = ((C >> s) | (C << (28-s))) & 0xFFFFFFF
 void DES(const uint8_t key[7], const uint8_t in[8], uint8_t out[8], bool inverse)
 {
-	uint8_t p = 0;
+	int p = 0;
 	uint8_t LR[2][8];
 	permute(IP, 8, in, LR[p]);
 
 	uint8_t CD[7];
 	permute(PC1, 7, key, CD);
-	uint32_t C = (CD[0] << 20)         | (CD[1] << 12) | (CD[2] << 4) | (CD[3] >> 4);
-	uint32_t D = ((CD[3] & 0xF) << 24) | (CD[4] << 16) | (CD[5] << 8) | (CD[6] << 0);
+	uint32_t C = (uint32_t) ( (CD[0] << 20)         | (CD[1] << 12) | (CD[2] << 4) | (CD[3] >> 4) );
+	uint32_t D = (uint32_t) ( ((CD[3] & 0xF) << 24) | (CD[4] << 16) | (CD[5] << 8) | (CD[6] << 0) );
 	for (uint8_t i = 0; i < 16; i++)
 	{
 		if (!inverse)
@@ -213,13 +213,13 @@ void DES(const uint8_t key[7], const uint8_t in[8], uint8_t out[8], bool inverse
 			CD_LSHIFT(C, shifts[i]);
 			CD_LSHIFT(D, shifts[i]);
 		}
-		CD[0] = C >> 20;
-		CD[1] = C >> 12;
-		CD[2] = C >> 4;
-		CD[3] = ((C & 0xF) << 4) | (D >> 24);
-		CD[4] = D >> 16;
-		CD[5] = D >> 8;
-		CD[6] = D >> 0;
+		CD[0] = (uint8_t) ( C >> 20 );
+		CD[1] = (uint8_t) ( C >> 12 );
+		CD[2] = (uint8_t) ( C >> 4 );
+		CD[3] = (uint8_t) ( ((C & 0xF) << 4) | (D >> 24) );
+		CD[4] = (uint8_t) ( D >> 16 );
+		CD[5] = (uint8_t) ( D >> 8 );
+		CD[6] = (uint8_t) ( D >> 0 );
 		uint8_t K[6];
 		permute(PC2, 6, CD, K);
 		if (inverse)
@@ -230,8 +230,8 @@ void DES(const uint8_t key[7], const uint8_t in[8], uint8_t out[8], bool inverse
 
 		memcpy(LR[1-p], LR[p] + 4, 4);
 		f(LR[p] + 4, K, LR[1-p] + 4);
-		for (uint8_t i = 0; i < 4; i++)
-			LR[1-p][i+4] ^= LR[p][i];
+		for (uint8_t j = 0; j < 4; j++)
+			LR[1-p][j+4] ^= LR[p][j];
 		p = 1 - p;
 	}
 

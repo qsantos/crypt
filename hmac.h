@@ -19,9 +19,10 @@
 #ifndef HMAC_H
 #define HMAC_h
 
+#include <stddef.h>
 #include <stdint.h>
 
-void HMAC(uint8_t mode, uint8_t* text, uint64_t tlen, uint8_t* key, uint64_t klen, uint8_t* digest);
+void HMAC(uint8_t mode, uint8_t* text, uint64_t tlen, uint8_t* key, size_t klen, uint8_t* digest);
 
 void HMAC_MD2   (uint8_t* text, uint64_t tlen, uint8_t* key, uint64_t klen, uint8_t digest[16]);
 void HMAC_MD4   (uint8_t* text, uint64_t tlen, uint8_t* key, uint64_t klen, uint8_t digest[16]);

@@ -112,8 +112,8 @@ void HashInit(uint8_t mode, Hash_CTX* ctx)
 
 typedef struct
 {
-	uint64_t len;
-	uint8_t  bufLen;
+	size_t   len;
+	size_t   bufLen;
 	uint8_t  buffer[64];
 } Any_CTX;
 
@@ -141,8 +141,8 @@ void HashUpdate(uint8_t mode, Hash_CTX* _ctx, const uint8_t* data, uint64_t len)
 	if (blockSize == 0)
 		return;
 
-	uint32_t i = 0;
-	uint8_t availBuf = blockSize - ctx->bufLen;
+	size_t i = 0;
+	size_t availBuf = blockSize - ctx->bufLen;
 	if (len >= availBuf)
 	{
 		memcpy(ctx->buffer + ctx->bufLen, data, availBuf);
@@ -150,7 +150,7 @@ void HashUpdate(uint8_t mode, Hash_CTX* _ctx, const uint8_t* data, uint64_t len)
 		i = availBuf;
 		ctx->bufLen = 0;
 
-		uint8_t last = len - blockSize;
+		size_t last = len - blockSize;
 		while (i <= last)
 		{
 			HashBlock(mode, ctx, data + i);

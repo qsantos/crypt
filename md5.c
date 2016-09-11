@@ -104,10 +104,10 @@ void MD5Block(MD5_CTX* md5, const uint8_t block[64])
 	// TODO : true clearing
 }
 
-void MD5Update(MD5_CTX* md5, const uint8_t* data, uint64_t len)
+void MD5Update(MD5_CTX* md5, const uint8_t* data, size_t len)
 {
-	uint32_t i = 0;
-	uint8_t availBuf = 64 - md5->bufLen;
+	size_t i = 0;
+	size_t availBuf = 64 - md5->bufLen;
 	if (len >= availBuf)
 	{
 		memcpy(md5->buffer + md5->bufLen, data, availBuf);
@@ -131,7 +131,7 @@ void MD5Update(MD5_CTX* md5, const uint8_t* data, uint64_t len)
 void MD5Final(MD5_CTX* md5, uint8_t dst[16])
 {
 	uint64_t len = md5->len << 3;
-	uint8_t pad  = (md5->bufLen < 56 ? 56 : 120) - md5->bufLen;
+	size_t pad  = (md5->bufLen < 56 ? 56 : 120) - md5->bufLen;
 	MD5Update(md5, padding, pad);
 	MD5Update(md5, (uint8_t*) &len, 8);
 

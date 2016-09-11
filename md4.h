@@ -20,12 +20,13 @@
 #define MD4_H
 
 // MD3 provides a 16 byte hash
+#include <stddef.h>
 #include <stdint.h>
 
 typedef struct
 {
-	uint64_t len;
-	uint8_t  bufLen;
+	size_t    len;
+	size_t   bufLen;
 	uint8_t  buffer[64];
 	uint32_t A;
 	uint32_t B;

@@ -74,10 +74,10 @@ void MD4Block(MD4_CTX* md4, const uint8_t block[64])
 	// TODO : true cleaning
 }
 
-void MD4Update(MD4_CTX* md4, const uint8_t* data, uint64_t len)
+void MD4Update(MD4_CTX* md4, const uint8_t* data, size_t len)
 {
-	uint32_t i = 0;
-	uint8_t availBuf = 64 - md4->bufLen;
+	size_t i = 0;
+	size_t availBuf = 64 - md4->bufLen;
 	if (len >= availBuf)
 	{
 		memcpy(md4->buffer + md4->bufLen, data, availBuf);
@@ -101,7 +101,7 @@ void MD4Update(MD4_CTX* md4, const uint8_t* data, uint64_t len)
 void MD4Final(MD4_CTX* md4, uint8_t dst[16])
 {
 	uint64_t len = md4->len << 3;
-	uint8_t pad = (md4->bufLen < 56 ? 56 : 120) - md4->bufLen;
+	size_t pad = (md4->bufLen < 56 ? 56 : 120) - md4->bufLen;
 	MD4Update(md4, padding, pad);
 	MD4Update(md4, (uint8_t*) &len, 8);
 
@@ -113,7 +113,7 @@ void MD4Final(MD4_CTX* md4, uint8_t dst[16])
 	// TODO : true cleaning
 }
 
-void MD4(uint8_t dst[16], const uint8_t* src, uint64_t slen)
+void MD4(uint8_t dst[16], const uint8_t* src, size_t slen)
 {
 	MD4_CTX md4;
 	MD4Init  (&md4);
