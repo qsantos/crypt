@@ -1,21 +1,22 @@
-CFLAGS  = -Wall -Wextra -Werror -ansi -pedantic -std=c99 -O3 -D_XOPEN_SOURCE=700
-LDFLAGS = -O3
-TARGET  = crypt
-SRC     = main.c md2.c md4.c md5.c sha1.c sha256.c sha512.c hash.c hmac.c des.c rijndael.c cipher.c
-OBJ     = $(SRC:.c=.o)
+CC := gcc
+CFLAGS := -Wall -Wextra -Werror -ansi -pedantic -std=c99 -O3 -D_XOPEN_SOURCE=700
+LDFLAGS := -O3
+TARGETS := crypt
 
-all: $(TARGET)
+all: $(TARGETS)
 
-$(TARGET): $(OBJ)
-	gcc $(LDFLAGS) $^ -o $@
+crypt: main.o md2.o md4.o md5.o sha1.o sha256.o sha512.o hash.o hmac.o des.o rijndael.o cipher.o
+	$(CC) $(LDFLAGS) $^ -o $@
 
 %.o: %.c
-	gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o
 
 destroy: clean
-	rm -f $(TARGET)
+	rm -f $(TARGETS)
 
 rebuild: destroy all
+
+.PHONY: all clean destroy rebuild
