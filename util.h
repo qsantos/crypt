@@ -19,6 +19,4 @@ void selectsort(uint8_t* start, uint8_t* stop, size_t size);
 void mergesort(uint8_t* start, uint8_t* stop, size_t size);
 void quicksort(uint8_t* start, uint8_t* stop, size_t size);
 
-uint64_t rdtsc();
-
 #endif

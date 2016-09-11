@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <sys/mman.h>
 
 // fix the ordering by reverting all strings (still slower)
@@ -36,7 +37,7 @@ void usage(const char* format, ...) {
     "shorts them in lexicographical order.\n"
     "\n"
     "  -c --check         check that the file is well ordered; do not sort\n"
-    "  -t --timing        measure the time duration of the sort, in CPU cycles\n"
+    "  -t --timing        measure approximate time used\n"
     "  -h --help          display this help and exit\n"
     ,
     arginfo.argv[0]
@@ -101,7 +102,7 @@ int main(int argc, char** argv) {
     size_t size = args.blocksize;
     uint8_t* stop = &mem[length];
 
-    uint64_t timing = rdtsc();
+    clock_t timing = clock();
 
 #if REVERT_SORT_REVERT
     for (uint8_t* i = mem; i < stop; i += size) {
@@ -131,10 +132,9 @@ int main(int argc, char** argv) {
     }
 #endif
 
-    timing = (uint64_t) (rdtsc() - timing);
-
     if (args.timing) {
-        fprintf(stderr, "%e\n", (double) timing);
+        timing = (clock() - timing);
+        fprintf(stderr, "%.1f\n", (double) timing / CLOCKS_PER_SEC);
     }
 
     if (munmap(mem, length) < 0) {
