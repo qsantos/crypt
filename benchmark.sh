@@ -8,6 +8,6 @@ time ./sort ${blocksize} test
 {
 for _ in {1..16}; do
     cp test.ori test
-    ./sort ${blocksize} test -t
+    time ./sort ${blocksize} test
 done
-} 2>&1 | sort -rn
+} 2>&1 | grep real | sort -rV
