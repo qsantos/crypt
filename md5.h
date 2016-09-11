@@ -19,25 +19,25 @@
 #ifndef MD5_H
 #define MD5_H
 
-// MD5 provides a 16 byte hash
+// md5 provides a 16 byte hash
 #include <stddef.h>
 #include <stdint.h>
 
 typedef struct {
-    size_t len;
-    size_t bufLen;
+    size_t total_length;
+    size_t bytes_in_buffer;
     uint8_t buffer[64];
     uint32_t A;
     uint32_t B;
     uint32_t C;
     uint32_t D;
-} MD5_CTX;
+} MD5Context;
 
-void MD5Init(MD5_CTX* md5);
-void MD5Block(MD5_CTX* md5, const uint8_t block[64]);
-void MD5Update(MD5_CTX* md5, const uint8_t* data, size_t len);
-void MD5Final(MD5_CTX* md5, uint8_t dst[16]);
+void md5_init(MD5Context* ctx);
+void md5_block(MD5Context* ctx, const uint8_t block[64]);
+void md5_update(MD5Context* ctx, const uint8_t* data, size_t length);
+void md5_final(MD5Context* ctx, uint8_t dst[16]);
 
-void MD5(uint8_t dst[16], const uint8_t* src, size_t slen);
+void md5(uint8_t dst[16], const uint8_t* src, size_t length);
 
 #endif

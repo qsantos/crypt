@@ -25,12 +25,12 @@
 
 #define ENC(a)   ((mode & 0x03) == CIPHER_##a)
 #define GET_ENC void (*blockCrypt)(const uint8_t* key, const uint8_t* in, uint8_t* out, bool inverse) =\
-    ENC(RIJNDAEL256) ? Rijndael256 :\
-    ENC(RIJNDAEL192) ? Rijndael192 :\
-    ENC(RIJNDAEL128) ? Rijndael128 :\
-                       DES
+    ENC(RIJNDAEL256) ? rijndael_256 :\
+    ENC(RIJNDAEL192) ? rijndael_192 :\
+    ENC(RIJNDAEL128) ? rijndael_128 :\
+                       des
 
-uint8_t KeyLength(uint8_t mode) {
+uint8_t key_length(uint8_t mode) {
     switch (mode & 0x03) {
     case CIPHER_DES:
         return 7;
@@ -45,7 +45,7 @@ uint8_t KeyLength(uint8_t mode) {
     }
 }
 
-uint8_t CipherBlockSize(uint8_t mode) {
+uint8_t cipher_blocksize(uint8_t mode) {
     switch (mode & 0x03) {
     case CIPHER_DES:
         return 8;
@@ -58,31 +58,31 @@ uint8_t CipherBlockSize(uint8_t mode) {
     }
 }
 
-int8_t CipherFunCode(char* fun) {
-    if (!strcmp(fun, "des")) {
+int8_t cipher_function_code(char* function) {
+    if (!strcmp(function, "des")) {
         return CIPHER_DES;
-    } else if (!strcmp(fun, "aes128")) {
+    } else if (!strcmp(function, "aes128")) {
         return CIPHER_AES128;
-    } else if (!strcmp(fun, "aes192")) {
+    } else if (!strcmp(function, "aes192")) {
         return CIPHER_AES192;
-    } else if (!strcmp(fun, "aes256")) {
+    } else if (!strcmp(function, "aes256")) {
         return CIPHER_AES256;
     } else {
         return -1;
     }
 }
 
-void CipherInit(Cipher_CTX* ctx, uint8_t mode, const uint8_t* key, const uint8_t* IV) {
-    memset(ctx, 0, sizeof(Cipher_CTX));
-    memcpy(ctx->key, key, KeyLength(mode));
+void cipher_init(CipherContext* ctx, uint8_t mode, const uint8_t* key, const uint8_t* IV) {
+    memset(ctx, 0, sizeof(CipherContext));
+    memcpy(ctx->key, key, key_length(mode));
     ctx->mode = mode;
-    ctx->blocksize = CipherBlockSize(mode);
+    ctx->blocksize = cipher_blocksize(mode);
     if (IV) {
         memcpy(ctx->feedback, IV, ctx->blocksize);
     }
 }
 
-void CipherBlock(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, bool inverse) {
+void cipher_block(CipherContext* ctx, uint8_t* out, const uint8_t* in, bool inverse) {
     uint8_t mode = ctx->mode;
     GET_ENC;
 
@@ -155,88 +155,88 @@ void CipherBlock(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, bool inverse)
     }
 }
 
-size_t CipherUpdate(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, size_t len, bool inverse) {
-    size_t availBuf = ctx->blocksize - ctx->bufLen;
-    size_t remain = len;
-    if (remain >= availBuf) {
-        memcpy(ctx->buffer + ctx->bufLen, in, availBuf);
-        CipherBlock(ctx, out, ctx->buffer, inverse);
-        remain -= availBuf;
-        in += availBuf;
+size_t cipher_update(CipherContext* ctx, uint8_t* out, const uint8_t* in, size_t length, bool inverse) {
+    size_t free_bytes_in_buffer = ctx->blocksize - ctx->bytes_in_buffer;
+    size_t remain = length;
+    if (remain >= free_bytes_in_buffer) {
+        memcpy(ctx->buffer + ctx->bytes_in_buffer, in, free_bytes_in_buffer);
+        cipher_block(ctx, out, ctx->buffer, inverse);
+        remain -= free_bytes_in_buffer;
+        in += free_bytes_in_buffer;
         out += ctx->blocksize;
 
         while (remain >= ctx->blocksize) {
-            CipherBlock(ctx, out, in, inverse);
+            cipher_block(ctx, out, in, inverse);
             remain -= ctx->blocksize;
             in += ctx->blocksize;
             out += ctx->blocksize;
         }
 
-        size_t r = len + ctx->bufLen - remain;
+        size_t r = length + ctx->bytes_in_buffer - remain;
         memcpy(ctx->buffer, in, remain);
-        ctx->bufLen = remain;
+        ctx->bytes_in_buffer = remain;
         return r;
     } else {
-        memcpy(ctx->buffer + ctx->bufLen, in, len);
-        ctx->bufLen += len;
+        memcpy(ctx->buffer + ctx->bytes_in_buffer, in, length);
+        ctx->bytes_in_buffer += length;
         return 0;
     }
 }
 
-size_t CipherFinal(Cipher_CTX* ctx, uint8_t* out, bool inverse) {
-    if (!ctx->bufLen) {
+size_t cipher_final(CipherContext* ctx, uint8_t* out, bool inverse) {
+    if (!ctx->bytes_in_buffer) {
         return 0;
     }
 
-    memset(ctx->buffer + ctx->bufLen, 0, ctx->blocksize - ctx->bufLen);
-    CipherBlock(ctx, out, ctx->buffer, inverse);
+    memset(ctx->buffer + ctx->bytes_in_buffer, 0, ctx->blocksize - ctx->bytes_in_buffer);
+    cipher_block(ctx, out, ctx->buffer, inverse);
     return ctx->blocksize;
 }
 
-size_t Cipher(uint8_t* out, const uint8_t* in, uint32_t len, uint8_t mode, const uint8_t* key, const uint8_t* IV, bool inverse) {
-    Cipher_CTX ctx;
-    CipherInit(&ctx, mode, key, IV);
-    size_t ret = CipherUpdate(&ctx, out, in, len, inverse);
-    ret += CipherFinal(&ctx, out, inverse);
+size_t cipher(uint8_t* out, const uint8_t* in, uint32_t length, uint8_t mode, const uint8_t* key, const uint8_t* IV, bool inverse) {
+    CipherContext ctx;
+    cipher_init(&ctx, mode, key, IV);
+    size_t ret = cipher_update(&ctx, out, in, length, inverse);
+    ret += cipher_final(&ctx, out, inverse);
     return ret;
 }
 
-void EncryptInit(Encrypt_CTX* ctx, uint8_t mode, const uint8_t* key, const uint8_t* IV) {
-    CipherInit(ctx, mode, key, IV);
+void encrypt_init(EncryptContext* ctx, uint8_t mode, const uint8_t* key, const uint8_t* IV) {
+    cipher_init(ctx, mode, key, IV);
 }
 
-void EncryptBlock(Encrypt_CTX* ctx, uint8_t* out, const uint8_t* in) {
-    CipherBlock(ctx, out, in, false);
+void encrypt_block(EncryptContext* ctx, uint8_t* out, const uint8_t* in) {
+    cipher_block(ctx, out, in, false);
 }
 
-size_t EncryptUpdate(Encrypt_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t len) {
-    return CipherUpdate(ctx, out, in, len, false);
+size_t encrypt_udpate(EncryptContext* ctx, uint8_t* out, const uint8_t* in, uint32_t length) {
+    return cipher_update(ctx, out, in, length, false);
 }
 
-size_t EncryptFinal(Encrypt_CTX* ctx, uint8_t* out) {
-    return CipherFinal(ctx, out, false);
+size_t encrypt_final(EncryptContext* ctx, uint8_t* out) {
+    return cipher_final(ctx, out, false);
 }
 
-size_t Encrypt(uint8_t* o, const uint8_t* i, uint32_t l, uint8_t m, const uint8_t* k, const uint8_t* IV) {
-    return Cipher(o, i, l, m, k, IV, true);
+size_t encrypt(uint8_t* o, const uint8_t* i, uint32_t l, uint8_t m, const uint8_t* k, const uint8_t* IV) {
+    return cipher(o, i, l, m, k, IV, true);
 }
 
-void DecryptInit(Decrypt_CTX* ctx, uint8_t mode, const uint8_t* key, const uint8_t* IV) {
-    CipherInit(ctx, mode, key, IV);
+void decrypt_init(DecryptContext* ctx, uint8_t mode, const uint8_t* key, const uint8_t* IV) {
+    cipher_init(ctx, mode, key, IV);
 }
 
-void DecryptBlock(Decrypt_CTX* ctx, uint8_t* out, const uint8_t* in) {
-    CipherBlock(ctx, out, in, true);
+void decrypt_block(DecryptContext* ctx, uint8_t* out, const uint8_t* in) {
+    cipher_block(ctx, out, in, true);
 }
 
-size_t DecryptUpdate(Decrypt_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t len) {
-    return CipherUpdate(ctx, out, in, len, true);
+size_t decrypt_update(DecryptContext* ctx, uint8_t* out, const uint8_t* in, uint32_t length) {
+    return cipher_update(ctx, out, in, length, true);
 }
 
-size_t DecryptFinal(Decrypt_CTX* ctx, uint8_t* out) {
-    return CipherFinal(ctx, out, true);
+size_t decrypt_final(DecryptContext* ctx, uint8_t* out) {
+    return cipher_final(ctx, out, true);
 }
 
-size_t Decrypt(uint8_t* o, const uint8_t* i, uint32_t l, uint8_t m, const uint8_t* k, const uint8_t* IV) {
-    return Cipher(o, i, l, m, k, IV, true);
+size_t decrypt(uint8_t* o, const uint8_t* i, uint32_t l, uint8_t m, const uint8_t* k, const uint8_t* IV) {
+    return cipher(o, i, l, m, k, IV, true);
 }

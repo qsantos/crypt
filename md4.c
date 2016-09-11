@@ -29,26 +29,26 @@ static const uint8_t* padding = (uint8_t*) (
     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 );
 
-static const MD4_CTX initctx = { 0, 0, {0}, 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476};
+static const MD4Context initctx = { 0, 0, {0}, 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476};
 
-void MD4Init(MD4_CTX* md4) {
-    memcpy(md4, &initctx, sizeof(MD4_CTX));
+void md4_init(MD4Context* ctx) {
+    memcpy(ctx, &initctx, sizeof(MD4Context));
 }
 
 #define F(X,Y,Z) (((X) & (Y)) | (~(X) & (Z)))
 #define G(X,Y,Z) (((X) & (Y)) | ((X) & (Z)) | ((Y) & (Z)))
 #define H(X,Y,Z) ((X) ^ (Y) ^ (Z))
 #define ROT(x,n) ((x) << n) | ((x) >> (32-n))
-#define OP1(a,b,c,d,k,s) md4->a = ROT(md4->a + F(md4->b,md4->c,md4->d) + X[k] + 0x00000000, s);
-#define OP2(a,b,c,d,k,s) md4->a = ROT(md4->a + G(md4->b,md4->c,md4->d) + X[k] + 0x5A827999, s);
-#define OP3(a,b,c,d,k,s) md4->a = ROT(md4->a + H(md4->b,md4->c,md4->d) + X[k] + 0x6ED9EBA1, s);
-void MD4Block(MD4_CTX* md4, const uint8_t block[64]) {
+#define OP1(a,b,c,d,k,s) ctx->a = ROT(ctx->a + F(ctx->b,ctx->c,ctx->d) + X[k] + 0x00000000, s);
+#define OP2(a,b,c,d,k,s) ctx->a = ROT(ctx->a + G(ctx->b,ctx->c,ctx->d) + X[k] + 0x5A827999, s);
+#define OP3(a,b,c,d,k,s) ctx->a = ROT(ctx->a + H(ctx->b,ctx->c,ctx->d) + X[k] + 0x6ED9EBA1, s);
+void md4_block(MD4Context* ctx, const uint8_t block[64]) {
     uint32_t* X = (uint32_t*) block;
 
-    uint32_t AA = md4->A;
-    uint32_t BB = md4->B;
-    uint32_t CC = md4->C;
-    uint32_t DD = md4->D;
+    uint32_t AA = ctx->A;
+    uint32_t BB = ctx->B;
+    uint32_t CC = ctx->C;
+    uint32_t DD = ctx->D;
 
     OP1(A,B,C,D,  0, 3)  OP1(D,A,B,C,  1, 7)  OP1(C,D,A,B,  2,11)  OP1(B,C,D,A,  3,19)
     OP1(A,B,C,D,  4, 3)  OP1(D,A,B,C,  5, 7)  OP1(C,D,A,B,  6,11)  OP1(B,C,D,A,  7,19)
@@ -65,52 +65,52 @@ void MD4Block(MD4_CTX* md4, const uint8_t block[64]) {
     OP3(A,B,C,D,  1, 3)  OP3(D,A,B,C,  9, 9)  OP3(C,D,A,B,  5,11)  OP3(B,C,D,A, 13,15)
     OP3(A,B,C,D,  3, 3)  OP3(D,A,B,C, 11, 9)  OP3(C,D,A,B,  7,11)  OP3(B,C,D,A, 15,15)
 
-    md4->A += AA;
-    md4->B += BB;
-    md4->C += CC;
-    md4->D += DD;
+    ctx->A += AA;
+    ctx->B += BB;
+    ctx->C += CC;
+    ctx->D += DD;
 
     // TODO : true cleaning
 }
 
-void MD4Update(MD4_CTX* md4, const uint8_t* data, size_t len) {
+void md4_update(MD4Context* ctx, const uint8_t* data, size_t length) {
     size_t i = 0;
-    size_t availBuf = 64 - md4->bufLen;
-    if (len >= availBuf) {
-        memcpy(md4->buffer + md4->bufLen, data, availBuf);
-        MD4Block(md4, md4->buffer);
-        i = availBuf;
-        md4->bufLen = 0;
+    size_t free_bytes_in_buffer = 64 - ctx->bytes_in_buffer;
+    if (length >= free_bytes_in_buffer) {
+        memcpy(ctx->buffer + ctx->bytes_in_buffer, data, free_bytes_in_buffer);
+        md4_block(ctx, ctx->buffer);
+        i = free_bytes_in_buffer;
+        ctx->bytes_in_buffer = 0;
 
-        while (i + 63 < len) {
-            MD4Block(md4, data + i);
+        while (i + 63 < length) {
+            md4_block(ctx, data + i);
             i+= 64;
         }
     }
-    memcpy(md4->buffer + md4->bufLen, data + i, len - i);
-    md4->bufLen += len - i;
-    md4->len += len;
+    memcpy(ctx->buffer + ctx->bytes_in_buffer, data + i, length - i);
+    ctx->bytes_in_buffer += length - i;
+    ctx->total_length += length;
 
     // TODO : true cleaning
 }
 
-void MD4Final(MD4_CTX* md4, uint8_t dst[16]) {
-    uint64_t len = md4->len << 3;
-    size_t pad = (md4->bufLen < 56 ? 56 : 120) - md4->bufLen;
-    MD4Update(md4, padding, pad);
-    MD4Update(md4, (uint8_t*) &len, 8);
+void md4_final(MD4Context* ctx, uint8_t dst[16]) {
+    uint64_t length = ctx->total_length << 3;
+    size_t pad = (ctx->bytes_in_buffer < 56 ? 56 : 120) - ctx->bytes_in_buffer;
+    md4_update(ctx, padding, pad);
+    md4_update(ctx, (uint8_t*) &length, 8);
 
-    memcpy(dst +  0, &md4->A, 4);
-    memcpy(dst +  4, &md4->B, 4);
-    memcpy(dst +  8, &md4->C, 4);
-    memcpy(dst + 12, &md4->D, 4);
+    memcpy(dst +  0, &ctx->A, 4);
+    memcpy(dst +  4, &ctx->B, 4);
+    memcpy(dst +  8, &ctx->C, 4);
+    memcpy(dst + 12, &ctx->D, 4);
 
     // TODO : true cleaning
 }
 
-void MD4(uint8_t dst[16], const uint8_t* src, size_t slen) {
-    MD4_CTX md4;
-    MD4Init(&md4);
-    MD4Update(&md4, src, slen);
-    MD4Final(&md4, dst);
+void md4(uint8_t dst[16], const uint8_t* src, size_t length) {
+    MD4Context ctx;
+    md4_init(&ctx);
+    md4_update(&ctx, src, length);
+    md4_final(&ctx, dst);
 }

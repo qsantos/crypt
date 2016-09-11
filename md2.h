@@ -19,23 +19,24 @@
 #ifndef MD2_H
 #define MD2_H
 
-// MD2 provides a 16 byte hash
+// md2 provides a 16 byte hash
 #include <stddef.h>
 #include <stdint.h>
 
 typedef struct {
-    size_t len;
-    size_t bufLen;
+    size_t total_length;
+    size_t bytes_in_buffer;
     uint8_t buffer[16];
     uint8_t C[16];
     uint8_t X[16];
-} MD2_CTX;
+    uint8_t dummy[16];
+} MD2Context;
 
-void MD2Init(MD2_CTX* md2);
-void MD2Block(MD2_CTX* md2, const uint8_t block[16]);
-void MD2Update(MD2_CTX* md2, const uint8_t* data, size_t len);
-void MD2Final(MD2_CTX* md2, uint8_t dst[16]);
+void md2_init(MD2Context* ctx);
+void md2_block(MD2Context* ctx, const uint8_t block[16]);
+void md2_update(MD2Context* ctx, const uint8_t* data, size_t length);
+void md2_final(MD2Context* ctx, uint8_t dst[16]);
 
-void MD2(uint8_t dst[16], const uint8_t* src, size_t slen);
+void md2(uint8_t dst[16], const uint8_t* src, size_t length);
 
 #endif

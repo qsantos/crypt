@@ -20,33 +20,33 @@
 #define SHA512_h
 
 // SHA-2: SHA-384/SHA-512
-// SHA512 provides a 64 byte hash
-// SHA384 provides a 48 byte hash
+// ctx provides a 64 byte hash
+// sha384 provides a 48 byte hash
 #include <stddef.h>
 #include <stdint.h>
 
 typedef struct {
-    size_t len;
-    size_t bufLen;
+    size_t total_length;
+    size_t bytes_in_buffer;
     uint8_t buffer[128];
     uint64_t H[8];
-} SHA512_CTX;
+} SHA512Context;
 
-void SHA512Init(SHA512_CTX* sha512);
-void SHA512Block(SHA512_CTX* sha512, const uint8_t block[128]);
-void SHA512Update(SHA512_CTX* sha512, const uint8_t* data, size_t len);
-void SHA512Final(SHA512_CTX* sha512, uint8_t dst[64]);
+void sha512_init(SHA512Context* ctx);
+void sha512_block(SHA512Context* ctx, const uint8_t block[128]);
+void sha512_update(SHA512Context* ctx, const uint8_t* data, size_t length);
+void sha512_final(SHA512Context* ctx, uint8_t dst[64]);
 
-void SHA512(uint8_t dst[64], const uint8_t* src, size_t slen);
+void sha512(uint8_t dst[64], const uint8_t* src, size_t length);
 
 
-typedef SHA512_CTX SHA384_CTX;
+typedef SHA512Context SHA384Context;
 
-void SHA384Init(SHA384_CTX* sha384);
-void SHA384Block(SHA384_CTX* sha384, const uint8_t block[128]);
-void SHA384Update(SHA384_CTX* sha384, const uint8_t* data, size_t len);
-void SHA384Final(SHA384_CTX* sha384, uint8_t dst[48]);
+void sha384_init(SHA384Context* ctx);
+void sha384_block(SHA384Context* ctx, const uint8_t block[128]);
+void sha384_update(SHA384Context* ctx, const uint8_t* data, size_t length);
+void sha384_final(SHA384Context* ctx, uint8_t dst[48]);
 
-void SHA384(uint8_t dst[48], const uint8_t* src, size_t slen);
+void sha384(uint8_t dst[48], const uint8_t* src, size_t length);
 
 #endif

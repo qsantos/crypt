@@ -29,10 +29,10 @@ static const uint8_t* padding = (uint8_t*) (
     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 );
 
-static const SHA1_CTX initctx = { 0, 0, {0}, {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0}, {0}};
+static const SHA1Context initctx = { 0, 0, {0}, {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0}, {0}};
 
-void SHA1Init(SHA1_CTX* sha1) {
-    memcpy(sha1, &initctx, sizeof(SHA1_CTX));
+void sha1_init(SHA1Context* ctx) {
+    memcpy(ctx, &initctx, sizeof(SHA1Context));
 }
 
 #define F(B,C,D) (((B) & (C)) | (~(B) & (D)))
@@ -44,7 +44,7 @@ void SHA1Init(SHA1_CTX* sha1) {
     E = D; D = C; C = ROT(B, 30); B = A; A = TEMP; \
     TEMP = 0; \
 }
-void SHA1Block(SHA1_CTX* sha1, const uint8_t block[64]) {
+void sha1_block(SHA1Context* ctx, const uint8_t block[64]) {
     uint32_t W[80];
     for (int t = 0; t < 16; t += 1) {
         W[t] = (uint32_t) ( (block[t*4] << 24) | (block[t*4+1] << 16) | (block[t*4+2] << 8) | (block[t*4+3] << 0) );
@@ -54,11 +54,11 @@ void SHA1Block(SHA1_CTX* sha1, const uint8_t block[64]) {
         W[t] = ROT(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1);
     }
 
-    uint32_t A = sha1->H[0];
-    uint32_t B = sha1->H[1];
-    uint32_t C = sha1->H[2];
-    uint32_t D = sha1->H[3];
-    uint32_t E = sha1->H[4];
+    uint32_t A = ctx->H[0];
+    uint32_t B = ctx->H[1];
+    uint32_t C = ctx->H[2];
+    uint32_t D = ctx->H[3];
+    uint32_t E = ctx->H[4];
 
     for (int t =  0; t < 20; t += 1) {
         OP(F, 0x5A827999);
@@ -73,32 +73,32 @@ void SHA1Block(SHA1_CTX* sha1, const uint8_t block[64]) {
         OP(G, 0xCA62C1D6);
     }
 
-    sha1->H[0] += A;
-    sha1->H[1] += B;
-    sha1->H[2] += C;
-    sha1->H[3] += D;
-    sha1->H[4] += E;
+    ctx->H[0] += A;
+    ctx->H[1] += B;
+    ctx->H[2] += C;
+    ctx->H[3] += D;
+    ctx->H[4] += E;
 
     // TODO : true cleaning
 }
 
-void SHA1Update(SHA1_CTX* sha1, const uint8_t* data, size_t len) {
+void sha1_update(SHA1Context* ctx, const uint8_t* data, size_t length) {
     size_t i = 0;
-    size_t availBuf = 64 - sha1->bufLen;
-    if (len >= availBuf) {
-        memcpy(sha1->buffer + sha1->bufLen, data, availBuf);
-        SHA1Block(sha1, sha1->buffer);
-        i = availBuf;
-        sha1->bufLen = 0;
+    size_t free_bytes_in_buffer = 64 - ctx->bytes_in_buffer;
+    if (length >= free_bytes_in_buffer) {
+        memcpy(ctx->buffer + ctx->bytes_in_buffer, data, free_bytes_in_buffer);
+        sha1_block(ctx, ctx->buffer);
+        i = free_bytes_in_buffer;
+        ctx->bytes_in_buffer = 0;
 
-        while (i + 63 < len) {
-            SHA1Block(sha1, data + i);
+        while (i + 63 < length) {
+            sha1_block(ctx, data + i);
             i+= 64;
         }
     }
-    memcpy(sha1->buffer + sha1->bufLen, data + i, len - i);
-    sha1->bufLen += len - i;
-    sha1->len += len;
+    memcpy(ctx->buffer + ctx->bytes_in_buffer, data + i, length - i);
+    ctx->bytes_in_buffer += length - i;
+    ctx->total_length += length;
 
     // TODO : true cleaning
 }
@@ -112,34 +112,34 @@ static void u32to8(uint32_t v, uint8_t* dst) {
     // TODO : true cleaning
 }
 
-void SHA1Final(SHA1_CTX* sha1, uint8_t dst[20]) {
-    uint64_t len = sha1->len << 3;
-    size_t pad = (sha1->bufLen < 56 ? 56 : 120) - sha1->bufLen;
-    SHA1Update(sha1, padding, pad);
+void sha1_final(SHA1Context* ctx, uint8_t dst[20]) {
+    uint64_t length = ctx->total_length << 3;
+    size_t pad = (ctx->bytes_in_buffer < 56 ? 56 : 120) - ctx->bytes_in_buffer;
+    sha1_update(ctx, padding, pad);
 
     uint8_t len8[8];
-    len8[7] = (uint8_t) (len >>  0);
-    len8[6] = (uint8_t) (len >>  8);
-    len8[5] = (uint8_t) (len >> 16);
-    len8[4] = (uint8_t) (len >> 24);
-    len8[3] = (uint8_t) (len >> 32);
-    len8[2] = (uint8_t) (len >> 40);
-    len8[1] = (uint8_t) (len >> 48);
-    len8[0] = (uint8_t) (len >> 56);
-    SHA1Update(sha1, len8, 8);
+    len8[7] = (uint8_t) (length >>  0);
+    len8[6] = (uint8_t) (length >>  8);
+    len8[5] = (uint8_t) (length >> 16);
+    len8[4] = (uint8_t) (length >> 24);
+    len8[3] = (uint8_t) (length >> 32);
+    len8[2] = (uint8_t) (length >> 40);
+    len8[1] = (uint8_t) (length >> 48);
+    len8[0] = (uint8_t) (length >> 56);
+    sha1_update(ctx, len8, 8);
 
-    u32to8(sha1->H[0], dst +  0);
-    u32to8(sha1->H[1], dst +  4);
-    u32to8(sha1->H[2], dst +  8);
-    u32to8(sha1->H[3], dst + 12);
-    u32to8(sha1->H[4], dst + 16);
+    u32to8(ctx->H[0], dst +  0);
+    u32to8(ctx->H[1], dst +  4);
+    u32to8(ctx->H[2], dst +  8);
+    u32to8(ctx->H[3], dst + 12);
+    u32to8(ctx->H[4], dst + 16);
 
     // TODO : true cleaning
 }
 
-void SHA1(uint8_t dst[20], const uint8_t* src, size_t slen) {
-    SHA1_CTX sha1;
-    SHA1Init(&sha1);
-    SHA1Update(&sha1, src, slen);
-    SHA1Final(&sha1, dst);
+void sha1(uint8_t dst[20], const uint8_t* src, size_t length) {
+    SHA1Context ctx;
+    sha1_init(&ctx);
+    sha1_update(&ctx, src, length);
+    sha1_final(&ctx, dst);
 }

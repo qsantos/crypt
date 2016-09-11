@@ -24,20 +24,20 @@
 #include <stdint.h>
 
 typedef struct {
-    size_t len;
-    size_t bufLen;
+    size_t total_length;
+    size_t bytes_in_buffer;
     uint8_t buffer[64];
     uint32_t A;
     uint32_t B;
     uint32_t C;
     uint32_t D;
-} MD4_CTX;
+} MD4Context;
 
-void MD4Init(MD4_CTX* md4);
-void MD4Block(MD4_CTX* md4, const uint8_t block[64]);
-void MD4Update(MD4_CTX* md4, const uint8_t* data, size_t len);
-void MD4Final(MD4_CTX* md4, uint8_t dst[16]);
+void md4_init(MD4Context* ctx);
+void md4_block(MD4Context* ctx, const uint8_t block[64]);
+void md4_update(MD4Context* ctx, const uint8_t* data, size_t length);
+void md4_final(MD4Context* ctx, uint8_t dst[16]);
 
-void MD4(uint8_t dst[16], const uint8_t* src, size_t slen);
+void md4(uint8_t dst[16], const uint8_t* src, size_t length);
 
 #endif

@@ -20,155 +20,125 @@
 
 #include <string.h>
 
-uint8_t HashBlockSize(uint8_t mode) {
+uint8_t hash_blocksize(uint8_t mode) {
     switch (mode & 0x07) {
-        case HASH_MD2:
-            return 16;
-        case HASH_MD4:
-        case HASH_MD5:
-        case HASH_SHA1:
-        case HASH_SHA256:
-        case HASH_SHA224:
-            return 64;
-        case HASH_SHA512:
-        case HASH_SHA384:
-            return 128;
-        default:
-            return 0;
+        case HASH_MD2: return 16;
+        case HASH_MD4: return 64;
+        case HASH_MD5: return 64;
+        case HASH_SHA1: return 64;
+        case HASH_SHA256: return 64;
+        case HASH_SHA224: return 64;
+        case HASH_SHA512: return 128;
+        case HASH_SHA384: return 128;
+        default: return 0;
     }
 }
 
-uint8_t DigestLength(uint8_t mode) {
+uint8_t digest_length(uint8_t mode) {
     switch (mode & 0x07) {
-    case HASH_MD2:
-    case HASH_MD4:
-    case HASH_MD5:
-        return 16;
-    case HASH_SHA1:
-        return 20;
-    case HASH_SHA256:
-        return 32;
-    case HASH_SHA224:
-        return 28;
-    case HASH_SHA512:
-        return 64;
-    case HASH_SHA384:
-        return 48;
-    default:
-        return 1;
+    case HASH_MD2: return 16;
+    case HASH_MD4: return 16;
+    case HASH_MD5: return 16;
+    case HASH_SHA1: return 20;
+    case HASH_SHA256: return 32;
+    case HASH_SHA224: return 28;
+    case HASH_SHA512: return 64;
+    case HASH_SHA384: return 48;
+    default: return 1;
     }
 }
 
-int8_t HashFunCode(char* fun) {
-    if (!strcmp(fun, "md2")) {
-        return HASH_MD2;
-    } else if (!strcmp(fun, "md4")) {
-        return HASH_MD4;
-    } else if (!strcmp(fun, "md5")) {
-        return HASH_MD5;
-    } else if (!strcmp(fun, "sha1")) {
-        return HASH_SHA1;
-    } else if (!strcmp(fun, "sha256")) {
-        return HASH_SHA256;
-    } else if (!strcmp(fun, "sha224")) {
-        return HASH_SHA224;
-    } else if (!strcmp(fun, "sha512")) {
-        return HASH_SHA512;
-    } else if (!strcmp(fun, "sha384")) {
-        return HASH_SHA384;
-    } else {
+int8_t hash_function_code(char* function) {
+    if      (!strcmp(function, "md2")) { return HASH_MD2; }
+    else if (!strcmp(function, "md4")) { return HASH_MD4; }
+    else if (!strcmp(function, "md5")) { return HASH_MD5; }
+    else if (!strcmp(function, "sha1")) { return HASH_SHA1; }
+    else if (!strcmp(function, "sha256")) { return HASH_SHA256; }
+    else if (!strcmp(function, "sha224")) { return HASH_SHA224; }
+    else if (!strcmp(function, "sha512")) { return HASH_SHA512; }
+    else if (!strcmp(function, "sha384")) { return HASH_SHA384; }
+    else {
         return -1;
     }
 }
 
-#define CASE1(F, G)           \
-case HASH_##F:                \
-    F##G((F##_CTX*) ctx); \
-    break;
-#define CASEX(F, G, ...)                   \
-case HASH_##F:                             \
-    F##G((F##_CTX*) ctx, __VA_ARGS__); \
-    break;
-void HashInit(uint8_t mode, Hash_CTX* ctx) {
+void hash_init(uint8_t mode, HashContext* ctx) {
     switch (mode) {
-    CASE1(MD2, Init);
-    CASE1(MD4, Init);
-    CASE1(MD5, Init);
-    CASE1(SHA1, Init);
-    CASE1(SHA256, Init);
-    CASE1(SHA224, Init);
-    CASE1(SHA512, Init);
-    CASE1(SHA384, Init);
-    default:
-        break;
+    case HASH_MD2:    md2_init   ((MD2Context*)    ctx); break;
+    case HASH_MD4:    md4_init   ((MD4Context*)    ctx); break;
+    case HASH_MD5:    md5_init   ((MD5Context*)    ctx); break;
+    case HASH_SHA1:   sha1_init  ((SHA1Context*)   ctx); break;
+    case HASH_SHA256: sha256_init((SHA256Context*) ctx); break;
+    case HASH_SHA224: sha224_init((SHA224Context*) ctx); break;
+    case HASH_SHA512: sha512_init((SHA512Context*) ctx); break;
+    case HASH_SHA384: sha384_init((SHA384Context*) ctx); break;
+    default: break;
     }
 }
 
 typedef struct {
-    size_t len;
-    size_t bufLen;
+    size_t total_length;
+    size_t bytes_in_buffer;
     uint8_t buffer[64];
-} Any_CTX;
+} AnyContext;
 
-void HashBlock(uint8_t mode, Any_CTX* ctx, const uint8_t* data) {
+void hash_block(uint8_t mode, AnyContext* ctx, const uint8_t* data) {
     switch (mode) {
-    CASEX(MD2, Block, data);
-    CASEX(MD4, Block, data);
-    CASEX(MD5, Block, data);
-    CASEX(SHA1, Block, data);
-    CASEX(SHA256, Block, data);
-    CASEX(SHA224, Block, data);
-    CASEX(SHA512, Block, data);
-    CASEX(SHA384, Block, data);
-    default:
-        break;
+    case HASH_MD2:    md2_block   ((MD2Context*)    ctx, data); break;
+    case HASH_MD4:    md4_block   ((MD4Context*)    ctx, data); break;
+    case HASH_MD5:    md5_block   ((MD5Context*)    ctx, data); break;
+    case HASH_SHA1:   sha1_block  ((SHA1Context*)   ctx, data); break;
+    case HASH_SHA256: sha256_block((SHA256Context*) ctx, data); break;
+    case HASH_SHA224: sha224_block((SHA224Context*) ctx, data); break;
+    case HASH_SHA512: sha512_block((SHA512Context*) ctx, data); break;
+    case HASH_SHA384: sha384_block((SHA384Context*) ctx, data); break;
+    default: break;
     }
 }
 
-void HashUpdate(uint8_t mode, Hash_CTX* _ctx, const uint8_t* data, uint64_t len) {
-    Any_CTX* ctx = (Any_CTX*) _ctx;
-    uint8_t blockSize = HashBlockSize(mode);
+void hash_update(uint8_t mode, HashContext* _ctx, const uint8_t* data, uint64_t length) {
+    AnyContext* ctx = (AnyContext*) _ctx;
+    uint8_t blockSize = hash_blocksize(mode);
     if (blockSize == 0) {
         return;
     }
 
     size_t i = 0;
-    size_t availBuf = blockSize - ctx->bufLen;
-    if (len >= availBuf) {
-        memcpy(ctx->buffer + ctx->bufLen, data, availBuf);
-        HashBlock(mode, ctx, ctx->buffer);
-        i = availBuf;
-        ctx->bufLen = 0;
+    size_t free_bytes_in_buffer = blockSize - ctx->bytes_in_buffer;
+    if (length >= free_bytes_in_buffer) {
+        memcpy(ctx->buffer + ctx->bytes_in_buffer, data, free_bytes_in_buffer);
+        hash_block(mode, ctx, ctx->buffer);
+        i = free_bytes_in_buffer;
+        ctx->bytes_in_buffer = 0;
 
-        size_t last = len - blockSize;
+        size_t last = length - blockSize;
         while (i <= last) {
-            HashBlock(mode, ctx, data + i);
+            hash_block(mode, ctx, data + i);
             i+= blockSize;
         }
     }
-    memcpy(ctx->buffer + ctx->bufLen, data + i, len - i);
-    ctx->bufLen += len - i;
-    ctx->len += len;
+    memcpy(ctx->buffer + ctx->bytes_in_buffer, data + i, length - i);
+    ctx->bytes_in_buffer += length - i;
+    ctx->total_length += length;
 }
 
-void HashFinal(uint8_t mode, Hash_CTX* ctx, uint8_t* dst) {
+void hash_final(uint8_t mode, HashContext* ctx, uint8_t* dst) {
     switch (mode) {
-    CASEX(MD2, Final, dst);
-    CASEX(MD4, Final, dst);
-    CASEX(MD5, Final, dst);
-    CASEX(SHA1, Final, dst);
-    CASEX(SHA256, Final, dst);
-    CASEX(SHA224, Final, dst);
-    CASEX(SHA512, Final, dst);
-    CASEX(SHA384, Final, dst);
-    default:
-        break;
+    case HASH_MD2:    md2_final   ((MD2Context*)    ctx, dst); break;
+    case HASH_MD4:    md4_final   ((MD4Context*)    ctx, dst); break;
+    case HASH_MD5:    md5_final   ((MD5Context*)    ctx, dst); break;
+    case HASH_SHA1:   sha1_final  ((SHA1Context*)   ctx, dst); break;
+    case HASH_SHA256: sha256_final((SHA256Context*) ctx, dst); break;
+    case HASH_SHA224: sha224_final((SHA224Context*) ctx, dst); break;
+    case HASH_SHA512: sha512_final((SHA512Context*) ctx, dst); break;
+    case HASH_SHA384: sha384_final((SHA384Context*) ctx, dst); break;
+    default: break;
     }
 }
 
-void Hash(uint8_t mode, uint8_t* digest, const uint8_t* data, uint64_t len) {
-    Hash_CTX ctx;
-    HashInit  (mode, &ctx);
-    HashUpdate(mode, &ctx, data, len);
-    HashFinal (mode, &ctx, digest);
+void hash(uint8_t mode, uint8_t* digest, const uint8_t* data, uint64_t length) {
+    HashContext ctx;
+    hash_init  (mode, &ctx);
+    hash_update(mode, &ctx, data, length);
+    hash_final (mode, &ctx, digest);
 }

@@ -58,50 +58,50 @@
 #define CIPHER_MODE_TOFB  (CIPHER_CHAIN_EDE | CIPHER_MODE_OFB )
 #define CIPHER_MODE_TCTR  (CIPHER_CHAIN_EDE | CIPHER_MODE_CTR )
 
-uint8_t KeyLength(uint8_t mode);
-uint8_t CipherBlockSize(uint8_t mode);
-int8_t CipherFunCode(char* fun);
+uint8_t key_length(uint8_t mode);
+uint8_t cipher_blocksize(uint8_t mode);
+int8_t cipher_function_code(char* function);
 
 
 
 typedef struct {
     size_t blocksize;
-    size_t bufLen;
+    size_t bytes_in_buffer;
     uint8_t buffer[16];
     uint8_t feedback[16];
     uint8_t key[32];
     uint8_t mode;
     uint8_t dummy[7];
-} Cipher_CTX;
+} CipherContext;
 
-void CipherInit(Cipher_CTX* ctx, uint8_t mode, const uint8_t* key, const uint8_t* IV);
-void CipherBlock(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, bool inverse);
-size_t CipherUpdate(Cipher_CTX* ctx, uint8_t* out, const uint8_t* in, size_t len, bool inverse);
-size_t CipherFinal(Cipher_CTX* ctx, uint8_t* out, bool inverse);
+void cipher_init(CipherContext* ctx, uint8_t mode, const uint8_t* key, const uint8_t* IV);
+void cipher_block(CipherContext* ctx, uint8_t* out, const uint8_t* in, bool inverse);
+size_t cipher_update(CipherContext* ctx, uint8_t* out, const uint8_t* in, size_t length, bool inverse);
+size_t cipher_final(CipherContext* ctx, uint8_t* out, bool inverse);
 
-size_t Cipher(uint8_t* out, const uint8_t* in, uint32_t len,
+size_t cipher(uint8_t* out, const uint8_t* in, uint32_t length,
               uint8_t mode, const uint8_t* key, const uint8_t* IV, bool inverse);
 
 
 
-typedef Cipher_CTX Encrypt_CTX;
+typedef CipherContext EncryptContext;
 
-void EncryptInit(Encrypt_CTX* ctx, uint8_t mode, const uint8_t* key, const uint8_t* IV);
-void EncryptBlock(Encrypt_CTX* ctx, uint8_t* out, const uint8_t* in);
-size_t EncryptUpdate(Encrypt_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t len);
-size_t EncryptFinal(Encrypt_CTX* ctx, uint8_t* out);
+void encrypt_init(EncryptContext* ctx, uint8_t mode, const uint8_t* key, const uint8_t* IV);
+void encrypt_block(EncryptContext* ctx, uint8_t* out, const uint8_t* in);
+size_t encrypt_udpate(EncryptContext* ctx, uint8_t* out, const uint8_t* in, uint32_t length);
+size_t encrypt_final(EncryptContext* ctx, uint8_t* out);
 
-size_t Encrypt(uint8_t* o, const uint8_t* i, uint32_t l, uint8_t m, const uint8_t* k, const uint8_t* IV);
+size_t encrypt(uint8_t* o, const uint8_t* i, uint32_t l, uint8_t m, const uint8_t* k, const uint8_t* IV);
 
 
 
-typedef Cipher_CTX Decrypt_CTX;
+typedef CipherContext DecryptContext;
 
-void DecryptInit(Decrypt_CTX* ctx, uint8_t mode, const uint8_t* key, const uint8_t* IV);
-void DecryptBlock(Decrypt_CTX* ctx, uint8_t* out, const uint8_t* in);
-size_t DecryptUpdate(Decrypt_CTX* ctx, uint8_t* out, const uint8_t* in, uint32_t len);
-size_t DecryptFinal(Decrypt_CTX* ctx, uint8_t* out);
+void decrypt_init(DecryptContext* ctx, uint8_t mode, const uint8_t* key, const uint8_t* IV);
+void decrypt_block(DecryptContext* ctx, uint8_t* out, const uint8_t* in);
+size_t decrypt_update(DecryptContext* ctx, uint8_t* out, const uint8_t* in, uint32_t length);
+size_t decrypt_final(DecryptContext* ctx, uint8_t* out);
 
-size_t Decrypt(uint8_t* o, const uint8_t* i, uint32_t l, uint8_t m, const uint8_t* k, const uint8_t* IV);
+size_t decrypt(uint8_t* o, const uint8_t* i, uint32_t l, uint8_t m, const uint8_t* k, const uint8_t* IV);
 
 #endif

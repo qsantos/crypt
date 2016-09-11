@@ -142,9 +142,9 @@ static const uint8_t shifts[] = {
     2, 2, 2, 1,
 };
 
-static void permute(const uint8_t* permutation, size_t len, const uint8_t* in, uint8_t* out) {
+static void permute(const uint8_t* permutation, size_t length, const uint8_t* in, uint8_t* out) {
     size_t b = 0;
-    for (size_t i = 0; i < len; i += 1) {
+    for (size_t i = 0; i < length; i += 1) {
         uint8_t v = 0;
         for (size_t j = 0; j < 8; j += 1) {
             uint8_t bit = permutation[b];
@@ -185,7 +185,7 @@ static void f(uint8_t R[4], uint8_t K[6], uint8_t out[4]) {
 
 #define CD_LSHIFT(C,s) C = ((C << s) | (C >> (28-s))) & 0xFFFFFFF
 #define CD_RSHIFT(C,s) C = ((C >> s) | (C << (28-s))) & 0xFFFFFFF
-void DES(const uint8_t key[7], const uint8_t in[8], uint8_t out[8], bool inverse) {
+void des(const uint8_t key[7], const uint8_t in[8], uint8_t out[8], bool inverse) {
     int p = 0;
     uint8_t LR[2][8];
     permute(IP, 8, in, LR[p]);

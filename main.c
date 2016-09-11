@@ -24,7 +24,7 @@
 #include "hash.h"
 #include "cipher.h"
 
-static void checkDigestFile(uint8_t mode, const char* file) {
+static void check_digest_against_file(uint8_t mode, const char* file) {
     FILE* f = fopen(file, "r");
     if (!f) {
         fprintf(stderr, "Could not open '%s'\n", file);
@@ -39,16 +39,16 @@ static void checkDigestFile(uint8_t mode, const char* file) {
         if (feof(f)) {
             break;
         }
-        char* hash = strtok(line, " ");
+        char* digest = strtok(line, " ");
         char* str  = strtok(NULL, "\n");
-        if (hash && str) {
+        if (digest && str) {
             uint8_t result[64];
-            Hash(mode, result, (uint8_t*) str, strlen(str));
-            int hashLen = DigestLength(mode);
-            for (int i = 0; i < hashLen; i += 1) {
+            hash(mode, result, (uint8_t*) str, strlen(str));
+            int length = digest_length(mode);
+            for (int i = 0; i < length; i += 1) {
                 char digit[3];
                 snprintf(digit, 3, "%.2x", result[i]);
-                if (digit[0] != hash[2*i] || digit[1] != hash[2*i+1]) {
+                if (digit[0] != digest[2*i] || digit[1] != digest[2*i+1]) {
                     printf("'%s' got wrong hash\n", str);
                     break;
                 }
@@ -71,12 +71,12 @@ static void usage(int argc, char** argv) {
     fprintf(stderr,
         "Usage: %s mode    [OPTIONS]\n"
         "          tests\n"
-        "          hash    fun [in]\n"
-        "          encrypt fun key [in [out]]\n"
-        "          decrypt fun key [in [out]]\n"
+        "          hash    function [in]\n"
+        "          encrypt function key [in [out]]\n"
+        "          decrypt function key [in [out]]\n"
         "\n"
         "PARAMS:\n"
-        "  fun  the function to use (md2, md4, md5, sha1, sha256, sha224, sha512, sha384)\n"
+        "  function  the function to use (ctx, ctx, ctx, ctx, ctx, ctx, ctx, ctx)\n"
         "  in   an input file (default: stdin)\n"
         "  out  an output file (default: stdout)\n"
         "  key  a cipher key file\n"
@@ -120,33 +120,33 @@ int main(int argc, char** argv) {
 
     switch (mode) {
     case TESTS:
-        checkDigestFile(HASH_MD2, "tests/md2");
-        checkDigestFile(HASH_MD4, "tests/md4");
-        checkDigestFile(HASH_MD5, "tests/md5");
-        checkDigestFile(HASH_SHA1, "tests/sha1");
-        checkDigestFile(HASH_SHA256, "tests/sha256");
-        checkDigestFile(HASH_SHA224, "tests/sha224");
-        checkDigestFile(HASH_SHA512, "tests/sha512");
-        checkDigestFile(HASH_SHA384, "tests/sha384");
+        check_digest_against_file(HASH_MD2, "tests/md2");
+        check_digest_against_file(HASH_MD4, "tests/md4");
+        check_digest_against_file(HASH_MD5, "tests/md5");
+        check_digest_against_file(HASH_SHA1, "tests/sha1");
+        check_digest_against_file(HASH_SHA256, "tests/sha256");
+        check_digest_against_file(HASH_SHA224, "tests/sha224");
+        check_digest_against_file(HASH_SHA512, "tests/sha512");
+        check_digest_against_file(HASH_SHA384, "tests/sha384");
         break;
     case HASH: {
         if (argc < 3) {
-            ERROR("Hash function not provided\n");
+            ERROR("hash function not provided\n");
         }
         char* filename = argc >= 4 ? argv[3] : NULL;
 
-        int8_t _fun = HashFunCode(argv[2]);
-        if (_fun < 0) {
+        int8_t _function = hash_function_code(argv[2]);
+        if (_function < 0) {
             ERROR("Invalid hash function\n");
         }
-        uint8_t fun = (uint8_t) _fun;
+        uint8_t function = (uint8_t) _function;
 
-        uint8_t dlen = DigestLength(fun);
+        uint8_t dlen = digest_length(function);
         uint8_t* digest = (uint8_t*) malloc(dlen);
         assert(digest);
 
-        Hash_CTX ctx;
-        HashInit(fun, &ctx);
+        HashContext ctx;
+        hash_init(function, &ctx);
         FILE* in = filename ? fopen(filename, "r") : stdin;
         if (!in) {
             ERROR("Could not open input file\n");
@@ -155,10 +155,10 @@ int main(int argc, char** argv) {
         while (!feof(in)) {
             uint8_t buffer[1024];
             size_t n = fread(buffer, 1, 1024, in);
-            HashUpdate(fun, &ctx, buffer, n);
+            hash_update(function, &ctx, buffer, n);
         }
         fclose(in);
-        HashFinal(fun, &ctx, digest);
+        hash_final(function, &ctx, digest);
 
         for (int i = 0; i < dlen; i += 1) {
             printf("%.2x", digest[i]);
@@ -172,7 +172,7 @@ int main(int argc, char** argv) {
     case ENCRYPT:
     case DECRYPT:
         if (argc < 3) {
-            ERROR("Cipher function not provided\n");
+            ERROR("cipher function not provided\n");
         }
         if (argc < 4) {
             ERROR("Key file must be provided\n");
@@ -182,14 +182,14 @@ int main(int argc, char** argv) {
         char* fileout = argc >= 6 ? argv[5] : NULL;
 
         // get cipher code
-        int8_t _fun = CipherFunCode(argv[2]);
-        if (_fun < 0) {
+        int8_t _function = cipher_function_code(argv[2]);
+        if (_function < 0) {
             ERROR("Invalid cipher function\n");
         }
-        uint8_t fun = (uint8_t) _fun;
+        uint8_t function = (uint8_t) _function;
 
         // load key
-        uint8_t keylength = KeyLength(fun);
+        uint8_t keylength = key_length(function);
         uint8_t* key = malloc(keylength);
         assert(key);
         FILE* k = fopen(argv[3], "r");
@@ -212,7 +212,7 @@ int main(int argc, char** argv) {
         if (!out) {
             ERROR("Could not open output file\n");
         }
-        uint8_t blocksize = CipherBlockSize(fun);
+        uint8_t blocksize = cipher_blocksize(function);
         uint32_t bufsz = 16U * blocksize;
         uint8_t* bufin = malloc(bufsz); assert(in);
         uint8_t* bufout = malloc(bufsz); assert(out);
@@ -224,15 +224,15 @@ int main(int argc, char** argv) {
         } else {
             printf("Enciphering in progress...\n");
         }
-        Cipher_CTX ctx;
-        CipherInit(&ctx, fun, key, NULL);
+        CipherContext ctx;
+        cipher_init(&ctx, function, key, NULL);
         free(key);
         while (!feof(in)) {
             r = fread(bufin, 1, bufsz, in);
-            r = CipherUpdate(&ctx, bufout, bufin, r, decrypt);
+            r = cipher_update(&ctx, bufout, bufin, r, decrypt);
             fwrite(bufout, 1, r, out);
         }
-        r = CipherFinal(&ctx, bufout, decrypt);
+        r = cipher_final(&ctx, bufout, decrypt);
         fwrite(bufout, 1, r, out);
 
         free(bufout);
