@@ -23,19 +23,18 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef struct
-{
-	size_t   len;
-	size_t   bufLen;
-	uint8_t  buffer[64];
-	uint32_t H[5];
-	uint8_t dummy[4];
+typedef struct {
+    size_t len;
+    size_t bufLen;
+    uint8_t buffer[64];
+    uint32_t H[5];
+    uint8_t dummy[4];
 } SHA1_CTX;
 
-void SHA1Init  (SHA1_CTX* sha1);
-void SHA1Block (SHA1_CTX* sha1, const uint8_t block[64]);
+void SHA1Init(SHA1_CTX* sha1);
+void SHA1Block(SHA1_CTX* sha1, const uint8_t block[64]);
 void SHA1Update(SHA1_CTX* sha1, const uint8_t* data, size_t len);
-void SHA1Final (SHA1_CTX* sha1, uint8_t dst[20]);
+void SHA1Final(SHA1_CTX* sha1, uint8_t dst[20]);
 
 void SHA1(uint8_t dst[20], const uint8_t* src, size_t slen);
 

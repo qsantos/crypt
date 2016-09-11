@@ -23,21 +23,20 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef struct
-{
-	size_t   len;
-	size_t   bufLen;
-	uint8_t  buffer[64];
-	uint32_t A;
-	uint32_t B;
-	uint32_t C;
-	uint32_t D;
+typedef struct {
+    size_t len;
+    size_t bufLen;
+    uint8_t buffer[64];
+    uint32_t A;
+    uint32_t B;
+    uint32_t C;
+    uint32_t D;
 } MD5_CTX;
 
-void MD5Init  (MD5_CTX* md5);
-void MD5Block (MD5_CTX* md5, const uint8_t block[64]);
+void MD5Init(MD5_CTX* md5);
+void MD5Block(MD5_CTX* md5, const uint8_t block[64]);
 void MD5Update(MD5_CTX* md5, const uint8_t* data, size_t len);
-void MD5Final (MD5_CTX* md5, uint8_t dst[16]);
+void MD5Final(MD5_CTX* md5, uint8_t dst[16]);
 
 void MD5(uint8_t dst[16], const uint8_t* src, size_t slen);
 

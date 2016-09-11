@@ -23,19 +23,18 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef struct
-{
-	size_t  len;
-	size_t  bufLen;
-	uint8_t buffer[16];
-	uint8_t C[16];
-	uint8_t X[16];
+typedef struct {
+    size_t len;
+    size_t bufLen;
+    uint8_t buffer[16];
+    uint8_t C[16];
+    uint8_t X[16];
 } MD2_CTX;
 
-void MD2Init  (MD2_CTX* md2);
-void MD2Block (MD2_CTX* md2, const uint8_t block[16]);
+void MD2Init(MD2_CTX* md2);
+void MD2Block(MD2_CTX* md2, const uint8_t block[16]);
 void MD2Update(MD2_CTX* md2, const uint8_t* data, size_t len);
-void MD2Final (MD2_CTX* md2, uint8_t dst[16]);
+void MD2Final(MD2_CTX* md2, uint8_t dst[16]);
 
 void MD2(uint8_t dst[16], const uint8_t* src, size_t slen);
 

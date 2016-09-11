@@ -35,25 +35,24 @@
 #define HASH_SHA512 0x06
 #define HASH_SHA384 0x07
 
-typedef union
-{
-	MD2_CTX    md2;
-	MD4_CTX    md4;
-	MD5_CTX    md5;
-	SHA1_CTX   sha1;
-	SHA256_CTX sha256;
-	SHA224_CTX sha224;
-	SHA512_CTX sha512;
-	SHA384_CTX sha384;
+typedef union {
+    MD2_CTX md2;
+    MD4_CTX md4;
+    MD5_CTX md5;
+    SHA1_CTX sha1;
+    SHA256_CTX sha256;
+    SHA224_CTX sha224;
+    SHA512_CTX sha512;
+    SHA384_CTX sha384;
 } Hash_CTX;
 
 uint8_t HashBlockSize(uint8_t mode);
-uint8_t DigestLength (uint8_t mode);
-int8_t  HashFunCode  (char*   fun);
+uint8_t DigestLength(uint8_t mode);
+int8_t HashFunCode(char* fun);
 
-void HashInit  (uint8_t mode, Hash_CTX* ctx);
+void HashInit(uint8_t mode, Hash_CTX* ctx);
 void HashUpdate(uint8_t mode, Hash_CTX* ctx, const uint8_t* data, uint64_t len);
-void HashFinal (uint8_t mode, Hash_CTX* ctx, uint8_t* dst);
+void HashFinal(uint8_t mode, Hash_CTX* ctx, uint8_t* dst);
 
 void Hash(uint8_t mode, uint8_t* digest, const uint8_t* data, uint64_t len);
 
