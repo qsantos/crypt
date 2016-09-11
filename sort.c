@@ -18,7 +18,8 @@ struct {
     int shuffle;
     int check;
     int timing;
-} args = {0};
+    uint8_t dummy[4];
+} args = {0, 0, 0, 0, 0, {0}};
 
 void usage(const char* format, ...) {
     if (format != NULL) {
