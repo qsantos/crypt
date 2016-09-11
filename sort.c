@@ -15,6 +15,7 @@
 struct {
     size_t blocksize;
     char* file;
+    int shuffle;
     int check;
     int timing;
 } args = {0};
@@ -36,6 +37,7 @@ void usage(const char* format, ...) {
     "Assuming FILE is made of contiguous blocks of BLOCKSIZE bytes, this\n"
     "shorts them in lexicographical order.\n"
     "\n"
+    "  -R --shuffle       shuffle the file\n"
     "  -c --check         check that the file is well ordered; do not sort\n"
     "  -t --timing        measure approximate time used\n"
     "  -h --help          display this help and exit\n"
@@ -53,6 +55,8 @@ void argparse(int argc, char** argv) {
         arginfo.arg = argv[arginfo.argi];
         if (arg_is("--help", "-h")) {
             usage(NULL);
+        } else if (arg_is("--shuffle", "-R")) {
+            args.shuffle = 1;
         } else if (arg_is("--check", "-c")) {
             args.check = 1;
         } else if (arg_is("--timing", "-t")) {
@@ -110,6 +114,11 @@ int main(int argc, char** argv) {
     }
 #endif
 
+    if (args.shuffle) {
+        srand32((uint32_t) time(NULL), 0, 0, 0);
+        shuffle_quick(mem, mem + length, size);
+    }
+
     if (args.check) {
         size_t index = 1;
         for (uint8_t* i = mem + size; i < stop; i += size) {
@@ -122,7 +131,9 @@ int main(int argc, char** argv) {
             }
             index += 1;
         }
-    } else {
+    }
+
+    if (!args.shuffle && !args.check) {
         quicksort(mem, stop, size);
     }
 

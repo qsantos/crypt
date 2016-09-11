@@ -19,4 +19,13 @@ void selectsort(uint8_t* start, uint8_t* stop, size_t size);
 void mergesort(uint8_t* start, uint8_t* stop, size_t size);
 void quicksort(uint8_t* start, uint8_t* stop, size_t size);
 
+void srand32(uint32_t seed0, uint32_t seed1, uint32_t seed2, uint32_t seed3);
+void srand64(uint64_t seed0, uint64_t seed1);
+int randbit(void);
+uint32_t rand32(void);
+uint64_t rand64(void);
+
+void shuffle_quick(uint8_t* start, uint8_t* stop, size_t size);
+void shuffle_well(uint8_t* start, uint8_t* stop, size_t size);
+
 #endif
