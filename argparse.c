@@ -7,9 +7,23 @@
 #include <stdlib.h>
 #include <string.h>
 
+const char* usage_string = "";
+
 struct arginfo arginfo;
 
-extern void usage(const char* format, ...);
+void usage(const char* message, ...) {
+    if (message != NULL) {
+        va_list vargs;
+        va_start(vargs, message);
+        fprintf(stderr, "Error: ");
+        vfprintf(stderr, message, vargs);
+        fprintf(stderr, "\n");
+        va_end(vargs);
+    }
+
+    fprintf(stderr, usage_string, arginfo.argv[0]);
+    exit(1);
+}
 
 int arg_is(const char* long_name, const char* short_name) {
     if (short_name != NULL) {

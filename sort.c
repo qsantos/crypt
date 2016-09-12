@@ -21,17 +21,8 @@ static struct {
     uint8_t dummy[4];
 } args = {0, 0, 0, 0, 0, {0}};
 
-void usage(const char* format, ...) {
-    if (format != NULL) {
-        va_list vargs;
-        va_start(vargs, format);
-        fprintf(stderr, "Error: ");
-        vfprintf(stderr, format, vargs);
-        fprintf(stderr, "\n");
-        va_end(vargs);
-    }
-
-    fprintf(stderr,
+static void argparse(int argc, char** argv) {
+    usage_string = (
     "Usage: %s [OPTIONS] BLOCKSIZE FILE\n"
     "Sort binary blocks in a size.\n"
     "\n"
@@ -42,13 +33,8 @@ void usage(const char* format, ...) {
     "  -c --check         check that the file is well ordered; do not sort\n"
     "  -t --timing        measure approximate time used\n"
     "  -h --help          display this help and exit\n"
-    ,
-    arginfo.argv[0]
     );
-    exit(1);
-}
 
-void argparse(int argc, char** argv) {
     size_t positional_arguments_read = 0;
     arginfo.argc = argc;
     arginfo.argv = argv;
