@@ -12,7 +12,7 @@
 #include "argparse.h"
 
 // parsed arguments
-struct {
+static struct {
     size_t blocksize;
     char* file;
     int shuffle;

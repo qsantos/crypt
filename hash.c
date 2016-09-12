@@ -82,7 +82,7 @@ typedef struct {
     uint8_t buffer[64];
 } AnyContext;
 
-void hash_block(uint8_t mode, AnyContext* ctx, const uint8_t* data) {
+static void hash_block(uint8_t mode, AnyContext* ctx, const uint8_t* data) {
     switch (mode) {
     case HASH_MD2:    md2_block   ((MD2Context*)    ctx, data); break;
     case HASH_MD4:    md4_block   ((MD4Context*)    ctx, data); break;

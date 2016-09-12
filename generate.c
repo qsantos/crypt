@@ -3,10 +3,10 @@
 
 #include "md5.h"
 
-const char* charset = "0123456789abcdefghijklmnopqrstuvwxyz";
-size_t charset_length = 36;
+static const char* charset = "0123456789abcdefghijklmnopqrstuvwxyz";
+static size_t charset_length = 36;
 
-size_t get_key(char* dst, size_t length, size_t index) {
+static size_t get_key(char* dst, size_t length, size_t index) {
     for (size_t i = length; i --> 0; ) {
         dst[i] = charset[index % charset_length];
         index /= charset_length;
