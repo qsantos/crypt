@@ -52,7 +52,6 @@ void sha256_init(SHA256Context* ctx) {
 
 #define  Ch(x,y,z) (((x) & (y)) | (~(x) & (z)))
 #define Maj(x,y,z) (((x) & (y)) | ((x) & (z)) | ((y) & (z)))
-#define ROTL(x,n) (((x) << n) | ((x) >> (32-n)))
 #define ROTR(x,n) (((x) >> n) | ((x) << (32-n)))
 #define  SHR(x,n) ((x) >> n)
 #define   Sum0(x) (ROTR(x, 2) ^ ROTR(x,13) ^ ROTR(x,22))

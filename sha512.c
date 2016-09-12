@@ -68,7 +68,6 @@ void sha512_init(SHA512Context* ctx) {
 
 static uint64_t Ch (uint64_t x, uint64_t y, uint64_t z) { return (x & y) | (~x & z);          }
 static uint64_t Maj(uint64_t x, uint64_t y, uint64_t z) { return (x & y) | (x & z) | (y & z); }
-#define ROTL(x,n) (((x) << n) | ((x) >> (64-n)))
 #define ROTR(x,n) (((x) >> n) | ((x) << (64-n)))
 #define  SHR(x,n) ((x) >> n)
 static uint64_t Sum0  (uint64_t x) { return ROTR(x,28) ^ ROTR(x,34) ^ ROTR(x,39); }

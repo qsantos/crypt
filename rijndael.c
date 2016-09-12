@@ -269,7 +269,6 @@ static void InvMixColumns(uint8_t state[16]) {
     }
 }
 
-#define ROTL(x,n) (((x) << n) | ((x) >> (32-n)))
 #define ROTR(x,n) (((x) >> n) | ((x) << (32-n)))
 
 void rijndael(const uint8_t* key, const uint8_t* in, uint8_t* out, bool inverse, int Nk, int Nr) {
