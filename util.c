@@ -340,6 +340,46 @@ void quicksort(uint8_t* start, uint8_t* stop, size_t size) {
     quicksort(left, stop, size);
 }
 
+void prefixsort(uint8_t* start, uint8_t* stop, size_t size) {
+    // count entries per prefix
+    size_t counts[256];
+    memset(counts, 0, sizeof(counts));
+    for (uint8_t* i = start; i < stop; i += size) {
+        uint8_t prefix = i[0];
+        counts[prefix] += 1;
+    }
+
+    // find bucket start for each prefix
+    uint8_t* starts[256];
+    starts[0] = start;
+    for (int i = 1; i < 256; i += 1) {
+        starts[i] = starts[i-1] + size * counts[i-1];
+    }
+
+    // initialize the current stops of the buckets
+    uint8_t* stops[256];
+    memcpy(stops, starts, sizeof(stops));
+
+    // add entries to the buckets
+    for (int i = 0; i < 255; i += 1) {
+        while (stops[i] < starts[i+1]) {
+            uint8_t prefix = stops[i][0];
+            if (prefix == i) {
+                stops[i] += size;
+            } else {
+                memswap(stops[i], stops[prefix], size);
+                stops[prefix] += size;
+            }
+        }
+    }
+    stops[255] = stop;
+
+    // sort each bucket
+    for (int i = 0; i < 256; i += 1) {
+        quicksort(starts[i], stops[i], size);
+    }
+}
+
 static uint32_t x, y, z, w;
 static uint32_t unconsumed_bits;
 static size_t n_unconsumed_bits = 0;
