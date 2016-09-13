@@ -211,12 +211,12 @@ void memswap(uint8_t* addr_a, uint8_t* addr_b, size_t size) {
     }
 }
 
-void bubblesort(uint8_t* start, uint8_t* stop, size_t size) {
+void bubblesort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, size_t key_length) {
     while (stop > start) {
         uint8_t* previous = start;
         uint8_t* newstop = 0;
         for (uint8_t* current = start + size; current < stop; current += size) {
-            if (bstrncmp(previous, current, size) > 0) {
+            if (bstrncmp(previous + key_offset, current + key_offset, key_length) > 0) {
                 memswap(previous, current, size);
                 newstop = current;
             }
@@ -226,10 +226,10 @@ void bubblesort(uint8_t* start, uint8_t* stop, size_t size) {
     }
 }
 
-void insertsort(uint8_t* start, uint8_t* stop, size_t size) {
+void insertsort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, size_t key_length) {
     for (uint8_t* i = start + size; i < stop; i += size) {
         for (uint8_t* j = i; j > start; j -= size) {
-            if (bstrncmp(j - size, j, size) > 0) {
+            if (bstrncmp(j - size + key_offset, j + key_offset, key_length) > 0) {
                 memswap(j - size, j, size);
             } else {
                 break;
@@ -238,11 +238,11 @@ void insertsort(uint8_t* start, uint8_t* stop, size_t size) {
     }
 }
 
-void selectsort(uint8_t* start, uint8_t* stop, size_t size) {
+void selectsort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, size_t key_length) {
     for (uint8_t* j = start; j < stop; j += size) {
         uint8_t* i_min = j;
         for (uint8_t* i = j+size; i < stop; i += size) {
-            if (bstrncmp(i, i_min, size) < 0) {
+            if (bstrncmp(i + key_offset, i_min + key_offset, key_length) < 0) {
                 i_min = i;
             }
         }
@@ -252,12 +252,12 @@ void selectsort(uint8_t* start, uint8_t* stop, size_t size) {
     }
 }
 
-static void merge(uint8_t* start, uint8_t* middle, uint8_t* stop, size_t size, uint8_t* buffer) {
+static void merge(uint8_t* start, uint8_t* middle, uint8_t* stop, size_t size, uint8_t* buffer, size_t key_offset, size_t key_length) {
     uint8_t* i = start;
     uint8_t* j = middle;
     uint8_t* k = buffer;
     while (i < middle && j < stop) {
-        if (bstrncmp(i, j, size) < 0) {
+        if (bstrncmp(i + key_offset, j + key_offset, key_length) < 0) {
             memcpy(k, i, size);
             i += size;
         } else {
@@ -272,7 +272,7 @@ static void merge(uint8_t* start, uint8_t* middle, uint8_t* stop, size_t size, u
         memcpy(k, j, (size_t) (stop - j));
     }
 }
-void mergesort(uint8_t* start, uint8_t* stop, size_t size) {
+void mergesort(uint8_t* start, uint8_t* stop, size_t size, size_t key_length, size_t key_offset) {
     size_t length = (size_t) (stop - start);
 
     uint8_t buffer[length];
@@ -282,11 +282,11 @@ void mergesort(uint8_t* start, uint8_t* stop, size_t size) {
     for (size_t scale = size; scale < length<<4; scale *= 2) {
         size_t offset = 0;
         while (offset+scale*2 < length) {
-            merge(buffer0 + offset, buffer0 + offset + scale, buffer0 + offset + scale*2, size, buffer1 + offset);
+            merge(buffer0 + offset, buffer0 + offset + scale, buffer0 + offset + scale*2, size, buffer1 + offset, key_offset, key_length);
             offset += scale * 2;
         }
         if (offset+scale < length) {
-            merge(buffer0+offset, buffer0+offset+scale, buffer0+length, size, buffer1+offset);
+            merge(buffer0+offset, buffer0+offset+scale, buffer0+length, size, buffer1+offset, key_offset, key_length);
         } else {
             memcpy(buffer1 + offset, buffer0 + offset, length - offset);
         }
@@ -301,13 +301,13 @@ void mergesort(uint8_t* start, uint8_t* stop, size_t size) {
     }
 }
 
-void quicksort(uint8_t* start, uint8_t* stop, size_t size) {
+void quicksort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, size_t key_length) {
     long length = stop - start;
     if (length <= (long) size) {
         return;
     }
     if ((size_t) length < size*8) {
-        selectsort(start, stop, size);
+        selectsort(start, stop, size, key_offset, key_length);
         return;
     }
 
@@ -320,10 +320,10 @@ void quicksort(uint8_t* start, uint8_t* stop, size_t size) {
     uint8_t* right = stop - size;
 
     while (left <= right) {
-        while (bstrncmp(left, pivot, size) < 0) {
+        while (bstrncmp(left + key_offset, pivot + key_offset, key_length) < 0) {
             left += size;
         }
-        while (bstrncmp(right, pivot, size) > 0) {
+        while (bstrncmp(right + key_offset, pivot + key_offset, key_length) > 0) {
             right -= size;
         }
         if (left <= right) {
@@ -336,16 +336,16 @@ void quicksort(uint8_t* start, uint8_t* stop, size_t size) {
     }
 
     // sort recursively
-    quicksort(start, right+size, size);
-    quicksort(left, stop, size);
+    quicksort(start, right+size, size, key_offset, key_length);
+    quicksort(left, stop, size, key_offset, key_length);
 }
 
-void prefixsort(uint8_t* start, uint8_t* stop, size_t size) {
+void prefixsort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, size_t key_length) {
     // count entries per prefix
     size_t counts[256];
     memset(counts, 0, sizeof(counts));
     for (uint8_t* i = start; i < stop; i += size) {
-        uint8_t prefix = i[0];
+        uint8_t prefix = i[key_offset];
         counts[prefix] += 1;
     }
 
@@ -363,7 +363,7 @@ void prefixsort(uint8_t* start, uint8_t* stop, size_t size) {
     // add entries to the buckets
     for (int i = 0; i < 255; i += 1) {
         while (stops[i] < starts[i+1]) {
-            uint8_t prefix = stops[i][0];
+            uint8_t prefix = stops[i][key_offset];
             if (prefix == i) {
                 stops[i] += size;
             } else {
@@ -376,7 +376,7 @@ void prefixsort(uint8_t* start, uint8_t* stop, size_t size) {
 
     // sort each bucket
     for (int i = 0; i < 256; i += 1) {
-        quicksort(starts[i], stops[i], size);
+        quicksort(starts[i], stops[i], size, key_offset + 1, key_length - 1);
     }
 }
 

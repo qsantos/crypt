@@ -13,12 +13,12 @@ void reverse(uint8_t* addr, size_t size);
 char bstrncmp(const uint8_t* addr_a, const uint8_t* addr_b, size_t size);
 void memswap(uint8_t* addr_a, uint8_t* addr_b, size_t size);
 
-void bubblesort(uint8_t* start, uint8_t* stop, size_t size);
-void insertsort(uint8_t* start, uint8_t* stop, size_t size);
-void selectsort(uint8_t* start, uint8_t* stop, size_t size);
-void mergesort(uint8_t* start, uint8_t* stop, size_t size);
-void quicksort(uint8_t* start, uint8_t* stop, size_t size);
-void prefixsort(uint8_t* start, uint8_t* stop, size_t size, size_t key_length, size_t key_offset);
+void bubblesort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, size_t key_length);
+void insertsort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, size_t key_length);
+void selectsort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, size_t key_length);
+void mergesort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, size_t key_length);
+void quicksort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, size_t key_length);
+void prefixsort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, size_t key_length);
 
 void srand32(uint32_t seed0, uint32_t seed1, uint32_t seed2, uint32_t seed3);
 void srand64(uint64_t seed0, uint64_t seed1);
