@@ -341,6 +341,15 @@ void quicksort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, si
 }
 
 void prefixsort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, size_t key_length) {
+    long length = stop - start;
+    if (length <= (long) size) {
+        return;
+    }
+    if ((size_t) length < size*1024) {
+        insertsort(start, stop, size, key_offset, key_length);
+        return;
+    }
+
     // count entries per prefix
     size_t counts[256];
     memset(counts, 0, sizeof(counts));
@@ -376,7 +385,7 @@ void prefixsort(uint8_t* start, uint8_t* stop, size_t size, size_t key_offset, s
 
     // sort each bucket
     for (int i = 0; i < 256; i += 1) {
-        quicksort(starts[i], stops[i], size, key_offset + 1, key_length - 1);
+        prefixsort(starts[i], stops[i], size, key_offset + 1, key_length - 1);
     }
 }
 

@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
     }
 
     if (!args.shuffle && !args.check) {
-        quicksort(mem, stop, size);
+        prefixsort(mem, stop, size, 0, size);
     }
 
 #if REVERT_SORT_REVERT
