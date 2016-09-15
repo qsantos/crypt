@@ -15,36 +15,40 @@ static size_t get_key(char* dst, size_t length, size_t index) {
 }
 
 int main(int argc, char** argv) {
-    uint32_t count = 0;
+    uint8_t block[64];
     char buffer[1024];
+    size_t buffer_i = 0;
     size_t index = 0;
+
     while (1) {
         // get next key
         size_t length;
         if (argc == 1) {
-            fgets((char*) buffer, sizeof(buffer), stdin);
+            fgets((char*) block, sizeof(block), stdin);
             if (feof(stdin)) {
                 break;
             }
-            char* eol = strchr(buffer, '\n');
-            length = (size_t) (eol - buffer);
+            char* eol = strchr((char*) block, '\n');
+            length = (size_t) (eol - (char*) block);
+            index += 1;
         } else {
             length = 4;
-            if (get_key((char*) buffer, length, index) != 0) {
+            if (get_key((char*) block, length, index) != 0) {
                 break;
             }
             index += 1;
         }
 
-        // hash key
         uint8_t digest[16];
-        md5(digest, (uint8_t*) buffer, length);
+        md5(digest, (uint8_t*) block, length);
+        *(uint32_t*)(buffer + buffer_i + 16) = (uint32_t) index;
+        buffer_i += 20;
 
         // output hash and key
-        fwrite(digest, 16, 1, stdout);
-        fwrite(&count, 4, 1, stdout);
-
-        count += 1;
+        if (buffer_i > 900) {
+            fwrite(buffer, buffer_i, 1, stdout);
+            buffer_i = 0;
+        }
     }
 
     return 0;
