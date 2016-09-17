@@ -66,7 +66,7 @@ void md5_init(MD5Context* ctx) {
 #define ROT(x,n) (((x) << n) | ((x) >> (32-n)))
 #define OP(f,a,b,c,d,k,s,i) a = b + ROT(a + f(b,c,d) + X[k] + T[i], s);
 void md5_block(MD5Context* ctx, const uint8_t block[64]) {
-    uint32_t* X = (uint32_t*) block;
+    const uint32_t* X = (const uint32_t*) block;
 
     uint32_t A = ctx->A;
     uint32_t B = ctx->B;

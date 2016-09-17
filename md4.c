@@ -43,7 +43,7 @@ void md4_init(MD4Context* ctx) {
 #define OP2(a,b,c,d,k,s) ctx->a = ROT(ctx->a + G(ctx->b,ctx->c,ctx->d) + X[k] + 0x5A827999, s);
 #define OP3(a,b,c,d,k,s) ctx->a = ROT(ctx->a + H(ctx->b,ctx->c,ctx->d) + X[k] + 0x6ED9EBA1, s);
 void md4_block(MD4Context* ctx, const uint8_t block[64]) {
-    uint32_t* X = (uint32_t*) block;
+    const uint32_t* X = (const uint32_t*) block;
 
     uint32_t AA = ctx->A;
     uint32_t BB = ctx->B;
