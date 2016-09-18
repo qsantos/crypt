@@ -17,12 +17,14 @@ void print(uint8_t* addr, size_t size) {
     }
 }
 
-void bytes_fromhex(uint8_t* dst, const char* hex) {
+int bytes_fromhex(uint8_t* dst, const char* hex) {
     size_t l = strlen(hex);
 
     if (l % 2 != 0) {
         unsigned int v;
-        sscanf(hex, "%1x", &v);
+        if (sscanf(hex, "%1x", &v) <= 0) {
+            return -1;
+        }
         *dst = (uint8_t) v;
         dst += 1;
         hex += 1;
@@ -30,11 +32,15 @@ void bytes_fromhex(uint8_t* dst, const char* hex) {
 
     while (*hex) {
         unsigned int v;
-        sscanf(hex, "%2x", &v);
+        if (sscanf(hex, "%2x", &v) <= 0) {
+            return -1;
+        }
         *dst = (uint8_t) v;
         dst += 1;
         hex += 2;
     }
+
+    return 0;
 }
 
 void reverse(uint8_t* addr, size_t size) {

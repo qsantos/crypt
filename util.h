@@ -7,7 +7,7 @@
 #define __64BITS__ (UINTPTR_MAX == 0xffffffffffffffff)
 
 void print(uint8_t* addr, size_t size);
-void bytes_fromhex(uint8_t* dst, const char* hex);
+int bytes_fromhex(uint8_t* dst, const char* hex);
 void reverse(uint8_t* addr, size_t size);
 
 char bstrncmp(const uint8_t* addr_a, const uint8_t* addr_b, size_t size);
