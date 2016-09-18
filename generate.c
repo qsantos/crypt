@@ -4,7 +4,7 @@
 #include "md5.h"
 
 static const char* charset = "0123456789abcdefghijklmnopqrstuvwxyz";
-static size_t charset_length = 36;
+static size_t charset_length = sizeof(charset) - 1;
 
 static size_t get_key(char* dst, size_t length, size_t index) {
     for (size_t i = length; i --> 0; ) {
