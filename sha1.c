@@ -42,7 +42,6 @@ void sha1_init(SHA1Context* ctx) {
 #define OP(f,K) { \
     uint32_t TEMP = ROT(A,5) + f(B,C,D) + E + W[t] + K; \
     E = D; D = C; C = ROT(B, 30); B = A; A = TEMP; \
-    TEMP = 0; \
 }
 void sha1_block(SHA1Context* ctx, const uint8_t block[64]) {
     uint32_t W[80];
