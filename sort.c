@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 1 // for fileno()
 #include <err.h>
 #include <stdarg.h>
 #include <stdio.h>
