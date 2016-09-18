@@ -6,7 +6,7 @@ TARGETS := crypt benchmark bruteforce generate sort
 all: $(TARGETS)
 
 crypt: crypt.o md2.o md4.o md5.o sha1.o sha256.o sha512.o hash.o hmac.o des.o rijndael.o cipher.o
-benchmark: benchmark.o util.o md4.o md5.o sha1.o md4_simd.o md5_simd.o sha1_simd.o
+benchmark: benchmark.o argparse.o util.o md4.o md5.o sha1.o md4_simd.o md5_simd.o sha1_simd.o
 bruteforce: bruteforce.o util.o md5_simd.o
 generate: generate.o md5.o
 sort: sort.o argparse.o util.o
