@@ -29,4 +29,6 @@ uint64_t rand64(void);
 void shuffle_quick(uint8_t* start, uint8_t* stop, size_t size);
 void shuffle_well(uint8_t* start, uint8_t* stop, size_t size);
 
+double real_clock();
+
 #endif

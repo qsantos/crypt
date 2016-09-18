@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/time.h>
 
 // different ordering, friendlier with unfolding (faster) (actuall, SLOWER)
 #define REVERSE_ENDIAN_ORDERING 0
@@ -476,4 +477,10 @@ void shuffle_well(uint8_t* start, uint8_t* stop, size_t size) {
         memswap(i, j, size);
         length -= 1;
     }
+}
+
+double real_clock() {
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    return (double) now.tv_sec + (double) now.tv_usec / 1e6;
 }
