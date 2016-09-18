@@ -3,5 +3,7 @@
 crypt
 thirdparty/des
 thirdparty/aes
+benchmark
+bruteforce
 generate
 sort
