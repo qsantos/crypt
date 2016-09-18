@@ -38,9 +38,14 @@ static void check_full(void(*func)(uint8_t*,const uint8_t*,size_t)) {
     }
 }
 
-static void check_oneblock(void(*func)(uint8_t*,const uint8_t*), size_t stride) {
+
+static void check_oneblock(
+        void(*pad)(uint8_t*,size_t,size_t),
+        void(*func)(uint8_t*,const uint8_t*),
+        size_t stride
+) {
     uint8_t block[1024] __attribute__((aligned(32)));
-    md5_pad(block, strlen(reference_message), stride);
+    pad(block, strlen(reference_message), stride);
     set_key_im(block, reference_message, stride);
 
     uint8_t interleaved[128];
@@ -82,10 +87,14 @@ static void benchmark_full(void(*func)(uint8_t*,const uint8_t*,size_t)) {
     printf(FMT_RAT, rate / 1e6);
 }
 
-static void run_n_times(void(*func)(uint8_t*,const uint8_t*), size_t stride, size_t n) {
+static void run_n_times(
+        void(*pad)(uint8_t*,size_t,size_t),
+        void(*func)(uint8_t*,const uint8_t*),
+        size_t stride, size_t n
+) {
     // prepare block
     uint8_t block[1024] __attribute__((aligned(32)));
-    md5_pad(block, 6, stride);
+    pad(block, 6, stride);
 
     // prepare key generation
     const char* ptrs[1024];
@@ -100,7 +109,11 @@ static void run_n_times(void(*func)(uint8_t*,const uint8_t*), size_t stride, siz
     }
 }
 
-static void benchmark_oneblock(void(*func)(uint8_t*,const uint8_t*), size_t stride) {
+static void benchmark_oneblock(
+        void(*pad)(uint8_t*,size_t,size_t),
+        void(*func)(uint8_t*,const uint8_t*),
+        size_t stride
+) {
     fflush(stdout);
     double timing;
     if (threaded) {
@@ -108,12 +121,12 @@ static void benchmark_oneblock(void(*func)(uint8_t*,const uint8_t*), size_t stri
         #pragma omp parallel
         {
             size_t n_threads = (size_t) omp_get_num_threads();
-            run_n_times(func, stride, n_iterations / n_threads);
+            run_n_times(pad, func, stride, n_iterations / n_threads);
         }
         timing = real_clock() - start;
     } else {
         clock_t start = clock();
-        run_n_times(func, stride, n_iterations);
+        run_n_times(pad, func, stride, n_iterations);
         timing = (double) (clock() - start) / CLOCKS_PER_SEC;
     }
     double rate = (double) n_iterations / timing * (double) stride;
@@ -130,6 +143,7 @@ static void benchmark_oneblock(void(*func)(uint8_t*,const uint8_t*), size_t stri
 
 static void check_all(const char* name,
     void(*full)(uint8_t*,const uint8_t*,size_t),
+    void(*pad)(uint8_t*,size_t,size_t),
     void(*x86)(uint8_t*,const uint8_t*),
     void(*mmx)(uint8_t*,const uint8_t*),
     void(*sse2)(uint8_t*,const uint8_t*),
@@ -138,24 +152,26 @@ static void check_all(const char* name,
 ) {
     printf(FMT_TIT, name);
     check_full(full);
-    check_oneblock(x86, 1);
-    IF_EXT("mmx",     check_oneblock(mmx, 2));
-    IF_EXT("sse2",    check_oneblock(sse2, 4));
-    IF_EXT("avx2",    check_oneblock(avx2, 8));
-    IF_EXT("avx512f", check_oneblock(avx512, 16));
+    check_oneblock(pad, x86, 1);
+    IF_EXT("mmx",     check_oneblock(pad, mmx, 2));
+    IF_EXT("sse2",    check_oneblock(pad, sse2, 4));
+    IF_EXT("avx2",    check_oneblock(pad, avx2, 8));
+    IF_EXT("avx512f", check_oneblock(pad, avx512, 16));
     printf("\n");
 }
 
 #define CHECK_ALL(NAME, PREFIX, MESSAGE, DIGEST) do { \
     reference_message = MESSAGE; \
     reference_digest = DIGEST; \
-    check_all(NAME, PREFIX, PREFIX##_oneblock_x86, PREFIX##_oneblock_mmx, \
+    check_all(NAME, PREFIX, PREFIX##_pad, \
+              PREFIX##_oneblock_x86, PREFIX##_oneblock_mmx, \
               PREFIX##_oneblock_sse2, PREFIX##_oneblock_avx2, \
               PREFIX##_oneblock_avx512); \
 } while (0)
 
 static void benchmark_all(const char* name,
     void(*full)(uint8_t*,const uint8_t*,size_t),
+    void(*pad)(uint8_t*,size_t,size_t),
     void(*x86)(uint8_t*,const uint8_t*),
     void(*mmx)(uint8_t*,const uint8_t*),
     void(*sse2)(uint8_t*,const uint8_t*),
@@ -164,16 +180,17 @@ static void benchmark_all(const char* name,
 ) {
     printf(FMT_TIT, name);
     benchmark_full(full);
-    benchmark_oneblock(x86, 1);
-    IF_EXT("mmx",     benchmark_oneblock(mmx, 2));
-    IF_EXT("sse2",    benchmark_oneblock(sse2, 4));
-    IF_EXT("avx2",    benchmark_oneblock(avx2, 8));
-    IF_EXT("avx512f", benchmark_oneblock(avx512, 16));
+    benchmark_oneblock(pad, x86, 1);
+    IF_EXT("mmx",     benchmark_oneblock(pad, mmx, 2));
+    IF_EXT("sse2",    benchmark_oneblock(pad, sse2, 4));
+    IF_EXT("avx2",    benchmark_oneblock(pad, avx2, 8));
+    IF_EXT("avx512f", benchmark_oneblock(pad, avx512, 16));
     printf("\n");
 }
 
 #define BENCHMARK_ALL(NAME, PREFIX) do { \
-    benchmark_all(NAME, PREFIX, PREFIX##_oneblock_x86, PREFIX##_oneblock_mmx, \
+    benchmark_all(NAME, PREFIX, PREFIX##_pad, \
+                  PREFIX##_oneblock_x86, PREFIX##_oneblock_mmx, \
                   PREFIX##_oneblock_sse2, PREFIX##_oneblock_avx2, \
                   PREFIX##_oneblock_avx512); \
 } while (0)
