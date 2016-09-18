@@ -9,14 +9,16 @@
 #include "keyspace.h"
 #include "md4.h"
 #include "md5.h"
+#include "sha1.h"
 #include "md4_simd.h"
 #include "md5_simd.h"
+#include "sha1_simd.h"
 
 #define FMT_TIT "%-5s"
 #define FMT_STR " %11s"
 #define FMT_RAT " %6.1f MH/s"
 
-static const size_t n_iterations = 1<<24;
+static const size_t n_iterations = 1<<26;
 
 static const char* reference_message;
 static const char* reference_digest;
@@ -67,7 +69,7 @@ static void check_oneblock(
 
 static void benchmark_full(void(*func)(uint8_t*,const uint8_t*,size_t)) {
     fflush(stdout);
-    uint8_t digest[16];
+    uint8_t digest[20];
     double timing;
     if (threaded) {
         double start = real_clock();
@@ -101,7 +103,7 @@ static void run_n_times(
     set_keys(block, ptrs, 6, stride, 0, 0);
 
     for (size_t i = 0; i < n; i += 1) {
-        uint8_t interleaved[256];
+        uint8_t interleaved[320];
         func(interleaved, block);
         if (generate) {
             next_keys(block, ptrs, 6, stride);
@@ -227,9 +229,11 @@ int main(int argc, char** argv) {
     if (check) {
         CHECK_ALL("MD4", md4, "message digest", "d9130a8164549fe818874806e1c7014b");
         CHECK_ALL("MD5", md5, "message digest", "f96b697d7cb7938d525a2f31aaf161d0");
+        CHECK_ALL("SHA-1", sha1, "abc", "a9993e364706816aba3e25717850c26c9cd0d89d");
     } else {
         BENCHMARK_ALL("MD4", md4);
         BENCHMARK_ALL("MD5", md5);
+        BENCHMARK_ALL("SHA-1", sha1);
     }
 
     return 0;
