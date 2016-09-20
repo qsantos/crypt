@@ -31,4 +31,10 @@ void shuffle_well(uint8_t* start, uint8_t* stop, size_t size);
 
 double real_clock();
 
+static inline uint64_t rdtsc() {
+    uint32_t lo, hi;
+    __asm__ __volatile__ ("mfence;rdtsc" : "=a" (lo), "=d" (hi));
+    return (((uint64_t)hi) << 32) | lo;
+}
+
 #endif
