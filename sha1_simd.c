@@ -28,13 +28,13 @@
         OP, /* execute a single step of SHA1, update the state */ \
         ADD, /* add WORD to another WORD */ \
         ROT, /* rotate WORD by s bits */ \
-        REV_ENDIAN, /* reverse the endianness of a WORD */ \
+        BSWAP, /* reverse the endianness of a WORD */ \
         LENGTH /* in bytes; if less than 56, shortcuts can be taken; */ \
     ) do { \
     __typeof__(A) W[80]; \
     \
     for (int t = 0; t < 16; t += 1) { \
-        W[t] = REV_ENDIAN(X[t]); \
+        W[t] = BSWAP(X[t]); \
     } \
     \
     for (int t = 16; t < 80; t += 1) { \
@@ -87,7 +87,7 @@
     SHA1_BLOCK(((uint32_t*)BLOCK), \
               A,B,C,D,E,\
               X86_F, X86_G, X86_H, \
-              X86_OP, X86_ADD, X86_ROT, X86_REV_ENDIAN, LENGTH)
+              X86_OP, X86_ADD, X86_ROT, X86_BSWAP, LENGTH)
 
 // MMX
 #define MMX_INIT(A, B, C, D, E) do { \
@@ -108,7 +108,7 @@
     SHA1_BLOCK(((__m64*)BLOCK), \
               A,B,C,D,E,\
               MMX_F, MMX_G, MMX_H, \
-              MMX_OP, MMX_ADD, MMX_ROT, MMX_REV_ENDIAN, LENGTH)
+              MMX_OP, MMX_ADD, MMX_ROT, MMX_BSWAP, LENGTH)
 
 // SSE2
 #define SSE2_INIT(A, B, C, D, E) do { \
@@ -129,7 +129,7 @@
     SHA1_BLOCK(((__m128i*)BLOCK), \
               A,B,C,D,E,\
               SSE2_F, SSE2_G, SSE2_H, \
-              SSE2_OP, SSE2_ADD, SSE2_ROT, SSE2_REV_ENDIAN, LENGTH)
+              SSE2_OP, SSE2_ADD, SSE2_ROT, SSE2_BSWAP, LENGTH)
 
 // AVX2
 #define AVX2_INIT(A, B, C, D, E) do { \
@@ -150,7 +150,7 @@
     SHA1_BLOCK(((__m256i*)BLOCK), \
               A,B,C,D,E,\
               AVX2_F, AVX2_G, AVX2_H, \
-              AVX2_OP, AVX2_ADD, AVX2_ROT, AVX2_REV_ENDIAN, LENGTH)
+              AVX2_OP, AVX2_ADD, AVX2_ROT, AVX2_BSWAP, LENGTH)
 
 // AVX-512
 #define AVX512_INIT(A, B, C, D, E) do { \
@@ -171,7 +171,7 @@
     SHA1_BLOCK(((__m512i*)BLOCK), \
               A,B,C,D,E,\
               AVX512_F, AVX512_G, AVX512_H, \
-              AVX512_OP, AVX512_ADD, AVX512_ROT, AVX512_REV_ENDIAN, LENGTH)
+              AVX512_OP, AVX512_ADD, AVX512_ROT, AVX512_BSWAP, LENGTH)
 
 void sha1_pad(uint8_t* block, size_t length, size_t stride) {
     memset(block, 0, 64 * stride);
@@ -200,11 +200,11 @@ void sha1_pad(uint8_t* block, size_t length, size_t stride) {
         UPPERCASE##_BLOCK(block, A,B,C,D,E, 64); \
         \
         UPPERCASE##_WORD* Y = (UPPERCASE##_WORD*) digest; \
-        Y[0] = UPPERCASE##_REV_ENDIAN(A); \
-        Y[1] = UPPERCASE##_REV_ENDIAN(B); \
-        Y[2] = UPPERCASE##_REV_ENDIAN(C); \
-        Y[3] = UPPERCASE##_REV_ENDIAN(D); \
-        Y[4] = UPPERCASE##_REV_ENDIAN(E); \
+        Y[0] = UPPERCASE##_BSWAP(A); \
+        Y[1] = UPPERCASE##_BSWAP(B); \
+        Y[2] = UPPERCASE##_BSWAP(C); \
+        Y[3] = UPPERCASE##_BSWAP(D); \
+        Y[4] = UPPERCASE##_BSWAP(E); \
     } \
     \
     __attribute__((target(TARGET))) \

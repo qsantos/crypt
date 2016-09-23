@@ -30,7 +30,7 @@ static inline __m256i _mm256_rol_epi32(__m256i a, int s) {
 
 // swap endianness of 32-bit integers
 __attribute__((target("mmx")))
-static inline __m64 _mm_swap_pi32(__m64 x) {
+static inline __m64 _mm_bswap_pi32(__m64 x) {
     uint64_t y = (uint64_t) _m_to_int64(x);
     uint64_t r = __builtin_bswap32((uint32_t) (y >> 32));
     r <<= 32;
@@ -40,7 +40,7 @@ static inline __m64 _mm_swap_pi32(__m64 x) {
 }
 
 __attribute__((target("sse2")))
-static inline __m128i _mm_swap_epi32(__m128i x) {
+static inline __m128i _mm_bswap_epi32(__m128i x) {
     uint32_t* y = (uint32_t*) &x;
     y[0] = __builtin_bswap32(y[0]);
     y[1] = __builtin_bswap32(y[1]);
@@ -50,7 +50,7 @@ static inline __m128i _mm_swap_epi32(__m128i x) {
 }
 
 __attribute__((target("avx2")))
-static inline __m256i _mm256_swap_epi32(__m256i a) {
+static inline __m256i _mm256_bswap_epi32(__m256i a) {
     long long high = 0x0405060700010203;
     long long low = 0x0c0d0e0f08090a0b;
     __m256i mask = _mm256_set_epi64x(high, low, high, low);
@@ -58,7 +58,7 @@ static inline __m256i _mm256_swap_epi32(__m256i a) {
 }
 
 __attribute__((target("avx512bw")))
-static inline __m512i _mm512_swap_epi32(__m512i a) {
+static inline __m512i _mm512_bswap_epi32(__m512i a) {
     long long high = 0x0405060700010203;
     long long low = 0x0c0d0e0f08090a0b;
     __m512i mask = _mm512_set_epi64(high, low, high, low, high, low, high, low);
@@ -90,10 +90,10 @@ static inline __m512i _mm512_swap_epi32(__m512i a) {
 #define AVX2_ANY_EQ(X, V) _mm256_movemask_epi8(_mm256_cmpeq_epi32(X, _mm256_set1_epi32((int) V)));
 #define AVX512_ANY_EQ(X, V) _mm512_cmpeq_epi32_mask(X, _mm512_set1_epi32((int) V));
 
-#define X86_REV_ENDIAN(X) __builtin_bswap32(X)
-#define MMX_REV_ENDIAN(X) _mm_swap_pi32(X)
-#define SSE2_REV_ENDIAN(X) _mm_swap_epi32(X)
-#define AVX2_REV_ENDIAN(X) _mm256_swap_epi32(X)
-#define AVX512_REV_ENDIAN(X) _mm512_swap_epi32(X)
+#define X86_BSWAP(X) __builtin_bswap32(X)
+#define MMX_BSWAP(X) _mm_bswap_pi32(X)
+#define SSE2_BSWAP(X) _mm_bswap_epi32(X)
+#define AVX2_BSWAP(X) _mm256_bswap_epi32(X)
+#define AVX512_BSWAP(X) _mm512_bswap_epi32(X)
 
 #endif
