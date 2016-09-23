@@ -21,7 +21,7 @@ static inline __m128i my_mm_bswap_epi32(__m128i x) {
 #define WORD __m128i
 #define ROL(x,n) my_mm_rol_epi32(x, n)
 #define ADD(a, b) (_mm_add_epi32((a), (b)))
-#define ANY_EQ(X, V) _mm_movemask_epi8(_mm_cmpeq_epi32(X, _mm_set1_epi32((int) V)));
+#define ANY_EQ(X, V) _mm_movemask_epi8(_mm_cmpeq_epi32(X, SET1(V)));
 #define BSWAP(X) my_mm_bswap_epi32(X)
 #define SET1(a) (_mm_set1_epi32((int) (a)))
 
@@ -29,9 +29,9 @@ static inline __m128i my_mm_bswap_epi32(__m128i x) {
 #define MD4_F(X,Y,Z) _mm_or_si128(_mm_and_si128(X, Y), _mm_andnot_si128(X, Z))
 #define MD4_G(X,Y,Z) _mm_or_si128(_mm_and_si128(X, Y), _mm_or_si128(_mm_and_si128(X, Z), _mm_and_si128(Y, Z)))
 #define MD4_H(X,Y,Z) _mm_xor_si128(Y, _mm_xor_si128(X, Z))
-#define MD4_OP1(a,b,c,d,k,s) do { __m128i tmp = _mm_add_epi32(a, _mm_add_epi32(MD4_F(b,c,d), X[k])); a = ROL(tmp, s); } while (0)
-#define MD4_OP2(a,b,c,d,k,s) do { __m128i tmp = _mm_add_epi32(a, _mm_add_epi32(MD4_G(b,c,d), _mm_add_epi32(X[k], _mm_set1_epi32((int)0x5A827999)))); a = ROL(tmp, s); } while (0)
-#define MD4_OP3(a,b,c,d,k,s) do { __m128i tmp = _mm_add_epi32(a, _mm_add_epi32(MD4_H(b,c,d), _mm_add_epi32(X[k], _mm_set1_epi32((int)0x6ED9EBA1)))); a = ROL(tmp, s); } while (0)
+#define MD4_OP1(a,b,c,d,k,s) do { __m128i tmp = ADD(a, ADD(MD4_F(b,c,d), X[k])); a = ROL(tmp, s); } while (0)
+#define MD4_OP2(a,b,c,d,k,s) do { __m128i tmp = ADD(a, ADD(MD4_G(b,c,d), ADD(X[k], SET1(0x5A827999)))); a = ROL(tmp, s); } while (0)
+#define MD4_OP3(a,b,c,d,k,s) do { __m128i tmp = ADD(a, ADD(MD4_H(b,c,d), ADD(X[k], SET1(0x6ED9EBA1)))); a = ROL(tmp, s); } while (0)
 #include "md4_block.h"
 MD4_GENERATE("sse2", sse2)
 
@@ -41,8 +41,8 @@ MD4_GENERATE("sse2", sse2)
 #define MD5_H(X,Y,Z) _mm_xor_si128(_mm_xor_si128(X, Y),Z)
 #define MD5_I(X,Y,Z) _mm_xor_si128(Y, _mm_or_si128(X, ~Z))
 #define MD5_OP(f,a,b,c,d,k,s,i) do { \
-    __m128i tmp = _mm_add_epi32(a, _mm_add_epi32(f(b,c,d), _mm_add_epi32(X[k], _mm_set1_epi32((int) T[i])))); \
-    a = _mm_add_epi32(b, ROL(tmp, s)); \
+    WORD tmp = ADD(a, ADD(f(b,c,d), ADD(X[k], SET1(T[i])))); \
+    a = ADD(b, ROL(tmp, s)); \
 } while (0)
 #include "md5_block.h"
 MD5_GENERATE("sse2", sse2)
@@ -52,7 +52,7 @@ MD5_GENERATE("sse2", sse2)
 #define SHA1_G(B,C,D) _mm_xor_si128(B, _mm_xor_si128(C, D))
 #define SHA1_H(B,C,D) _mm_or_si128(_mm_and_si128(B, C), _mm_or_si128(_mm_and_si128(B, D), _mm_and_si128(C, D)))
 #define SHA1_OP(f,A,B,C,D,t,K) do { \
-    __m128i tmp = _mm_add_epi32(ROL(A,5), _mm_add_epi32(f(B,C,D), _mm_add_epi32(E, _mm_add_epi32(W[t], _mm_set1_epi32((int) K))))); \
+    __m128i tmp = ADD(ROL(A,5), ADD(f(B,C,D), ADD(E, ADD(W[t], SET1(K))))); \
     E = D; D = C; C = ROL(B, 30); B = A; A = tmp; \
 } while (0)
 #include "sha1_block.h"
