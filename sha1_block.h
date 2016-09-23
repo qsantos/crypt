@@ -24,6 +24,18 @@
 } while (0)
 #endif
 
+#ifndef SHA1_F
+#define SHA1_F(B,C,D) OR(AND(B, C), ANDNOT(B, D))
+#endif
+
+#ifndef SHA1_G
+#define SHA1_G(B,C,D) XOR(B, XOR(C, D))
+#endif
+
+#ifndef SHA1_H
+#define SHA1_H(B,C,D) OR(AND(B, C), OR(AND(B, D), AND(C, D)))
+#endif
+
 #ifndef SHA1_OP
 #define SHA1_OP(f,A,B,C,D,t,K) do { \
     WORD tmp = ADD(ROL(A,5), ADD(f(B,C,D), ADD(E, ADD(W[t], SET1(K))))); \

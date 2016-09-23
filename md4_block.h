@@ -23,6 +23,30 @@
 } while (0)
 #endif
 
+#ifndef MD4_F
+#define MD4_F(X,Y,Z) OR(AND(X, Y), ANDNOT(X, Z))
+#endif
+
+#ifndef MD4_G
+#define MD4_G(X,Y,Z) OR(AND(X, Y), OR(AND(X, Z), AND(Y, Z)))
+#endif
+
+#ifndef MD4_H
+#define MD4_H(X,Y,Z) XOR(Y, XOR(X, Z))
+#endif
+
+#ifndef MD4_OP1
+#define MD4_OP1(a,b,c,d,k,s) do { WORD tmp = ADD(a, ADD(MD4_F(b,c,d), X[k])); a = ROL(tmp, s); } while (0)
+#endif
+
+#ifndef MD4_OP2
+#define MD4_OP2(a,b,c,d,k,s) do { WORD tmp = ADD(a, ADD(MD4_G(b,c,d), ADD(X[k], SET1(0x5A827999)))); a = ROL(tmp, s); } while (0)
+#endif
+
+#ifndef MD4_OP3
+#define MD4_OP3(a,b,c,d,k,s) do { WORD tmp = ADD(a, ADD(MD4_H(b,c,d), ADD(X[k], SET1(0x6ED9EBA1)))); a = ROL(tmp, s); } while (0)
+#endif
+
 #ifndef MD4_BLOCK
 #define MD4_BLOCK( \
         BLOCK, /* WORD*: the block to be processed */ \

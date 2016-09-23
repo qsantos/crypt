@@ -24,33 +24,21 @@ static inline __m256i my_mm256_bswap_epi32(__m256i a) {
 }
 
 #define WORD __m256i
+#define OR(a, b) _mm256_or_si256(a, b)
+#define XOR(a, b) _mm256_xor_si256(a, b)
+#define AND(a, b) _mm256_and_si256(a, b)
+#define ANDNOT(a, b) _mm256_andnot_si256(a, b)
 #define ROL(x,n) my_mm256_rol_epi32(x, n)
 #define ADD(a, b) (_mm256_add_epi32((a), (b)))
 #define ANY_EQ(X, V) _mm256_movemask_epi8(_mm256_cmpeq_epi32(X, SET1(V)));
 #define BSWAP(X) my_mm256_bswap_epi32(X)
 #define SET1(a) (_mm256_set1_epi32((int) (a)))
 
-// MD4
-#define MD4_F(X,Y,Z) _mm256_or_si256(_mm256_and_si256(X, Y), _mm256_andnot_si256(X, Z))
-#define MD4_G(X,Y,Z) _mm256_or_si256(_mm256_and_si256(X, Y), _mm256_or_si256(_mm256_and_si256(X, Z), _mm256_and_si256(Y, Z)))
-#define MD4_H(X,Y,Z) _mm256_xor_si256(Y, _mm256_xor_si256(X, Z))
-#define MD4_OP1(a,b,c,d,k,s) do { __m256i tmp = ADD(a, ADD(MD4_F(b,c,d), X[k])); a = ROL(tmp, s); } while (0)
-#define MD4_OP2(a,b,c,d,k,s) do { __m256i tmp = ADD(a, ADD(MD4_G(b,c,d), ADD(X[k], SET1(0x5A827999)))); a = ROL(tmp, s); } while (0)
-#define MD4_OP3(a,b,c,d,k,s) do { __m256i tmp = ADD(a, ADD(MD4_H(b,c,d), ADD(X[k], SET1(0x6ED9EBA1)))); a = ROL(tmp, s); } while (0)
 #include "md4_block.h"
 MD4_GENERATE("avx2", avx2)
 
-// MD5
-#define MD5_F(X,Y,Z) _mm256_or_si256(_mm256_and_si256(X, Y), _mm256_andnot_si256(X, Z))
-#define MD5_G(X,Y,Z) _mm256_or_si256(_mm256_and_si256(X, Z), _mm256_andnot_si256(Z, Y))
-#define MD5_H(X,Y,Z) _mm256_xor_si256(_mm256_xor_si256(X, Y),Z)
-#define MD5_I(X,Y,Z) _mm256_xor_si256(Y, _mm256_or_si256(X, ~Z))
 #include "md5_block.h"
 MD5_GENERATE("avx2", avx2)
 
-// SHA-1
-#define SHA1_F(B,C,D) _mm256_or_si256(_mm256_and_si256(B, C), _mm256_andnot_si256(B, D))
-#define SHA1_G(B,C,D) _mm256_xor_si256(B, _mm256_xor_si256(C, D))
-#define SHA1_H(B,C,D) _mm256_or_si256(_mm256_and_si256(B, C), _mm256_or_si256(_mm256_and_si256(B, D), _mm256_and_si256(C, D)))
 #include "sha1_block.h"
 SHA1_GENERATE("avx2", avx2)

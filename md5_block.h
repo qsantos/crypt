@@ -47,6 +47,22 @@ static const uint32_t T[] = {
 } while (0)
 #endif
 
+#ifndef MD5_F
+#define MD5_F(X,Y,Z) OR(AND(X, Y), ANDNOT(X, Z))
+#endif
+
+#ifndef MD5_G
+#define MD5_G(X,Y,Z) OR(AND(X, Z), ANDNOT(Z, Y))
+#endif
+
+#ifndef MD5_H
+#define MD5_H(X,Y,Z) XOR(XOR(X, Y),Z)
+#endif
+
+#ifndef MD5_I
+#define MD5_I(X,Y,Z) XOR(Y, OR(X, ~Z))
+#endif
+
 #ifndef MD5_OP
 #define MD5_OP(f,a,b,c,d,k,s,i) do { \
     WORD tmp = ADD(a, ADD(f(b,c,d), ADD(X[k], SET1(T[i])))); \
