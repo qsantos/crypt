@@ -43,39 +43,19 @@ static inline __m128i _mm_swap_epi32(__m128i x) {
 }
 
 __attribute__((target("avx2")))
-static inline __m256i _mm256_swap_epi32(__m256i x) {
-    uint32_t* y = (uint32_t*) &x;
-    y[0] = __builtin_bswap32(y[0]);
-    y[1] = __builtin_bswap32(y[1]);
-    y[2] = __builtin_bswap32(y[2]);
-    y[3] = __builtin_bswap32(y[3]);
-    y[4] = __builtin_bswap32(y[4]);
-    y[5] = __builtin_bswap32(y[5]);
-    y[6] = __builtin_bswap32(y[6]);
-    y[7] = __builtin_bswap32(y[7]);
-    return x;
+static inline __m256i _mm256_swap_epi32(__m256i a) {
+    long long high = 0x0405060700010203;
+    long long low = 0x0c0d0e0f08090a0b;
+    __m256i mask = _mm256_set_epi64x(high, low, high, low);
+    return _mm256_shuffle_epi8(a, mask);
 }
 
 __attribute__((target("avx512bw")))
-static inline __m512i _mm512_swap_epi32(__m512i x) {
-    uint32_t* y = (uint32_t*) &x;
-    y[ 0] = __builtin_bswap32(y[ 0]);
-    y[ 1] = __builtin_bswap32(y[ 1]);
-    y[ 2] = __builtin_bswap32(y[ 2]);
-    y[ 3] = __builtin_bswap32(y[ 3]);
-    y[ 4] = __builtin_bswap32(y[ 4]);
-    y[ 5] = __builtin_bswap32(y[ 5]);
-    y[ 6] = __builtin_bswap32(y[ 6]);
-    y[ 7] = __builtin_bswap32(y[ 7]);
-    y[ 8] = __builtin_bswap32(y[ 8]);
-    y[ 9] = __builtin_bswap32(y[ 9]);
-    y[10] = __builtin_bswap32(y[10]);
-    y[11] = __builtin_bswap32(y[11]);
-    y[12] = __builtin_bswap32(y[12]);
-    y[13] = __builtin_bswap32(y[13]);
-    y[14] = __builtin_bswap32(y[14]);
-    y[15] = __builtin_bswap32(y[15]);
-    return x;
+static inline __m512i _mm512_swap_epi32(__m512i a) {
+    long long high = 0x0405060700010203;
+    long long low = 0x0c0d0e0f08090a0b;
+    __m512i mask = _mm512_set_epi64(high, low, high, low, high, low, high, low);
+    return _mm512_shuffle_epi8(a, mask);
 }
 
 #define X86_WORD uint32_t
