@@ -18,8 +18,10 @@
 #define FMT_TIT "%-5s"
 #define FMT_STR " %11s"
 #define FMT_RAT " %6.1f MH/s"
+#define FMT_CYC " %7.1f c/H"
 
-static const size_t n_iterations = 1<<24;
+static const size_t n_iterations = 1<<10;
+static const size_t n_samples = 1<<10;
 
 static const char* reference_message;
 static const char* reference_digest;
@@ -29,6 +31,7 @@ static struct {
     int check;
     int passphrases;
     int jobs;
+    int count_cycles;
     int md4;
     int md5;
     int sha1;
@@ -38,7 +41,7 @@ static struct {
     int sse2;
     int avx2;
     int avx512;
-} args = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+} args = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 static void best_arch(void) {
     if (__builtin_cpu_supports("avx512f")) {
@@ -82,6 +85,8 @@ static void argparse(int argc, char** argv) {
     "  -p --passphrases   actually create passphrases to hash (default)\n"
     "  -n --hash          just hash, should be slightly faster\n"
     "  -j --jobs N        run on N threads (0 = auto)\n"
+    "  -r --real          measure real hash rate (default)\n"
+    "  -C --count-cycles  count CPU cycles (better for optimization)\n"
     "\n"
     "ARCHITECTURES\n"
     "     --x86           run benchmarks targeting x86\n"
@@ -121,6 +126,10 @@ static void argparse(int argc, char** argv) {
             args.passphrases = 0;
         } else if (arg_is("--jobs", "-j")) {
             args.jobs = (int) arg_get_uint();
+        } else if (arg_is("--real", "-r")) {
+            args.count_cycles = 0;
+        } else if (arg_is("--count-cycles", "-C")) {
+            args.count_cycles = 1;
         } else if (arg_is("--x86", NULL)) {
             chose_arch = 1;
             args.x86 = 1;
@@ -164,6 +173,10 @@ static void argparse(int argc, char** argv) {
         } else {
             usage("too many arguments");
         }
+    }
+
+    if (args.jobs > 1) {
+        omp_set_num_threads(args.jobs);
     }
 
     if (!chose_digest) {
@@ -216,27 +229,39 @@ static void check_oneblock(
 
 static void benchmark_full(void(*func)(uint8_t*,const uint8_t*,size_t)) {
     fflush(stdout);
-    uint8_t digest[20];
-    double timing;
-    if (args.jobs != 1) {
-        double start = real_clock();
-        if (args.jobs > 1) {
-            omp_set_num_threads(args.jobs);
+
+    double real_start = real_clock();
+    uint64_t cycles_min = (uint64_t) (-1);
+    for (size_t i = 0; i < n_samples; i += 1) {
+        uint64_t cycles_start = rdtsc();
+        if (args.jobs != 1) {
+            #pragma omp parallel for
+            for (size_t j = 0; j < n_iterations; j += 1) {
+                uint8_t digest[20];
+                func(digest, (uint8_t*) "abcdef", 6);
+            }
+        } else {
+            for (size_t j = 0; j < n_iterations; j += 1) {
+                uint8_t digest[20];
+                func(digest, (uint8_t*) "abcdef", 6);
+            }
         }
-        #pragma omp parallel for
-        for (size_t i = 0; i < n_iterations; i += 1) {
-            func(digest, (uint8_t*) "abcdef", 6);
+        uint64_t elapsed = rdtsc() - cycles_start;
+        if (elapsed < cycles_min) {
+            cycles_min = elapsed;
         }
-        timing = real_clock() - start;
-    } else {
-        clock_t start = clock();
-        for (size_t i = 0; i < n_iterations; i += 1) {
-            func(digest, (uint8_t*) "abcdef", 6);
-        }
-        timing = (double) (clock() - start) / CLOCKS_PER_SEC;
     }
-    double rate = (double) n_iterations / timing;
-    printf(FMT_RAT, rate / 1e6);
+    double real_elapsed = (real_clock() - real_start);
+
+    if (args.count_cycles) {
+        size_t n_total = n_iterations;
+        double cycles_per_hash = (double) cycles_min / (double) n_total;
+        printf(FMT_CYC, cycles_per_hash);
+    } else {
+        size_t n_total = n_samples * n_iterations;
+        double rate = (double) n_total / real_elapsed;
+        printf(FMT_RAT, rate / 1e6);
+    }
 }
 
 static void run_n_times(
@@ -267,25 +292,36 @@ static void benchmark_oneblock(
         size_t stride
 ) {
     fflush(stdout);
-    double timing;
-    if (args.jobs != 1) {
-        double start = real_clock();
-        if (args.jobs > 1) {
-            omp_set_num_threads(args.jobs);
+
+    double real_start = real_clock();
+    uint64_t cycles_min = (uint64_t) (-1);
+    for (size_t i = 0; i < n_samples; i += 1) {
+        uint64_t cycles_start = rdtsc();
+        if (args.jobs != 1) {
+            #pragma omp parallel
+            {
+                size_t n_threads = (size_t) omp_get_num_threads();
+                run_n_times(pad, func, stride, n_iterations / n_threads);
+            }
+        } else {
+            run_n_times(pad, func, stride, n_iterations);
         }
-        #pragma omp parallel
-        {
-            size_t n_threads = (size_t) omp_get_num_threads();
-            run_n_times(pad, func, stride, n_iterations / n_threads);
+        uint64_t elapsed = rdtsc() - cycles_start;
+        if (elapsed < cycles_min) {
+            cycles_min = elapsed;
         }
-        timing = real_clock() - start;
-    } else {
-        clock_t start = clock();
-        run_n_times(pad, func, stride, n_iterations);
-        timing = (double) (clock() - start) / CLOCKS_PER_SEC;
     }
-    double rate = (double) n_iterations / timing * (double) stride;
-    printf(FMT_RAT, rate / 1e6);
+    double real_elapsed = (real_clock() - real_start);
+
+    if (args.count_cycles) {
+        size_t n_total = n_iterations * stride;
+        double cycles_per_hash = (double) cycles_min / (double) n_total;
+        printf(FMT_CYC, cycles_per_hash);
+    } else {
+        size_t n_total = n_samples * n_iterations * stride;
+        double rate = (double) n_total / real_elapsed;
+        printf(FMT_RAT, rate / 1e6);
+    }
 }
 
 #define IF_EXT(EXT, COMMAND) do { \
