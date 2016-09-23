@@ -24,6 +24,23 @@ static inline __m128i my_mm_bswap_epi32(__m128i x) {
 #define ANY_EQ(X, V) _mm_movemask_epi8(_mm_cmpeq_epi32(X, _mm_set1_epi32((int) V)));
 #define BSWAP(X) my_mm_bswap_epi32(X)
 
+// MD4
+#define MD4_INIT(A, B, C, D) do { \
+    A = _mm_set1_epi32((int) 0x67452301); \
+    B = _mm_set1_epi32((int) 0xEFCDAB89); \
+    C = _mm_set1_epi32((int) 0x98BADCFE); \
+    D = _mm_set1_epi32((int) 0x10325476); \
+} while (0)
+#define MD4_F(X,Y,Z) _mm_or_si128(_mm_and_si128(X, Y), _mm_andnot_si128(X, Z))
+#define MD4_G(X,Y,Z) _mm_or_si128(_mm_and_si128(X, Y), _mm_or_si128(_mm_and_si128(X, Z), _mm_and_si128(Y, Z)))
+#define MD4_H(X,Y,Z) _mm_xor_si128(Y, _mm_xor_si128(X, Z))
+#define MD4_OP1(a,b,c,d,k,s) do { __m128i tmp = _mm_add_epi32(a, _mm_add_epi32(MD4_F(b,c,d), X[k])); a = ROT(tmp, s); } while (0)
+#define MD4_OP2(a,b,c,d,k,s) do { __m128i tmp = _mm_add_epi32(a, _mm_add_epi32(MD4_G(b,c,d), _mm_add_epi32(X[k], _mm_set1_epi32((int)0x5A827999)))); a = ROT(tmp, s); } while (0)
+#define MD4_OP3(a,b,c,d,k,s) do { __m128i tmp = _mm_add_epi32(a, _mm_add_epi32(MD4_H(b,c,d), _mm_add_epi32(X[k], _mm_set1_epi32((int)0x6ED9EBA1)))); a = ROT(tmp, s); } while (0)
+#include "md4_block.h"
+MD4_GENERATE("sse2", sse2)
+
+// MD5
 #define MD5_INIT(A, B, C, D) do { \
     A = _mm_set1_epi32((int) 0x67452301); \
     B = _mm_set1_epi32((int) 0xEFCDAB89); \
@@ -38,6 +55,5 @@ static inline __m128i my_mm_bswap_epi32(__m128i x) {
     __m128i tmp = _mm_add_epi32(a, _mm_add_epi32(f(b,c,d), _mm_add_epi32(X[k], _mm_set1_epi32((int) T[i])))); \
     a = _mm_add_epi32(b, ROT(tmp, s)); \
 } while (0)
-
 #include "md5_block.h"
 MD5_GENERATE("sse2", sse2)

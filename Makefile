@@ -8,7 +8,7 @@ SIMD := x86.o mmx.o sse2.o avx2.o avx512.o
 all: $(TARGETS)
 
 crypt: crypt.o md2.o md4.o md5.o sha1.o sha256.o sha512.o hash.o hmac.o des.o rijndael.o cipher.o
-benchmark: benchmark.o argparse.o util.o md4.o md5.o sha1.o md4_simd.o $(SIMD) sha1_simd.o
+benchmark: benchmark.o argparse.o util.o md4.o md5.o sha1.o $(SIMD) sha1_simd.o
 bruteforce: bruteforce.o argparse.o util.o $(SIMD)
 generate: generate.o md5.o
 sort: sort.o argparse.o util.o
