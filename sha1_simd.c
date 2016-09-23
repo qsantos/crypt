@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "simd.h"
+#include "interleave.h"
 #include "simd_util.h"
 
 /*\

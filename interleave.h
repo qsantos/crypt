@@ -1,5 +1,5 @@
-#ifndef SIMD_H
-#define SIMD_H
+#ifndef INTERLEAVE_H
+#define INTERLEAVE_H
 
 #include <stddef.h>
 #include <stdint.h>
