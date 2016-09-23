@@ -1,11 +1,9 @@
 #include "md5_simd.h"
 
 #include <string.h>
-#include <mmintrin.h>  // MMX
-#include <emmintrin.h>  // SSE2
-#include <immintrin.h>  // AVX/AVX2/AVX512
 
 #include "simd.h"
+#include "simd_util.h"
 
 static const uint32_t T[] = {
     0,
@@ -120,7 +118,6 @@ static const uint32_t T[] = {
 \*/
 
 // x86: no CPU extension, no interleaving (e.g. interleaving of 1)
-#define X86_WORD uint32_t
 #define X86_INIT(A, B, C, D) do { \
     A = 0x67452301; \
     B = 0xEFCDAB89; \
@@ -131,21 +128,17 @@ static const uint32_t T[] = {
 #define X86_G(X,Y,Z) ((((X) ^ (Y)) & (Z)) ^ (Y))
 #define X86_H(X,Y,Z) ((X) ^ (Y) ^ (Z))
 #define X86_I(X,Y,Z) ((Y) ^ ((X) | ~(Z)))
-#define X86_ROT(x,n) (((x) << n) | ((x) >> (32-n)))
 #define X86_OP(f,a,b,c,d,X,k,s,i) do { \
     uint32_t tmp = a + f(b,c,d) + X[k] + T[i]; \
     a = b + X86_ROT(tmp, s); \
 } while (0)
-#define X86_ADD(a, b) ((a) + (b))
 #define X86_BLOCK(BLOCK, A,B,C,D, LENGTH) \
     MD5_BLOCK(((uint32_t*)BLOCK), \
               A,B,C,D, \
               X86_F, X86_G, X86_H, X86_I, \
               X86_OP, X86_ADD, LENGTH)
-#define X86_ANY_EQ(X, V) ((X) == (V))
 
 // MMX
-#define MMX_WORD __m64
 #define MMX_INIT(A, B, C, D) do { \
     A = _mm_set1_pi32((int) 0x67452301); \
     B = _mm_set1_pi32((int) 0xEFCDAB89); \
@@ -156,21 +149,17 @@ static const uint32_t T[] = {
 #define MMX_G(X,Y,Z) _mm_or_si64(_mm_and_si64(X, Z), _mm_andnot_si64(Z, Y))
 #define MMX_H(X,Y,Z) _mm_xor_si64(_mm_xor_si64(X, Y),Z)
 #define MMX_I(X,Y,Z) _mm_xor_si64(Y, _mm_or_si64(X, ~Z))
-#define MMX_ROT(x,n) _mm_or_si64(_mm_slli_pi32(x, n), _mm_srli_pi32(x, 32-n))
 #define MMX_OP(f,a,b,c,d,X,k,s,i) do { \
     __m64 tmp = _mm_add_pi32(a, _mm_add_pi32(f(b,c,d), _mm_add_pi32(X[k], _mm_set1_pi32((int) T[i])))); \
     a = _mm_add_pi32(b, MMX_ROT(tmp, s)); \
 } while (0)
-#define MMX_ADD(a, b) (_mm_add_pi32((a), (b)))
 #define MMX_BLOCK(BLOCK, A,B,C,D, LENGTH) \
     MD5_BLOCK(((__m64*)BLOCK), \
               A,B,C,D, \
               MMX_F, MMX_G, MMX_H, MMX_I, \
               MMX_OP, MMX_ADD, LENGTH)
-#define MMX_ANY_EQ(X, V) _mm_movemask_pi8(_mm_cmpeq_pi32(X, _mm_set1_pi32((int) V)));
 
 // SSE2
-#define SSE2_WORD __m128i
 #define SSE2_INIT(A, B, C, D) do { \
     A = _mm_set1_epi32((int) 0x67452301); \
     B = _mm_set1_epi32((int) 0xEFCDAB89); \
@@ -181,21 +170,17 @@ static const uint32_t T[] = {
 #define SSE2_G(X,Y,Z) _mm_or_si128(_mm_and_si128(X, Z), _mm_andnot_si128(Z, Y))
 #define SSE2_H(X,Y,Z) _mm_xor_si128(_mm_xor_si128(X, Y),Z)
 #define SSE2_I(X,Y,Z) _mm_xor_si128(Y, _mm_or_si128(X, ~Z))
-#define SSE2_ROT(x,n) _mm_or_si128(_mm_slli_epi32(x, n), _mm_srli_epi32(x, 32-n))
 #define SSE2_OP(f,a,b,c,d,X,k,s,i) do { \
     __m128i tmp = _mm_add_epi32(a, _mm_add_epi32(f(b,c,d), _mm_add_epi32(X[k], _mm_set1_epi32((int) T[i])))); \
     a = _mm_add_epi32(b, SSE2_ROT(tmp, s)); \
 } while (0)
-#define SSE2_ADD(a, b) (_mm_add_epi32((a), (b)))
 #define SSE2_BLOCK(BLOCK, A,B,C,D, LENGTH) \
     MD5_BLOCK(((__m128i*)BLOCK), \
               A,B,C,D, \
               SSE2_F, SSE2_G, SSE2_H, SSE2_I, \
               SSE2_OP, SSE2_ADD, LENGTH)
-#define SSE2_ANY_EQ(X, V) _mm_movemask_epi8(_mm_cmpeq_epi32(X, _mm_set1_epi32((int) V)));
 
 // AVX2
-#define AVX2_WORD __m256i
 #define AVX2_INIT(A, B, C, D) do { \
     A = _mm256_set1_epi32((int) 0x67452301); \
     B = _mm256_set1_epi32((int) 0xEFCDAB89); \
@@ -206,21 +191,17 @@ static const uint32_t T[] = {
 #define AVX2_G(X,Y,Z) _mm256_or_si256(_mm256_and_si256(X, Z), _mm256_andnot_si256(Z, Y))
 #define AVX2_H(X,Y,Z) _mm256_xor_si256(_mm256_xor_si256(X, Y),Z)
 #define AVX2_I(X,Y,Z) _mm256_xor_si256(Y, _mm256_or_si256(X, ~Z))
-#define AVX2_ROT(x,n) _mm256_or_si256(_mm256_slli_epi32(x, n), _mm256_srli_epi32(x, 32-n))
 #define AVX2_OP(f,a,b,c,d,X,k,s,i) do { \
     __m256i tmp = _mm256_add_epi32(a, _mm256_add_epi32(f(b,c,d), _mm256_add_epi32(X[k], _mm256_set1_epi32((int) T[i])))); \
     a = _mm256_add_epi32(b, AVX2_ROT(tmp, s)); \
 } while (0)
-#define AVX2_ADD(a, b) (_mm256_add_epi32((a), (b)))
 #define AVX2_BLOCK(BLOCK, A,B,C,D, LENGTH) \
     MD5_BLOCK(((__m256i*)BLOCK), \
               A,B,C,D, \
               AVX2_F, AVX2_G, AVX2_H, AVX2_I, \
               AVX2_OP, AVX2_ADD, LENGTH)
-#define AVX2_ANY_EQ(X, V) _mm256_movemask_epi8(_mm256_cmpeq_epi32(X, _mm256_set1_epi32((int) V)));
 
 // AVX-512
-#define AVX512_WORD __m512i
 #define AVX512_INIT(A, B, C, D) do { \
     A = _mm512_set1_epi32((int) 0x67452301); \
     B = _mm512_set1_epi32((int) 0xEFCDAB89); \
@@ -231,18 +212,15 @@ static const uint32_t T[] = {
 #define AVX512_G(X,Y,Z) _mm512_or_si512(_mm512_and_si512(X, Z), _mm512_andnot_si512(Z, Y))
 #define AVX512_H(X,Y,Z) _mm512_xor_si512(_mm512_xor_si512(X, Y),Z)
 #define AVX512_I(X,Y,Z) _mm512_xor_si512(Y, _mm512_or_si512(X, ~Z))
-#define AVX512_ROT(x,n) _mm512_or_si512(_mm512_slli_epi32(x, n), _mm512_srli_epi32(x, 32-n))
 #define AVX512_OP(f,a,b,c,d,X,k,s,i) do { \
     __m512i tmp = _mm512_add_epi32(a, _mm512_add_epi32(f(b,c,d), _mm512_add_epi32(X[k], _mm512_set1_epi32((int) T[i])))); \
     a = _mm512_add_epi32(b, AVX512_ROT(tmp, s)); \
 } while (0)
-#define AVX512_ADD(a, b) (_mm512_add_epi32((a), (b)))
 #define AVX512_BLOCK(BLOCK, A,B,C,D, LENGTH) \
     MD5_BLOCK(((__m512i*)BLOCK), \
               A,B,C,D, \
               AVX512_F, AVX512_G, AVX512_H, AVX512_I, \
               AVX512_OP, AVX512_ADD, LENGTH);
-#define AVX512_ANY_EQ(X, V) _mm512_cmpeq_epi32_mask(X, _mm512_set1_epi32((int) V));
 
 void md5_pad(uint8_t* block, size_t length, size_t stride) {
     memset(block, 0, 64 * stride);
