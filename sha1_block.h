@@ -50,16 +50,7 @@
         LENGTH /* in bytes; if less than 56, shortcuts can be taken; */ \
     ) do { \
     WORD* X = (WORD*) BLOCK; \
-    \
     WORD W[80]; \
-    \
-    for (int t = 0; t < 16; t += 1) { \
-        W[t] = BSWAP(X[t]); \
-    } \
-    \
-    for (int t = 16; t < 80; t += 1) { \
-        W[t] = ROL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1); \
-    } \
     \
     WORD previous_A = A; \
     WORD previous_B = B; \
@@ -67,10 +58,26 @@
     WORD previous_D = D; \
     WORD previous_E = E; \
     \
-    for (int t =  0; t < 20; t += 1) { SHA1_OP(SHA1_F,A,B,C,D,t,0x5A827999); } \
-    for (int t = 20; t < 40; t += 1) { SHA1_OP(SHA1_G,A,B,C,D,t,0x6ED9EBA1); } \
-    for (int t = 40; t < 60; t += 1) { SHA1_OP(SHA1_H,A,B,C,D,t,0x8F1BBCDC); } \
-    for (int t = 60; t < 80; t += 1) { SHA1_OP(SHA1_G,A,B,C,D,t,0xCA62C1D6); } \
+    for (int t =  0; t < 16; t += 1) { \
+        W[t] = BSWAP(X[t]); \
+        SHA1_OP(SHA1_F,A,B,C,D,t,0x5A827999); \
+    } \
+    for (int t = 16; t < 20; t += 1) { \
+        W[t] = ROL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1); \
+        SHA1_OP(SHA1_F,A,B,C,D,t,0x5A827999); \
+    } \
+    for (int t = 20; t < 40; t += 1) { \
+        W[t] = ROL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1); \
+        SHA1_OP(SHA1_G,A,B,C,D,t,0x6ED9EBA1); \
+    } \
+    for (int t = 40; t < 60; t += 1) { \
+        W[t] = ROL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1); \
+        SHA1_OP(SHA1_H,A,B,C,D,t,0x8F1BBCDC); \
+    } \
+    for (int t = 60; t < 80; t += 1) { \
+        W[t] = ROL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1); \
+        SHA1_OP(SHA1_G,A,B,C,D,t,0xCA62C1D6); \
+    } \
     \
     A = ADD(A, previous_A); \
     B = ADD(B, previous_B); \
