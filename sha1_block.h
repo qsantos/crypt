@@ -24,6 +24,13 @@
 } while (0)
 #endif
 
+#ifndef SHA1_OP
+#define SHA1_OP(f,A,B,C,D,t,K) do { \
+    WORD tmp = ADD(ROL(A,5), ADD(f(B,C,D), ADD(E, ADD(W[t], SET1(K))))); \
+    E = D; D = C; C = ROL(B, 30); B = A; A = tmp; \
+} while (0)
+#endif
+
 #ifndef SHA1_BLOCK
 #define SHA1_BLOCK( \
         BLOCK, /* the block to be processed */ \

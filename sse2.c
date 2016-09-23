@@ -40,10 +40,6 @@ MD4_GENERATE("sse2", sse2)
 #define MD5_G(X,Y,Z) _mm_or_si128(_mm_and_si128(X, Z), _mm_andnot_si128(Z, Y))
 #define MD5_H(X,Y,Z) _mm_xor_si128(_mm_xor_si128(X, Y),Z)
 #define MD5_I(X,Y,Z) _mm_xor_si128(Y, _mm_or_si128(X, ~Z))
-#define MD5_OP(f,a,b,c,d,k,s,i) do { \
-    WORD tmp = ADD(a, ADD(f(b,c,d), ADD(X[k], SET1(T[i])))); \
-    a = ADD(b, ROL(tmp, s)); \
-} while (0)
 #include "md5_block.h"
 MD5_GENERATE("sse2", sse2)
 
@@ -51,9 +47,5 @@ MD5_GENERATE("sse2", sse2)
 #define SHA1_F(B,C,D) _mm_or_si128(_mm_and_si128(B, C), _mm_andnot_si128(B, D))
 #define SHA1_G(B,C,D) _mm_xor_si128(B, _mm_xor_si128(C, D))
 #define SHA1_H(B,C,D) _mm_or_si128(_mm_and_si128(B, C), _mm_or_si128(_mm_and_si128(B, D), _mm_and_si128(C, D)))
-#define SHA1_OP(f,A,B,C,D,t,K) do { \
-    __m128i tmp = ADD(ROL(A,5), ADD(f(B,C,D), ADD(E, ADD(W[t], SET1(K))))); \
-    E = D; D = C; C = ROL(B, 30); B = A; A = tmp; \
-} while (0)
 #include "sha1_block.h"
 SHA1_GENERATE("sse2", sse2)

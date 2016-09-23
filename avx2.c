@@ -45,10 +45,6 @@ MD4_GENERATE("avx2", avx2)
 #define MD5_G(X,Y,Z) _mm256_or_si256(_mm256_and_si256(X, Z), _mm256_andnot_si256(Z, Y))
 #define MD5_H(X,Y,Z) _mm256_xor_si256(_mm256_xor_si256(X, Y),Z)
 #define MD5_I(X,Y,Z) _mm256_xor_si256(Y, _mm256_or_si256(X, ~Z))
-#define MD5_OP(f,a,b,c,d,k,s,i) do { \
-    WORD tmp = ADD(a, ADD(f(b,c,d), ADD(X[k], SET1(T[i])))); \
-    a = ADD(b, ROL(tmp, s)); \
-} while (0)
 #include "md5_block.h"
 MD5_GENERATE("avx2", avx2)
 
@@ -56,9 +52,5 @@ MD5_GENERATE("avx2", avx2)
 #define SHA1_F(B,C,D) _mm256_or_si256(_mm256_and_si256(B, C), _mm256_andnot_si256(B, D))
 #define SHA1_G(B,C,D) _mm256_xor_si256(B, _mm256_xor_si256(C, D))
 #define SHA1_H(B,C,D) _mm256_or_si256(_mm256_and_si256(B, C), _mm256_or_si256(_mm256_and_si256(B, D), _mm256_and_si256(C, D)))
-#define SHA1_OP(f,A,B,C,D,t,K) do { \
-    __m256i tmp = ADD(ROL(A,5), ADD(f(B,C,D), ADD(E, ADD(W[t], SET1(K))))); \
-    E = D; D = C; C = ROL(B, 30); B = A; A = tmp; \
-} while (0)
 #include "sha1_block.h"
 SHA1_GENERATE("avx2", avx2)

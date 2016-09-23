@@ -47,6 +47,13 @@ static const uint32_t T[] = {
 } while (0)
 #endif
 
+#ifndef MD5_OP
+#define MD5_OP(f,a,b,c,d,k,s,i) do { \
+    WORD tmp = ADD(a, ADD(f(b,c,d), ADD(X[k], SET1(T[i])))); \
+    a = ADD(b, ROL(tmp, s)); \
+} while (0)
+#endif
+
 // hackish, but I really like the grid layout
 #define MD5_OP_F(A,B,C,D,K,S,I) MD5_OP(MD5_F,A,B,C,D,K,S,I)
 #define MD5_OP_G(A,B,C,D,K,S,I) MD5_OP(MD5_G,A,B,C,D,K,S,I)

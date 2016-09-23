@@ -32,10 +32,6 @@ MD4_GENERATE("avx512f", avx512)
 #define MD5_G(X,Y,Z) _mm512_or_si512(_mm512_and_si512(X, Z), _mm512_andnot_si512(Z, Y))
 #define MD5_H(X,Y,Z) _mm512_xor_si512(_mm512_xor_si512(X, Y),Z)
 #define MD5_I(X,Y,Z) _mm512_xor_si512(Y, _mm512_or_si512(X, ~Z))
-#define MD5_OP(f,a,b,c,d,k,s,i) do { \
-    WORD tmp = _mm512_add_epi32(a, _mm512_add_epi32(f(b,c,d), _mm512_add_epi32(X[k], SET1(T[i])))); \
-    a = _mm512_add_epi32(b, ROL(tmp, s)); \
-} while (0)
 #include "md5_block.h"
 MD5_GENERATE("avx512f", avx512)
 
@@ -43,9 +39,5 @@ MD5_GENERATE("avx512f", avx512)
 #define SHA1_F(B,C,D) _mm512_or_si512(_mm512_and_si512(B, C), _mm512_andnot_si512(B, D))
 #define SHA1_G(B,C,D) _mm512_xor_si512(B, _mm512_xor_si512(C, D))
 #define SHA1_H(B,C,D) _mm512_or_si512(_mm512_and_si512(B, C), _mm512_or_si512(_mm512_and_si512(B, D), _mm512_and_si512(C, D)))
-#define SHA1_OP(f,A,B,C,D,t,K) do { \
-    WORD tmp = ADD(ROL(A,5), ADD(f(B,C,D), ADD(E, ADD(W[t], SET1(K))))); \
-    E = D; D = C; C = ROL(B, 30); B = A; A = tmp; \
-} while (0)
 #include "sha1_block.h"
 SHA1_GENERATE("avx512f", avx512)
