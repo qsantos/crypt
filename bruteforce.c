@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
                thread_id+1, n_threads, start, start + count);
 
         uint8_t block[1024] __attribute__((aligned(32)));
-        uint8_t interleaved[128];
+        uint8_t digests[128];
         const char* ptrs[1024];
         size_t index_stride = (count_per_thread + stride - 1) / stride;
         md5_pad(block, length, stride);
@@ -97,10 +97,10 @@ int main(int argc, char** argv) {
             if (md5_test_avx2(args.target, block)) {
                 // if so, re-compute the full hash (happens rarely enough)
                 // and redo a full comparison
-                md5_oneblock_avx2(interleaved, block);
+                md5_oneblock_avx2(digests, block);
                 for (size_t interleaf = 0; interleaf < stride; interleaf += 1) {
                     uint8_t digest[16];
-                    uninterleave(digest, interleaved, 16, stride, interleaf);
+                    uninterleave(digest, digests, 16, stride, interleaf);
                     if (bstrncmp(digest, args.target, 16) != 0) {
                         // not an actuall match
                         continue;
