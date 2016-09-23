@@ -87,15 +87,6 @@
 } while (0)
 #endif
 
-/*\
- * Below are the target-dependent implementations. An implementation needs:
- *
- * * INIT to reset the state
- * * auxiliary functions F,G,H,I from the SHA1 specification
- * * OP to execute a single STEP of SHA1 (expecting one of F,G,H,I)
- * * ADD which just adds two values (for the end of the update)
-\*/
-
 #define SHA1_GENERATE(TARGET, PREFIX) \
     __attribute__((target(TARGET))) \
     void sha1_oneblock_##PREFIX(uint8_t* digest, const uint8_t* block) { \

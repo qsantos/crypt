@@ -107,15 +107,6 @@
 } while (0)
 #endif
 
-/*\
- * Below are the target-dependent implementations. An implementation needs:
- *
- * * INIT to reset the state
- * * auxiliary functions F,G,H,I from the MD4 specification
- * * OP to execute a single STEP of MD4 (expecting one of F,G,H,I)
- * * ADD which just adds two values (for the end of the update)
-\*/
-
 // generate architecture-dependent functions
 #define MD4_GENERATE(TARGET, PREFIX) \
     __attribute__((target(TARGET))) \

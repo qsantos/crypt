@@ -15,7 +15,10 @@ static inline __m512i _mm512_bswap_epi32(__m512i a) {
 #define XOR(a, b) _mm512_xor_si512(a, b)
 #define AND(a, b) _mm512_and_si512(a, b)
 #define ANDNOT(a, b) _mm512_andnot_si512(a, b)
-#define ROL(x,n) _mm512_rol_epi32(x, n)
+#define SHL(a, s) _mm512_slli_epi32(a, s)
+#define SHR(a, s) _mm512_srli_epi32(a, s)
+#define ROL(a, s) _mm512_rol_epi32(a, s)
+#define ROR(a, s) _mm512_ror_epi32(a, s)
 #define ADD(a, b) (_mm512_add_epi32((a), (b)))
 #define ANY_EQ(X, V) _mm512_cmpeq_epi32_mask(X, SET1(V));
 #define BSWAP(X) _mm512_bswap_epi32(X)
@@ -29,3 +32,6 @@ MD5_GENERATE("avx512f", avx512)
 
 #include "sha1_block.h"
 SHA1_GENERATE("avx512f", avx512)
+
+#include "sha256_block.h"
+SHA256_GENERATE("avx512f", avx512)

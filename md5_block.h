@@ -140,16 +140,6 @@ static const uint32_t T[] = {
 } while (0)
 #endif
 
-/*\
- * Below are the target-dependent implementations. An implementation needs:
- *
- * * INIT to reset the state
- * * auxiliary functions F,G,H,I from the MD5 specification
- * * OP to execute a single STEP of MD5 (expecting one of F,G,H,I)
- * * ADD which just adds two values (for the end of the update)
-\*/
-
-
 // generate architecture-dependent functions
 #define MD5_GENERATE(TARGET, PREFIX) \
     __attribute__((target(TARGET))) \

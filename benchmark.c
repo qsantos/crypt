@@ -11,11 +11,13 @@
 #include "md4.h"
 #include "md5.h"
 #include "sha1.h"
+#include "sha256.h"
 #include "md4_simd.h"
 #include "md5_simd.h"
 #include "sha1_simd.h"
+#include "sha256_simd.h"
 
-#define FMT_TIT "%-5s"
+#define FMT_TIT "%-7s"
 #define FMT_STR " %11s"
 #define FMT_RAT " %6.1f MH/s"
 #define FMT_CYC " %7.1f c/H"
@@ -35,13 +37,14 @@ static struct {
     int md4;
     int md5;
     int sha1;
+    int sha256;
     int full;
     int x86;
     int mmx;
     int sse2;
     int avx2;
     int avx512;
-} args = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+} args = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 static void best_arch(void) {
     if (__builtin_cpu_supports("avx512f")) {
@@ -70,6 +73,7 @@ static void all_digests(void) {
     args.md4 = 1;
     args.md5 = 1;
     args.sha1 = 1;
+    args.sha256 = 1;
 }
 
 static void argparse(int argc, char** argv) {
@@ -102,7 +106,8 @@ static void argparse(int argc, char** argv) {
     "     --md4           run benchmarks for MD4\n"
     "     --md5           run benchmarks for MD5\n"
     "     --sha1          run benchmarks for SHA-1\n"
-    "  -d --all-digests   equivalent to --md4 --md5 --sha1\n"
+    "     --sha256        run benchmarks for SHA-256\n"
+    "  -d --all-digests   equivalent to --md4 --md5 --sha1 --sha256\n"
     "\n"
     "MISCELLANEOUS\n"
     "  -A --all           equivalent to --all-digests --all-archs\n"
@@ -160,6 +165,9 @@ static void argparse(int argc, char** argv) {
         } else if (arg_is("--sha1", NULL)) {
             chose_digest = 1;
             args.sha1 = 1;
+        } else if (arg_is("--sha256", NULL)) {
+            chose_digest = 1;
+            args.sha256 = 1;
         } else if (arg_is("--all-digests", "-d")) {
             chose_digest = 1;
             all_digests();
@@ -455,6 +463,9 @@ int main(int argc, char** argv) {
         if (args.sha1) {
             CHECK_ALL("SHA-1", sha1, "abc", "a9993e364706816aba3e25717850c26c9cd0d89d");
         }
+        if (args.sha256) {
+            CHECK_ALL("SHA-256", sha256, "abc", "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+        }
     } else {
         if (args.md4) {
             BENCHMARK_ALL("MD4", md4);
@@ -464,6 +475,9 @@ int main(int argc, char** argv) {
         }
         if (args.sha1) {
             BENCHMARK_ALL("SHA-1", sha1);
+        }
+        if (args.sha256) {
+            BENCHMARK_ALL("SHA-256", sha256);
         }
     }
 
