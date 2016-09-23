@@ -71,32 +71,7 @@ static const uint32_t K[] = {
 #define SHA256_Sigma1(x) XOR(ROR(x, 17), XOR(ROR(x, 19), SHR(x, 10)))
 #endif
 
-#ifndef SHA256_BLOCK
-#define SHA256_BLOCK( \
-        BLOCK, /* the block to be processed */ \
-        A,B,C,D,E,F,G,H, /* WORD: the 256 bit state of SHA-2 */ \
-        LENGTH /* in bytes; if less than 56, shortcuts can be taken; */ \
-    ) do {\
-    WORD* X = (WORD*) BLOCK; \
-    WORD W[64]; \
-    for (int t = 0; t < 16; t += 1) { \
-        W[t] = BSWAP(X[t]); \
-    } \
-    \
-    for (int t = 16; t < 64; t += 1) { \
-        W[t] = ADD(SHA256_Sigma1(W[t-2]), ADD(W[t-7], ADD(SHA256_Sigma0(W[t-15]), W[t-16]))); \
-    } \
-    \
-    WORD previous_A = A; \
-    WORD previous_B = B; \
-    WORD previous_C = C; \
-    WORD previous_D = D; \
-    WORD previous_E = E; \
-    WORD previous_F = F; \
-    WORD previous_G = G; \
-    WORD previous_H = H; \
-    \
-    for (int t = 0; t < 64; t += 1) { \
+#define SHA256_OP(t) do {\
         WORD T1 = ADD(SHA256_Sum1(E), ADD(SHA256_Ch(E,F,G), ADD(SET1(K[t]), ADD(W[t], H)))); \
         WORD T2 = ADD(SHA256_Sum0(A), SHA256_Maj(A,B,C)); \
         H = G; \
@@ -107,6 +82,34 @@ static const uint32_t K[] = {
         C = B; \
         B = A; \
         A = ADD(T1, T2); \
+} while (0)
+
+#ifndef SHA256_BLOCK
+#define SHA256_BLOCK( \
+        BLOCK, /* the block to be processed */ \
+        A,B,C,D,E,F,G,H, /* WORD: the 256 bit state of SHA-2 */ \
+        LENGTH /* in bytes; if less than 56, shortcuts can be taken; */ \
+    ) do {\
+    WORD* X = (WORD*) BLOCK; \
+    WORD W[64]; \
+    \
+    WORD previous_A = A; \
+    WORD previous_B = B; \
+    WORD previous_C = C; \
+    WORD previous_D = D; \
+    WORD previous_E = E; \
+    WORD previous_F = F; \
+    WORD previous_G = G; \
+    WORD previous_H = H; \
+    \
+    for (int t = 0; t < 16; t += 1) { \
+        W[t] = BSWAP(X[t]); \
+        SHA256_OP(t); \
+    } \
+    \
+    for (int t = 16; t < 64; t += 1) { \
+        W[t] = ADD(SHA256_Sigma1(W[t-2]), ADD(W[t-7], ADD(SHA256_Sigma0(W[t-15]), W[t-16]))); \
+        SHA256_OP(t); \
     } \
     \
     A = ADD(A, previous_A); \
