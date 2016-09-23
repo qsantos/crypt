@@ -18,6 +18,13 @@ static inline __m128i _mm_rol_epi32(__m128i a, int s) {
 
 __attribute__((target("avx2")))
 static inline __m256i _mm256_rol_epi32(__m256i a, int s) {
+    if (s == 16) {
+        long long high = 0x0d0c0f0e09080b0a;
+        long long low = 0x0504070601000302;
+        __m256i mask = _mm256_set_epi64x(high, low, high, low);
+        return _mm256_shuffle_epi8(a, mask);
+    }
+
     return _mm256_or_si256(_mm256_slli_epi32(a, s), _mm256_srli_epi32(a, 32-s));
 }
 
