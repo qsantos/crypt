@@ -28,7 +28,7 @@
     } \
     \
     for (int t = 16; t < 80; t += 1) { \
-        W[t] = ROT(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1); \
+        W[t] = ROL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1); \
     } \
     \
     WORD previous_A = A; \
