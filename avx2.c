@@ -28,14 +28,9 @@ static inline __m256i my_mm256_bswap_epi32(__m256i a) {
 #define ADD(a, b) (_mm256_add_epi32((a), (b)))
 #define ANY_EQ(X, V) _mm256_movemask_epi8(_mm256_cmpeq_epi32(X, _mm256_set1_epi32((int) V)));
 #define BSWAP(X) my_mm256_bswap_epi32(X)
+#define SET1(a) (_mm256_set1_epi32((int) (a)))
 
 // MD4
-#define MD4_INIT(A, B, C, D) do { \
-    A = _mm256_set1_epi32((int) 0x67452301); \
-    B = _mm256_set1_epi32((int) 0xEFCDAB89); \
-    C = _mm256_set1_epi32((int) 0x98BADCFE); \
-    D = _mm256_set1_epi32((int) 0x10325476); \
-} while (0)
 #define MD4_F(X,Y,Z) _mm256_or_si256(_mm256_and_si256(X, Y), _mm256_andnot_si256(X, Z))
 #define MD4_G(X,Y,Z) _mm256_or_si256(_mm256_and_si256(X, Y), _mm256_or_si256(_mm256_and_si256(X, Z), _mm256_and_si256(Y, Z)))
 #define MD4_H(X,Y,Z) _mm256_xor_si256(Y, _mm256_xor_si256(X, Z))
@@ -46,12 +41,6 @@ static inline __m256i my_mm256_bswap_epi32(__m256i a) {
 MD4_GENERATE("avx2", avx2)
 
 // MD5
-#define MD5_INIT(A, B, C, D) do { \
-    A = _mm256_set1_epi32((int) 0x67452301); \
-    B = _mm256_set1_epi32((int) 0xEFCDAB89); \
-    C = _mm256_set1_epi32((int) 0x98BADCFE); \
-    D = _mm256_set1_epi32((int) 0x10325476); \
-} while (0)
 #define MD5_F(X,Y,Z) _mm256_or_si256(_mm256_and_si256(X, Y), _mm256_andnot_si256(X, Z))
 #define MD5_G(X,Y,Z) _mm256_or_si256(_mm256_and_si256(X, Z), _mm256_andnot_si256(Z, Y))
 #define MD5_H(X,Y,Z) _mm256_xor_si256(_mm256_xor_si256(X, Y),Z)
@@ -64,13 +53,6 @@ MD4_GENERATE("avx2", avx2)
 MD5_GENERATE("avx2", avx2)
 
 // SHA-1
-#define SHA1_INIT(A, B, C, D, E) do { \
-    A = _mm256_set1_epi32((int) 0x67452301); \
-    B = _mm256_set1_epi32((int) 0xEFCDAB89); \
-    C = _mm256_set1_epi32((int) 0x98BADCFE); \
-    D = _mm256_set1_epi32((int) 0x10325476); \
-    E = _mm256_set1_epi32((int) 0xC3D2E1F0); \
-} while (0)
 #define SHA1_F(B,C,D) _mm256_or_si256(_mm256_and_si256(B, C), _mm256_andnot_si256(B, D))
 #define SHA1_G(B,C,D) _mm256_xor_si256(B, _mm256_xor_si256(C, D))
 #define SHA1_H(B,C,D) _mm256_or_si256(_mm256_and_si256(B, C), _mm256_or_si256(_mm256_and_si256(B, D), _mm256_and_si256(C, D)))

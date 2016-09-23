@@ -5,14 +5,9 @@
 #define ADD(a, b) ((a) + (b))
 #define ANY_EQ(X, V) ((X) == (V))
 #define BSWAP(X) __builtin_bswap32(X)
+#define SET1(a) (a)
 
 // MD4
-#define MD4_INIT(A, B, C, D) do { \
-    A = 0x67452301; \
-    B = 0xEFCDAB89; \
-    C = 0x98BADCFE; \
-    D = 0x10325476; \
-} while (0)
 #define MD4_F(X,Y,Z) (((X) & (Y)) | (~(X) & (Z)))
 #define MD4_G(X,Y,Z) (((X) & (Y)) | ((X) & (Z)) | ((Y) & (Z)))
 #define MD4_H(X,Y,Z) ((X) ^ (Y) ^ (Z))
@@ -23,12 +18,6 @@
 MD4_GENERATE("arch=x86-64", x86)
 
 // MD5
-#define MD5_INIT(A, B, C, D) do { \
-    A = 0x67452301; \
-    B = 0xEFCDAB89; \
-    C = 0x98BADCFE; \
-    D = 0x10325476; \
-} while (0)
 #define MD5_F(X,Y,Z) ((((Y) ^ (Z)) & (X)) ^ (Z))
 #define MD5_G(X,Y,Z) ((((X) ^ (Y)) & (Z)) ^ (Y))
 #define MD5_H(X,Y,Z) ((X) ^ (Y) ^ (Z))
@@ -41,13 +30,6 @@ MD4_GENERATE("arch=x86-64", x86)
 MD5_GENERATE("arch=x86-64", x86)
 
 // SHA-1
-#define SHA1_INIT(A, B, C, D, E) do { \
-    A = 0x67452301; \
-    B = 0xEFCDAB89; \
-    C = 0x98BADCFE; \
-    D = 0x10325476; \
-    E = 0xC3D2E1F0; \
-} while (0)
 #define SHA1_F(B,C,D) ((((C) ^ (D)) & (B)) ^ (D))
 #define SHA1_G(B,C,D) ((B) ^ (C) ^ (D))
 #define SHA1_H(B,C,D) (((B) & (C)) | ((B) & (D)) | ((C) & (D)))

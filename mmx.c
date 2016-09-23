@@ -25,14 +25,9 @@ static inline __m64 my_mm_bswap_pi32(__m64 x) {
 // TODO: cheating with _mm_movemask_epi8 (SSE instruction)
 #define ANY_EQ(X, V) _mm_movemask_pi8(_mm_cmpeq_pi32(X, _mm_set1_pi32((int) V)));
 #define BSWAP(X) my_mm_bswap_pi32(X)
+#define SET1(a) (_mm_set1_pi32((int) (a)))
 
 // MD4
-#define MD4_INIT(A, B, C, D) do { \
-    A = _mm_set1_pi32((int) 0x67452301); \
-    B = _mm_set1_pi32((int) 0xEFCDAB89); \
-    C = _mm_set1_pi32((int) 0x98BADCFE); \
-    D = _mm_set1_pi32((int) 0x10325476); \
-} while (0)
 #define MD4_F(X,Y,Z) _mm_or_si64(_mm_and_si64(X, Y), _mm_andnot_si64(X, Z))
 #define MD4_G(X,Y,Z) _mm_or_si64(_mm_and_si64(X, Y), _mm_or_si64(_mm_and_si64(X, Z), _mm_and_si64(Y, Z)))
 #define MD4_H(X,Y,Z) _mm_xor_si64(Y, _mm_xor_si64(X, Z))
@@ -43,12 +38,6 @@ static inline __m64 my_mm_bswap_pi32(__m64 x) {
 MD4_GENERATE("mmx", mmx)
 
 // MD5
-#define MD5_INIT(A, B, C, D) do { \
-    A = _mm_set1_pi32((int) 0x67452301); \
-    B = _mm_set1_pi32((int) 0xEFCDAB89); \
-    C = _mm_set1_pi32((int) 0x98BADCFE); \
-    D = _mm_set1_pi32((int) 0x10325476); \
-} while (0)
 #define MD5_F(X,Y,Z) _mm_or_si64(_mm_and_si64(X, Y), _mm_andnot_si64(X, Z))
 #define MD5_G(X,Y,Z) _mm_or_si64(_mm_and_si64(X, Z), _mm_andnot_si64(Z, Y))
 #define MD5_H(X,Y,Z) _mm_xor_si64(_mm_xor_si64(X, Y),Z)
@@ -61,13 +50,6 @@ MD4_GENERATE("mmx", mmx)
 MD5_GENERATE("mmx", mmx)
 
 // SHA-1
-#define SHA1_INIT(A, B, C, D, E) do { \
-    A = _mm_set1_pi32((int) 0x67452301); \
-    B = _mm_set1_pi32((int) 0xEFCDAB89); \
-    C = _mm_set1_pi32((int) 0x98BADCFE); \
-    D = _mm_set1_pi32((int) 0x10325476); \
-    E = _mm_set1_pi32((int) 0xC3D2E1F0); \
-} while (0)
 #define SHA1_F(B,C,D) _mm_or_si64(_mm_and_si64(B, C), _mm_andnot_si64(B, D))
 #define SHA1_G(B,C,D) _mm_xor_si64(B, _mm_xor_si64(C, D))
 #define SHA1_H(B,C,D) _mm_or_si64(_mm_and_si64(B, C), _mm_or_si64(_mm_and_si64(B, D), _mm_and_si64(C, D)))

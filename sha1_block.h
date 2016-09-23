@@ -14,6 +14,17 @@
  * implementation (i.e. uint32_t, __m64, __m128i, __m256i or __m512i).
 \*/
 
+#ifndef SHA1_INIT
+#define SHA1_INIT(A, B, C, D, E) do { \
+    A = SET1(0x67452301); \
+    B = SET1(0xEFCDAB89); \
+    C = SET1(0x98BADCFE); \
+    D = SET1(0x10325476); \
+    E = SET1(0xC3D2E1F0); \
+} while (0)
+#endif
+
+#ifndef SHA1_BLOCK
 #define SHA1_BLOCK( \
         BLOCK, /* the block to be processed */ \
         A,B,C,D,E, /* WORD: the 160 bit state of SHA1 */ \
@@ -48,6 +59,7 @@
     D = ADD(D, previous_D); \
     E = ADD(E, previous_E); \
 } while (0)
+#endif
 
 /*\
  * Below are the target-dependent implementations. An implementation needs:

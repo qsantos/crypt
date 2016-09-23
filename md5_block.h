@@ -38,12 +38,22 @@ static const uint32_t T[] = {
     0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391,
 };
 
+#ifndef MD5_INIT
+#define MD5_INIT(A, B, C, D) do { \
+    A = SET1(0x67452301); \
+    B = SET1(0xEFCDAB89); \
+    C = SET1(0x98BADCFE); \
+    D = SET1(0x10325476); \
+} while (0)
+#endif
+
 // hackish, but I really like the grid layout
 #define MD5_OP_F(A,B,C,D,K,S,I) MD5_OP(MD5_F,A,B,C,D,K,S,I)
 #define MD5_OP_G(A,B,C,D,K,S,I) MD5_OP(MD5_G,A,B,C,D,K,S,I)
 #define MD5_OP_H(A,B,C,D,K,S,I) MD5_OP(MD5_H,A,B,C,D,K,S,I)
 #define MD5_OP_I(A,B,C,D,K,S,I) MD5_OP(MD5_I,A,B,C,D,K,S,I)
 
+#ifndef MD5_BLOCK
 #define MD5_BLOCK( \
         BLOCK, /* the block to be processed */ \
         A,B,C,D, /* the 128 bit state of MD5 */ \
@@ -105,6 +115,7 @@ static const uint32_t T[] = {
         D = ADD(D, previous_D); \
     } \
 } while (0)
+#endif
 
 /*\
  * Below are the target-dependent implementations. An implementation needs:

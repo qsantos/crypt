@@ -14,6 +14,16 @@
  * implementation (i.e. uint32_t, __m64, __m128i, __m256i or __m512i).
 \*/
 
+#ifndef MD4_INIT
+#define MD4_INIT(A, B, C, D) do { \
+    A = SET1(0x67452301); \
+    B = SET1(0xEFCDAB89); \
+    C = SET1(0x98BADCFE); \
+    D = SET1(0x10325476); \
+} while (0)
+#endif
+
+#ifndef MD4_BLOCK
 #define MD4_BLOCK( \
         BLOCK, /* WORD*: the block to be processed */ \
         A,B,C,D, /* WORD: the 128 bit state of MD4 */ \
@@ -71,6 +81,7 @@
         D = ADD(D, previous_D); \
     } \
 } while (0)
+#endif
 
 /*\
  * Below are the target-dependent implementations. An implementation needs:
