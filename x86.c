@@ -39,3 +39,21 @@ MD4_GENERATE("arch=x86-64", x86)
 } while (0)
 #include "md5_block.h"
 MD5_GENERATE("arch=x86-64", x86)
+
+// SHA-1
+#define SHA1_INIT(A, B, C, D, E) do { \
+    A = 0x67452301; \
+    B = 0xEFCDAB89; \
+    C = 0x98BADCFE; \
+    D = 0x10325476; \
+    E = 0xC3D2E1F0; \
+} while (0)
+#define SHA1_F(B,C,D) ((((C) ^ (D)) & (B)) ^ (D))
+#define SHA1_G(B,C,D) ((B) ^ (C) ^ (D))
+#define SHA1_H(B,C,D) (((B) & (C)) | ((B) & (D)) | ((C) & (D)))
+#define SHA1_OP(f,A,B,C,D,t,K) do { \
+    uint32_t tmp = ROT(A,5) + f(B,C,D) + E + W[t] + K; \
+    E = D; D = C; C = ROT(B, 30); B = A; A = tmp; \
+} while (0)
+#include "sha1_block.h"
+SHA1_GENERATE("arch=x86-64", x86)

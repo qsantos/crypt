@@ -47,6 +47,23 @@ MD4_GENERATE("avx512f", avx512)
     __m512i tmp = _mm512_add_epi32(a, _mm512_add_epi32(f(b,c,d), _mm512_add_epi32(X[k], _mm512_set1_epi32((int) T[i])))); \
     a = _mm512_add_epi32(b, ROT(tmp, s)); \
 } while (0)
-
 #include "md5_block.h"
 MD5_GENERATE("avx512f", avx512)
+
+// SHA-1
+#define SHA1_INIT(A, B, C, D, E) do { \
+    A = _mm512_set1_epi32((int) 0x67452301); \
+    B = _mm512_set1_epi32((int) 0xEFCDAB89); \
+    C = _mm512_set1_epi32((int) 0x98BADCFE); \
+    D = _mm512_set1_epi32((int) 0x10325476); \
+    E = _mm512_set1_epi32((int) 0xC3D2E1F0); \
+} while (0)
+#define SHA1_F(B,C,D) _mm512_or_si512(_mm512_and_si512(B, C), _mm512_andnot_si512(B, D))
+#define SHA1_G(B,C,D) _mm512_xor_si512(B, _mm512_xor_si512(C, D))
+#define SHA1_H(B,C,D) _mm512_or_si512(_mm512_and_si512(B, C), _mm512_or_si512(_mm512_and_si512(B, D), _mm512_and_si512(C, D)))
+#define SHA1_OP(f,A,B,C,D,t,K) do { \
+    __m512i tmp = _mm512_add_epi32(ROT(A,5), _mm512_add_epi32(f(B,C,D), _mm512_add_epi32(E, _mm512_add_epi32(W[t], _mm512_set1_epi32((int) K))))); \
+    E = D; D = C; C = ROT(B, 30); B = A; A = tmp; \
+} while (0)
+#include "sha1_block.h"
+SHA1_GENERATE("avx512f", avx512)

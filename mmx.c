@@ -57,6 +57,23 @@ MD4_GENERATE("mmx", mmx)
     __m64 tmp = _mm_add_pi32(a, _mm_add_pi32(f(b,c,d), _mm_add_pi32(X[k], _mm_set1_pi32((int) T[i])))); \
     a = _mm_add_pi32(b, ROT(tmp, s)); \
 } while (0)
-
 #include "md5_block.h"
 MD5_GENERATE("mmx", mmx)
+
+// SHA-1
+#define SHA1_INIT(A, B, C, D, E) do { \
+    A = _mm_set1_pi32((int) 0x67452301); \
+    B = _mm_set1_pi32((int) 0xEFCDAB89); \
+    C = _mm_set1_pi32((int) 0x98BADCFE); \
+    D = _mm_set1_pi32((int) 0x10325476); \
+    E = _mm_set1_pi32((int) 0xC3D2E1F0); \
+} while (0)
+#define SHA1_F(B,C,D) _mm_or_si64(_mm_and_si64(B, C), _mm_andnot_si64(B, D))
+#define SHA1_G(B,C,D) _mm_xor_si64(B, _mm_xor_si64(C, D))
+#define SHA1_H(B,C,D) _mm_or_si64(_mm_and_si64(B, C), _mm_or_si64(_mm_and_si64(B, D), _mm_and_si64(C, D)))
+#define SHA1_OP(f,A,B,C,D,t,K) do { \
+    __m64 tmp = _mm_add_pi32(ROT(A,5), _mm_add_pi32(f(B,C,D), _mm_add_pi32(E, _mm_add_pi32(W[t], _mm_set1_pi32((int) K))))); \
+    E = D; D = C; C = ROT(B, 30); B = A; A = tmp; \
+} while (0)
+#include "sha1_block.h"
+SHA1_GENERATE("mmx", mmx)

@@ -57,3 +57,21 @@ MD4_GENERATE("sse2", sse2)
 } while (0)
 #include "md5_block.h"
 MD5_GENERATE("sse2", sse2)
+
+// SHA-1
+#define SHA1_INIT(A, B, C, D, E) do { \
+    A = _mm_set1_epi32((int) 0x67452301); \
+    B = _mm_set1_epi32((int) 0xEFCDAB89); \
+    C = _mm_set1_epi32((int) 0x98BADCFE); \
+    D = _mm_set1_epi32((int) 0x10325476); \
+    E = _mm_set1_epi32((int) 0xC3D2E1F0); \
+} while (0)
+#define SHA1_F(B,C,D) _mm_or_si128(_mm_and_si128(B, C), _mm_andnot_si128(B, D))
+#define SHA1_G(B,C,D) _mm_xor_si128(B, _mm_xor_si128(C, D))
+#define SHA1_H(B,C,D) _mm_or_si128(_mm_and_si128(B, C), _mm_or_si128(_mm_and_si128(B, D), _mm_and_si128(C, D)))
+#define SHA1_OP(f,A,B,C,D,t,K) do { \
+    __m128i tmp = _mm_add_epi32(ROT(A,5), _mm_add_epi32(f(B,C,D), _mm_add_epi32(E, _mm_add_epi32(W[t], _mm_set1_epi32((int) K))))); \
+    E = D; D = C; C = ROT(B, 30); B = A; A = tmp; \
+} while (0)
+#include "sha1_block.h"
+SHA1_GENERATE("sse2", sse2)

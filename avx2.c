@@ -60,6 +60,23 @@ MD4_GENERATE("avx2", avx2)
     __m256i tmp = _mm256_add_epi32(a, _mm256_add_epi32(f(b,c,d), _mm256_add_epi32(X[k], _mm256_set1_epi32((int) T[i])))); \
     a = _mm256_add_epi32(b, ROT(tmp, s)); \
 } while (0)
-
 #include "md5_block.h"
 MD5_GENERATE("avx2", avx2)
+
+// SHA-1
+#define SHA1_INIT(A, B, C, D, E) do { \
+    A = _mm256_set1_epi32((int) 0x67452301); \
+    B = _mm256_set1_epi32((int) 0xEFCDAB89); \
+    C = _mm256_set1_epi32((int) 0x98BADCFE); \
+    D = _mm256_set1_epi32((int) 0x10325476); \
+    E = _mm256_set1_epi32((int) 0xC3D2E1F0); \
+} while (0)
+#define SHA1_F(B,C,D) _mm256_or_si256(_mm256_and_si256(B, C), _mm256_andnot_si256(B, D))
+#define SHA1_G(B,C,D) _mm256_xor_si256(B, _mm256_xor_si256(C, D))
+#define SHA1_H(B,C,D) _mm256_or_si256(_mm256_and_si256(B, C), _mm256_or_si256(_mm256_and_si256(B, D), _mm256_and_si256(C, D)))
+#define SHA1_OP(f,A,B,C,D,t,K) do { \
+    __m256i tmp = _mm256_add_epi32(ROT(A,5), _mm256_add_epi32(f(B,C,D), _mm256_add_epi32(E, _mm256_add_epi32(W[t], _mm256_set1_epi32((int) K))))); \
+    E = D; D = C; C = ROT(B, 30); B = A; A = tmp; \
+} while (0)
+#include "sha1_block.h"
+SHA1_GENERATE("avx2", avx2)
