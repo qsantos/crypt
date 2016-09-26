@@ -10,7 +10,7 @@ all: $(TARGETS)
 
 crypt: crypt.o $(DIGESTS) hash.o hmac.o des.o rijndael.o cipher.o
 benchmark: benchmark.o argparse.o util.o $(DIGESTS) $(SIMD)
-bruteforce: bruteforce.o argparse.o util.o $(SIMD)
+bruteforce: bruteforce.o argparse.o util.o $(DIGESTS) $(SIMD)
 generate: generate.o md5.o
 sort: sort.o argparse.o util.o
 
