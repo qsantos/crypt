@@ -20,7 +20,7 @@ static inline __m512i _mm512_bswap_epi32(__m512i a) {
 #define ROL(a, s) _mm512_rol_epi32(a, s)
 #define ROR(a, s) _mm512_ror_epi32(a, s)
 #define ADD(a, b) (_mm512_add_epi32((a), (b)))
-#define ANY_EQ(X, V) _mm512_cmpeq_epi32_mask(X, SET1(V));
+#define ANY_EQ(X, V) _mm512_cmpeq_epi32_mask(X, SET1(V))
 #define BSWAP(X) _mm512_bswap_epi32(X)
 #define SET1(a) (_mm512_set1_epi32((int) (a)))
 

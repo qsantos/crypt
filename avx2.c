@@ -46,7 +46,7 @@ static inline __m256i my_mm256_bswap_epi32(__m256i a) {
 #define ROL(a, s) my_mm256_rol_epi32(a, s)
 #define ROR(a, s) my_mm256_ror_epi32(a, s)
 #define ADD(a, b) (_mm256_add_epi32((a), (b)))
-#define ANY_EQ(X, V) _mm256_movemask_epi8(_mm256_cmpeq_epi32(X, SET1(V)));
+#define ANY_EQ(X, V) _mm256_movemask_epi8(_mm256_cmpeq_epi32(X, SET1(V)))
 #define BSWAP(X) my_mm256_bswap_epi32(X)
 #define SET1(a) (_mm256_set1_epi32((int) (a)))
 
