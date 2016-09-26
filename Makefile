@@ -3,12 +3,13 @@ CFLAGS := -O3 -std=c99 -Wall -Wextra -Wpedantic -Wformat -Wshadow -Wconversion -
 LDFLAGS := -O3 -fopenmp
 TARGETS := crypt benchmark bruteforce generate sort
 
+DIGESTS := md2.o md4.o md5.o sha1.o sha256.o sha512.o
 SIMD := x86.o mmx.o sse2.o avx2.o avx512.o
 
 all: $(TARGETS)
 
-crypt: crypt.o md2.o md4.o md5.o sha1.o sha256.o sha512.o hash.o hmac.o des.o rijndael.o cipher.o
-benchmark: benchmark.o argparse.o util.o md4.o md5.o sha1.o sha256.o $(SIMD)
+crypt: crypt.o $(DIGESTS) hash.o hmac.o des.o rijndael.o cipher.o
+benchmark: benchmark.o argparse.o util.o $(DIGESTS) $(SIMD)
 bruteforce: bruteforce.o argparse.o util.o $(SIMD)
 generate: generate.o md5.o
 sort: sort.o argparse.o util.o
