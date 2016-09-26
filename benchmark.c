@@ -214,7 +214,7 @@ static void check_full(void(*func)(uint8_t*,const uint8_t*,size_t)) {
     uint8_t digest[16];
     func(digest, (uint8_t*) reference_message, strlen(reference_message));
 
-    uint8_t reference[16];
+    uint8_t reference[1024];
     bytes_fromhex(reference, reference_digest);
     if (bstrncmp(digest, reference, 16) == 0) {
         printf(FMT_STR, "OK");
