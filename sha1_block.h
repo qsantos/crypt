@@ -87,6 +87,8 @@
 } while (0)
 #endif
 
+extern int do_generate_passwords;
+
 #define SHA1_GENERATE(TARGET, PREFIX) \
     __attribute__((target(TARGET))) \
     void sha1_oneblock_##PREFIX(uint8_t* digest, const uint8_t* block) { \

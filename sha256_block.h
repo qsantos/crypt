@@ -123,6 +123,8 @@ static const uint32_t K[] = {
 } while (0)
 #endif
 
+extern int do_generate_passwords;
+
 #define SHA256_GENERATE(TARGET, PREFIX) \
     __attribute__((target(TARGET))) \
     void sha256_oneblock_##PREFIX(uint8_t* digest, const uint8_t* block) { \

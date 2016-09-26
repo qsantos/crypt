@@ -140,6 +140,8 @@ static const uint32_t T[] = {
 } while (0)
 #endif
 
+extern int do_generate_passwords;
+
 // generate architecture-dependent functions
 #define MD5_GENERATE(TARGET, PREFIX) \
     __attribute__((target(TARGET))) \

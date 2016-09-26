@@ -11,6 +11,10 @@
 #include "keyspace.h"
 #include "md5_simd.h"
 
+// temporary fix: keep the -n feature during the push of the bruteforce into
+// the architecture-dependent code
+int do_generate_passwords = 1;
+
 // parsed arguments
 static struct {
     uint8_t target[64];

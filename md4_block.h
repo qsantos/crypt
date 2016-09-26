@@ -107,6 +107,8 @@
 } while (0)
 #endif
 
+extern int do_generate_passwords;
+
 // generate architecture-dependent functions
 #define MD4_GENERATE(TARGET, PREFIX) \
     __attribute__((target(TARGET))) \

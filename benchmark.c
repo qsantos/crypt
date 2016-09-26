@@ -23,6 +23,13 @@
 #define FMT_RAT " %6.1f MH/s"
 #define FMT_CYC " %7.1f c/H"
 
+/*\
+ *  TODO
+ *  temporary fix: keep the -n feature during the push of the bruteforce into
+ *  the architecture-dependent code
+\*/
+int do_generate_passwords = 1;
+
 static const size_t n_iterations = 1<<10;
 static const size_t n_samples = 1<<10;
 
@@ -130,8 +137,10 @@ static void argparse(int argc, char** argv) {
             args.check = 1;
         } else if (arg_is("--passphrases", "-p")) {
             args.passphrases = 1;
+            do_generate_passwords = 1;
         } else if (arg_is("--hash", "-n")) {
             args.passphrases = 0;
+            do_generate_passwords = 0;
         } else if (arg_is("--jobs", "-j")) {
             args.jobs = (int) arg_get_uint();
         } else if (arg_is("--real", "-r")) {
