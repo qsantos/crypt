@@ -14,6 +14,10 @@
  * implementation (i.e. uint32_t, __m64, __m128i, __m256i or __m512i).
 \*/
 
+#include "md4_simd.h"
+
+#include "keyspace.h"
+
 #ifndef MD4_INIT
 #define MD4_INIT(A, B, C, D) do { \
     A = SET1(0x67452301); \
@@ -131,5 +135,43 @@ extern int do_generate_passwords;
         MD4_BLOCK(block, A,B,C,D, 64); \
         \
         return ANY_EQ(A, *(uint32_t*) digest); \
+    } \
+    __attribute__((target(TARGET))) \
+    size_t md4_filterone_##PREFIX(size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count) { \
+        size_t stride = sizeof(WORD) / 4; \
+        size_t n_iterations = (count + stride - 1) / stride;  /* ceil(count / stride) */ \
+        \
+        /* prepare block */ \
+        uint8_t block[64*stride]; \
+        const char* ptrs[64*stride]; \
+        md4_pad(block, length, stride); \
+        set_keys(block, ptrs, length, stride, start, n_iterations); \
+        \
+        size_t n_candidates = 0; \
+        for (size_t i = 0; i < n_iterations; i += 1) { \
+            WORD A, B, C, D; \
+            MD4_INIT(A, B, C, D); \
+            MD4_BLOCK(block, A,B,C,D, 64); \
+            \
+            if (ANY_EQ(A, filter)) { \
+                uint32_t* hashes = (uint32_t*) &A; \
+                for (size_t interleaf = 0; interleaf < stride; interleaf += 1) { \
+                    if (hashes[interleaf] != filter) { \
+                        continue; \
+                    } \
+                    candidates[n_candidates] = start + interleaf*n_iterations + i; \
+                    n_candidates += 1; \
+                    if (n_candidates >= size) { \
+                        return n_candidates; \
+                    } \
+                } \
+            } \
+            \
+            if (do_generate_passwords) { \
+                next_keys(block, ptrs, length, stride); \
+            } \
+        } \
+        \
+        return n_candidates; \
     } \
 

@@ -34,4 +34,10 @@ int md5_test_sse2  (const uint8_t digest[ 64], const uint8_t block[ 256]);
 int md5_test_avx2  (const uint8_t digest[128], const uint8_t block[ 512]);
 int md5_test_avx512(const uint8_t digest[256], const uint8_t block[1024]);
 
+size_t md5_filterone_x86   (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
+size_t md5_filterone_mmx   (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
+size_t md5_filterone_sse2  (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
+size_t md5_filterone_avx2  (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
+size_t md5_filterone_avx512(size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
+
 #endif

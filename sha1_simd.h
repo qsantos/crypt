@@ -38,4 +38,10 @@ int sha1_test_sse2  (const uint8_t digest[ 80], const uint8_t block[ 256]);
 int sha1_test_avx2  (const uint8_t digest[160], const uint8_t block[ 512]);
 int sha1_test_avx512(const uint8_t digest[320], const uint8_t block[1024]);
 
+size_t sha1_filterone_x86   (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
+size_t sha1_filterone_mmx   (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
+size_t sha1_filterone_sse2  (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
+size_t sha1_filterone_avx2  (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
+size_t sha1_filterone_avx512(size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
+
 #endif

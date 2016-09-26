@@ -15,6 +15,10 @@
  * implementation (i.e. uint32_t, __m64, __m128i, __m256i or __m512i).
 \*/
 
+#include "sha256_simd.h"
+
+#include "keyspace.h"
+
 static const uint32_t K[] = {
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,  0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,  0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -150,5 +154,45 @@ extern int do_generate_passwords;
         SHA256_BLOCK(block, A,B,C,D,E,F,G,H, 64); \
         \
         return ANY_EQ(A, *(uint32_t*) digest); \
+    } \
+    __attribute__((target(TARGET))) \
+    size_t sha256_filterone_##PREFIX(size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count) { \
+        /* TODO: quickfix, should be in filter generator */ \
+        filter = __builtin_bswap32(filter); \
+        size_t stride = sizeof(WORD) / 4; \
+        size_t n_iterations = (count + stride - 1) / stride;  /* ceil(count / stride) */ \
+        \
+        /* prepare block */ \
+        uint8_t block[64*stride]; \
+        const char* ptrs[64*stride]; \
+        sha256_pad(block, length, stride); \
+        set_keys(block, ptrs, length, stride, start, n_iterations); \
+        \
+        size_t n_candidates = 0; \
+        for (size_t i = 0; i < n_iterations; i += 1) { \
+            WORD A, B, C, D, E, F, G, H; \
+            SHA256_INIT(A, B, C, D, E, F, G, H); \
+            SHA256_BLOCK(block, A,B,C,D,E,F,G,H, 64); \
+            \
+            if (ANY_EQ(A, filter)) { \
+                uint32_t* hashes = (uint32_t*) &A; \
+                for (size_t interleaf = 0; interleaf < stride; interleaf += 1) { \
+                    if (hashes[interleaf] != filter) { \
+                        continue; \
+                    } \
+                    candidates[n_candidates] = start + interleaf*n_iterations + i; \
+                    n_candidates += 1; \
+                    if (n_candidates >= size) { \
+                        return n_candidates; \
+                    } \
+                } \
+            } \
+            \
+            if (do_generate_passwords) { \
+                next_keys(block, ptrs, length, stride); \
+            } \
+        } \
+        \
+        return n_candidates; \
     } \
 
