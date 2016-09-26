@@ -227,7 +227,7 @@ static void check_full(void(*func)(uint8_t*,const uint8_t*,size_t)) {
 }
 
 
-static void check_oneblock(filterone_f filterone) {
+static void check_filterone(filterone_f filterone) {
     // get the reference of the reference message in the keyspace
     size_t index;
     int ret = key_index(reference_message, &index);
@@ -300,7 +300,7 @@ static void run_n_times(filterone_f filterone, size_t n) {
     filterone(candidates, 1024, 0x42424242, 6, 0, n);
 }
 
-static void benchmark_oneblock(filterone_f func) {
+static void benchmark_filterone(filterone_f func) {
     fflush(stdout);
 
     double real_start = real_clock();
@@ -355,19 +355,19 @@ static void check_all(const char* name,
         check_full(full);
     }
     if (args.x86) {
-        check_oneblock(x86);
+        check_filterone(x86);
     }
     if (args.mmx) {
-        IF_EXT("mmx", check_oneblock(mmx));
+        IF_EXT("mmx", check_filterone(mmx));
     }
     if (args.sse2) {
-        IF_EXT("sse2", check_oneblock(sse2));
+        IF_EXT("sse2", check_filterone(sse2));
     }
     if (args.avx2) {
-        IF_EXT("avx2", check_oneblock(avx2));
+        IF_EXT("avx2", check_filterone(avx2));
     }
     if (args.avx512) {
-        IF_EXT("avx512f", check_oneblock(avx512));
+        IF_EXT("avx512f", check_filterone(avx512));
     }
     printf("\n");
 }
@@ -394,19 +394,19 @@ static void benchmark_all(const char* name,
         benchmark_full(full);
     }
     if (args.x86) {
-        benchmark_oneblock(x86);
+        benchmark_filterone(x86);
     }
     if (args.mmx) {
-        IF_EXT("mmx", benchmark_oneblock(mmx));
+        IF_EXT("mmx", benchmark_filterone(mmx));
     }
     if (args.sse2) {
-        IF_EXT("sse2", benchmark_oneblock(sse2));
+        IF_EXT("sse2", benchmark_filterone(sse2));
     }
     if (args.avx2) {
-        IF_EXT("avx2", benchmark_oneblock(avx2));
+        IF_EXT("avx2", benchmark_filterone(avx2));
     }
     if (args.avx512) {
-        IF_EXT("avx512f", benchmark_oneblock(avx512));
+        IF_EXT("avx512f", benchmark_filterone(avx512));
     }
     printf("\n");
 }
