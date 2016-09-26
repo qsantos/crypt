@@ -9,6 +9,20 @@
 static const char charset[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 static size_t charset_length = sizeof(charset) - 1;
 
+static inline int key_index(const char* key, size_t* ret) {
+    size_t index = 0;
+    for (const char* c = key; *c; c += 1) {
+        index *= charset_length;
+        char* pos = strchr(charset, *c);
+        if (pos == NULL) {
+            return -1;
+        }
+        index += (size_t) (pos - charset);
+    }
+    *ret = index;
+    return 0;
+}
+
 static inline size_t get_key(char* dst, size_t length, size_t index) {
     for (size_t i = length; i --> 0; ) {
         dst[i] = charset[index % charset_length];
