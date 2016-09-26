@@ -8,6 +8,7 @@
 #include "argparse.h"
 #include "util.h"
 #include "keyspace.h"
+#include "md2.h"
 #include "md4.h"
 #include "md5.h"
 #include "sha1.h"
@@ -34,6 +35,7 @@ static struct {
     int passphrases;
     int jobs;
     int count_cycles;
+    int md2;
     int md4;
     int md5;
     int sha1;
@@ -44,7 +46,7 @@ static struct {
     int sse2;
     int avx2;
     int avx512;
-} args = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+} args = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 static void best_arch(void) {
     if (__builtin_cpu_supports("avx512f")) {
@@ -103,6 +105,7 @@ static void argparse(int argc, char** argv) {
     "                     to `--x86 --mmx --sse2 --avx2 --avx512`)\n"
     "\n"
     "DIGESTS\n"
+    "     --md2           run benchmarks for MD2 (*sloow*)\n"
     "     --md4           run benchmarks for MD4\n"
     "     --md5           run benchmarks for MD5\n"
     "     --sha1          run benchmarks for SHA-1\n"
@@ -156,6 +159,9 @@ static void argparse(int argc, char** argv) {
         } else if (arg_is("--best", NULL)) {
             chose_digest = 1;
             best_arch();
+        } else if (arg_is("--md2", NULL)) {
+            chose_digest = 1;
+            args.md2 = 1;
         } else if (arg_is("--md4", NULL)) {
             chose_digest = 1;
             args.md4 = 1;
@@ -454,6 +460,13 @@ int main(int argc, char** argv) {
     printf("\n");
 
     if (args.check) {
+        if (args.md2) {
+            printf(FMT_TIT, "MD2");
+            reference_message = "abc";
+            reference_digest = "da853b0d3f88d99b30283a69e6ded6bb";
+            check_full(md2);
+            printf("\n");
+        }
         if (args.md4) {
             CHECK_ALL("MD4", md4, "message digest", "d9130a8164549fe818874806e1c7014b");
         }
@@ -467,6 +480,13 @@ int main(int argc, char** argv) {
             CHECK_ALL("SHA-256", sha256, "abc", "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
         }
     } else {
+        if (args.md2) {
+            printf(FMT_TIT, "MD2");
+            if (args.full) {
+                benchmark_full(md2);
+            }
+            printf("\n");
+        }
         if (args.md4) {
             BENCHMARK_ALL("MD4", md4);
         }
