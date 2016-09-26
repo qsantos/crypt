@@ -1,6 +1,7 @@
 #ifdef _OPENMP  // TODO
 #include <omp.h>
 #endif
+#include <err.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -226,29 +227,34 @@ static void check_full(void(*func)(uint8_t*,const uint8_t*,size_t)) {
 }
 
 
-static void check_oneblock(
-        void(*pad)(uint8_t*,size_t,size_t),
-        void(*func)(uint8_t*,const uint8_t*),
-        size_t stride
-) {
-    uint8_t block[1024] __attribute__((aligned(32)));
-    pad(block, strlen(reference_message), stride);
-    set_key_im(block, reference_message, stride);
-
-    uint8_t interleaved[128];
-    func(interleaved, block);
-
-    uint8_t reference[16];
-    bytes_fromhex(reference, reference_digest);
-    for (size_t interleaf = 0; interleaf < stride; interleaf += 1) {
-        uint8_t digest[16];
-        uninterleave(digest, interleaved, 16, stride, 0);
-
-        if (bstrncmp(digest, reference, 16) != 0) {
-            printf(FMT_STR, "FAIL");
-            return;
-        }
+static void check_oneblock(filterone_f filterone) {
+    // get the reference of the reference message in the keyspace
+    size_t index;
+    int ret = key_index(reference_message, &index);
+    if (ret < 0) {
+        errx(1, "Reference message not in keyspace");
     }
+
+    // get the filter for the reference digest
+    uint8_t digest[1024];
+    bytes_fromhex(digest, reference_digest);
+    // TODO: use digest-specific filter generator
+    uint32_t* digest_words = (uint32_t*) digest;
+    uint32_t filter = digest_words[0];
+
+    size_t candidates[32];
+    size_t length = strlen(reference_message);
+
+    if (filterone(candidates, 32, filter, length, index - 5, 10) == 0) {
+        printf(FMT_STR, "FAIL");
+        return;
+    }
+
+    if (filterone(candidates, 32, filter, length, index + 5, 10) != 0) {
+        printf(FMT_STR, "FAIL");
+        return;
+    }
+
     printf(FMT_STR, "OK");
 }
 
@@ -338,31 +344,30 @@ static void benchmark_oneblock(filterone_f func) {
 
 static void check_all(const char* name,
     void(*full)(uint8_t*,const uint8_t*,size_t),
-    void(*pad)(uint8_t*,size_t,size_t),
-    void(*x86)(uint8_t*,const uint8_t*),
-    void(*mmx)(uint8_t*,const uint8_t*),
-    void(*sse2)(uint8_t*,const uint8_t*),
-    void(*avx2)(uint8_t*,const uint8_t*),
-    void(*avx512)(uint8_t*,const uint8_t*)
+    filterone_f x86,
+    filterone_f mmx,
+    filterone_f sse2,
+    filterone_f avx2,
+    filterone_f avx512
 ) {
     printf(FMT_TIT, name);
     if (args.full) {
         check_full(full);
     }
     if (args.x86) {
-        check_oneblock(pad, x86, 1);
+        check_oneblock(x86);
     }
     if (args.mmx) {
-        IF_EXT("mmx", check_oneblock(pad, mmx, 2));
+        IF_EXT("mmx", check_oneblock(mmx));
     }
     if (args.sse2) {
-        IF_EXT("sse2", check_oneblock(pad, sse2, 4));
+        IF_EXT("sse2", check_oneblock(sse2));
     }
     if (args.avx2) {
-        IF_EXT("avx2", check_oneblock(pad, avx2, 8));
+        IF_EXT("avx2", check_oneblock(avx2));
     }
     if (args.avx512) {
-        IF_EXT("avx512f", check_oneblock(pad, avx512, 16));
+        IF_EXT("avx512f", check_oneblock(avx512));
     }
     printf("\n");
 }
@@ -370,10 +375,10 @@ static void check_all(const char* name,
 #define CHECK_ALL(NAME, PREFIX, MESSAGE, DIGEST) do { \
     reference_message = MESSAGE; \
     reference_digest = DIGEST; \
-    check_all(NAME, PREFIX, PREFIX##_pad, \
-              PREFIX##_oneblock_x86, PREFIX##_oneblock_mmx, \
-              PREFIX##_oneblock_sse2, PREFIX##_oneblock_avx2, \
-              PREFIX##_oneblock_avx512); \
+    check_all(NAME, PREFIX, \
+              PREFIX##_filterone_x86, PREFIX##_filterone_mmx, \
+              PREFIX##_filterone_sse2, PREFIX##_filterone_avx2, \
+              PREFIX##_filterone_avx512); \
 } while (0)
 
 static void benchmark_all(const char* name,
