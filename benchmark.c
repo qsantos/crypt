@@ -36,6 +36,8 @@ static const size_t n_samples = 1<<10;
 static const char* reference_message;
 static const char* reference_digest;
 
+typedef size_t filterone_f(size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
+
 // parsed arguments
 static struct {
     int check;
@@ -287,33 +289,12 @@ static void benchmark_full(void(*func)(uint8_t*,const uint8_t*,size_t)) {
     }
 }
 
-static void run_n_times(
-        void(*pad)(uint8_t*,size_t,size_t),
-        void(*func)(uint8_t*,const uint8_t*),
-        size_t stride, size_t n
-) {
-    // prepare block
-    uint8_t block[1024] __attribute__((aligned(32)));
-    pad(block, 6, stride);
-
-    // prepare key generation
-    const char* ptrs[1024];
-    set_keys(block, ptrs, 6, stride, 0, 0);
-
-    for (size_t i = 0; i < n; i += 1) {
-        uint8_t interleaved[320];
-        func(interleaved, block);
-        if (args.passphrases) {
-            next_keys(block, ptrs, 6, stride);
-        }
-    }
+static void run_n_times(filterone_f filterone, size_t n) {
+    size_t candidates[1024];
+    filterone(candidates, 1024, 0x42424242, 6, 0, n);
 }
 
-static void benchmark_oneblock(
-        void(*pad)(uint8_t*,size_t,size_t),
-        void(*func)(uint8_t*,const uint8_t*),
-        size_t stride
-) {
+static void benchmark_oneblock(filterone_f func) {
     fflush(stdout);
 
     double real_start = real_clock();
@@ -324,10 +305,10 @@ static void benchmark_oneblock(
             #pragma omp parallel
             {
                 size_t n_threads = (size_t) omp_get_num_threads();
-                run_n_times(pad, func, stride, n_iterations / n_threads);
+                run_n_times(func, n_iterations / n_threads);
             }
         } else {
-            run_n_times(pad, func, stride, n_iterations);
+            run_n_times(func, n_iterations);
         }
         uint64_t elapsed = rdtsc() - cycles_start;
         if (elapsed < cycles_min) {
@@ -337,11 +318,11 @@ static void benchmark_oneblock(
     double real_elapsed = (real_clock() - real_start);
 
     if (args.count_cycles) {
-        size_t n_total = n_iterations * stride;
+        size_t n_total = n_iterations;
         double cycles_per_hash = (double) cycles_min / (double) n_total;
         printf(FMT_CYC, cycles_per_hash);
     } else {
-        size_t n_total = n_samples * n_iterations * stride;
+        size_t n_total = n_samples * n_iterations;
         double rate = (double) n_total / real_elapsed;
         printf(FMT_RAT, rate / 1e6);
     }
@@ -397,40 +378,39 @@ static void check_all(const char* name,
 
 static void benchmark_all(const char* name,
     void(*full)(uint8_t*,const uint8_t*,size_t),
-    void(*pad)(uint8_t*,size_t,size_t),
-    void(*x86)(uint8_t*,const uint8_t*),
-    void(*mmx)(uint8_t*,const uint8_t*),
-    void(*sse2)(uint8_t*,const uint8_t*),
-    void(*avx2)(uint8_t*,const uint8_t*),
-    void(*avx512)(uint8_t*,const uint8_t*)
+    filterone_f x86,
+    filterone_f mmx,
+    filterone_f sse2,
+    filterone_f avx2,
+    filterone_f avx512
 ) {
     printf(FMT_TIT, name);
     if (args.full) {
         benchmark_full(full);
     }
     if (args.x86) {
-        benchmark_oneblock(pad, x86, 1);
+        benchmark_oneblock(x86);
     }
     if (args.mmx) {
-        IF_EXT("mmx", benchmark_oneblock(pad, mmx, 2));
+        IF_EXT("mmx", benchmark_oneblock(mmx));
     }
     if (args.sse2) {
-        IF_EXT("sse2", benchmark_oneblock(pad, sse2, 4));
+        IF_EXT("sse2", benchmark_oneblock(sse2));
     }
     if (args.avx2) {
-        IF_EXT("avx2", benchmark_oneblock(pad, avx2, 8));
+        IF_EXT("avx2", benchmark_oneblock(avx2));
     }
     if (args.avx512) {
-        IF_EXT("avx512f", benchmark_oneblock(pad, avx512, 16));
+        IF_EXT("avx512f", benchmark_oneblock(avx512));
     }
     printf("\n");
 }
 
 #define BENCHMARK_ALL(NAME, PREFIX) do { \
-    benchmark_all(NAME, PREFIX, PREFIX##_pad, \
-                  PREFIX##_oneblock_x86, PREFIX##_oneblock_mmx, \
-                  PREFIX##_oneblock_sse2, PREFIX##_oneblock_avx2, \
-                  PREFIX##_oneblock_avx512); \
+    benchmark_all(NAME, PREFIX, \
+                  PREFIX##_filterone_x86, PREFIX##_filterone_mmx, \
+                  PREFIX##_filterone_sse2, PREFIX##_filterone_avx2, \
+                  PREFIX##_filterone_avx512); \
 } while (0)
 
 int main(int argc, char** argv) {
