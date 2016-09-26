@@ -457,10 +457,10 @@ int main(int argc, char** argv) {
             printf("\n");
         }
         if (args.md4) {
-            CHECK_ALL("MD4", md4, "message digest", "d9130a8164549fe818874806e1c7014b");
+            CHECK_ALL("MD4", md4, "abc", "a448017aaf21d8525fc10ae87aa6729d");
         }
         if (args.md5) {
-            CHECK_ALL("MD5", md5, "message digest", "f96b697d7cb7938d525a2f31aaf161d0");
+            CHECK_ALL("MD5", md5, "abc", "900150983cd24fb0d6963f7d28e17f72");
         }
         if (args.sha1) {
             CHECK_ALL("SHA-1", sha1, "abc", "a9993e364706816aba3e25717850c26c9cd0d89d");
