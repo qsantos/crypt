@@ -25,18 +25,6 @@ static inline void sha256_pad(uint8_t* block, size_t length, size_t stride) {
     }
 }
 
-void sha256_oneblock_x86   (uint8_t digest[ 32], const uint8_t block[  64]);
-void sha256_oneblock_mmx   (uint8_t digest[ 64], const uint8_t block[ 128]);
-void sha256_oneblock_sse2  (uint8_t digest[128], const uint8_t block[ 256]);
-void sha256_oneblock_avx2  (uint8_t digest[256], const uint8_t block[ 512]);
-void sha256_oneblock_avx512(uint8_t digest[512], const uint8_t block[1024]);
-
-int sha256_test_x86   (const uint8_t digest[ 32], const uint8_t block[  64]);
-int sha256_test_mmx   (const uint8_t digest[ 64], const uint8_t block[ 128]);
-int sha256_test_sse2  (const uint8_t digest[128], const uint8_t block[ 256]);
-int sha256_test_avx2  (const uint8_t digest[256], const uint8_t block[ 512]);
-int sha256_test_avx512(const uint8_t digest[512], const uint8_t block[1024]);
-
 size_t sha256_filterone_x86   (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
 size_t sha256_filterone_mmx   (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
 size_t sha256_filterone_sse2  (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);

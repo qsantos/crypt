@@ -116,27 +116,6 @@ extern int do_generate_passwords;
 // generate architecture-dependent functions
 #define MD4_GENERATE(TARGET, PREFIX) \
     __attribute__((target(TARGET))) \
-    void md4_oneblock_##PREFIX(uint8_t* digest, const uint8_t* block) { \
-        WORD A, B, C, D; \
-        MD4_INIT(A, B, C, D); \
-        MD4_BLOCK(block, A,B,C,D, 64); \
-        \
-        WORD* Y = (WORD*) digest; \
-        Y[0] = A; \
-        Y[1] = B; \
-        Y[2] = C; \
-        Y[3] = D; \
-    } \
-    \
-    __attribute__((target(TARGET))) \
-    int md4_test_##PREFIX(const uint8_t* digest, const uint8_t* block) { \
-        WORD A, B, C, D; \
-        MD4_INIT(A, B, C, D); \
-        MD4_BLOCK(block, A,B,C,D, 64); \
-        \
-        return ANY_EQ(A, *(uint32_t*) digest); \
-    } \
-    __attribute__((target(TARGET))) \
     size_t md4_filterone_##PREFIX(size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count) { \
         size_t stride = sizeof(WORD) / 4; \
         size_t n_iterations = (count + stride - 1) / stride;  /* ceil(count / stride) */ \

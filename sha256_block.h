@@ -131,31 +131,6 @@ extern int do_generate_passwords;
 
 #define SHA256_GENERATE(TARGET, PREFIX) \
     __attribute__((target(TARGET))) \
-    void sha256_oneblock_##PREFIX(uint8_t* digest, const uint8_t* block) { \
-        WORD A, B, C, D, E, F, G, H; \
-        SHA256_INIT(A, B, C, D, E, F, G, H); \
-        SHA256_BLOCK(block, A,B,C,D,E,F,G,H, 64); \
-        \
-        WORD* Y = (WORD*) digest; \
-        Y[0] = BSWAP(A); \
-        Y[1] = BSWAP(B); \
-        Y[2] = BSWAP(C); \
-        Y[3] = BSWAP(D); \
-        Y[4] = BSWAP(E); \
-        Y[5] = BSWAP(F); \
-        Y[6] = BSWAP(G); \
-        Y[7] = BSWAP(H); \
-    } \
-    \
-    __attribute__((target(TARGET))) \
-    int sha256_test_##PREFIX(const uint8_t* digest, const uint8_t* block) { \
-        WORD A, B, C, D, E, F, G, H; \
-        SHA256_INIT(A, B, C, D, E, F, G, H); \
-        SHA256_BLOCK(block, A,B,C,D,E,F,G,H, 64); \
-        \
-        return ANY_EQ(A, *(uint32_t*) digest); \
-    } \
-    __attribute__((target(TARGET))) \
     size_t sha256_filterone_##PREFIX(size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count) { \
         /* TODO: quickfix, should be in filter generator */ \
         filter = __builtin_bswap32(filter); \
