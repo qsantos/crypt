@@ -113,44 +113,48 @@
 
 extern int do_generate_passwords;
 
-// generate architecture-dependent functions
-#define MD4_GENERATE(TARGET, PREFIX) \
-    __attribute__((target(TARGET))) \
-    size_t md4_filterone_##PREFIX(size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count) { \
-        size_t stride = sizeof(WORD) / 4; \
-        size_t n_iterations = (count + stride - 1) / stride;  /* ceil(count / stride) */ \
-        \
-        /* prepare block */ \
-        uint8_t block[64*stride]; \
-        const char* ptrs[64*stride]; \
-        md4_pad(block, length, stride); \
-        set_keys(block, ptrs, length, stride, start, n_iterations); \
-        \
-        size_t n_candidates = 0; \
-        for (size_t i = 0; i < n_iterations; i += 1) { \
-            WORD A, B, C, D; \
-            MD4_INIT(A, B, C, D); \
-            MD4_BLOCK(block, A,B,C,D, 64); \
-            \
-            if (ANY_EQ(A, filter)) { \
-                uint32_t* hashes = (uint32_t*) &A; \
-                for (size_t interleaf = 0; interleaf < stride; interleaf += 1) { \
-                    if (hashes[interleaf] != filter) { \
-                        continue; \
-                    } \
-                    candidates[n_candidates] = start + interleaf*n_iterations + i; \
-                    n_candidates += 1; \
-                    if (n_candidates >= size) { \
-                        return n_candidates; \
-                    } \
-                } \
-            } \
-            \
-            if (do_generate_passwords) { \
-                next_keys(block, ptrs, length, stride); \
-            } \
-        } \
-        \
-        return n_candidates; \
-    } \
+#define APPEND(PREFIX, SUFFIX) PREFIX##SUFFIX
+// append together the *values* of the macros, rather than their names
+#define APPEND_VALUE(PREFIX, SUFFIX) APPEND(PREFIX, SUFFIX)
 
+// md4_filterone_*
+__attribute__((target(TARGET_ID)))
+#define FUNCTION_NAME APPEND_VALUE(md4_filterone_, TARGET_SUFFIX)
+size_t FUNCTION_NAME(size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count) {
+#undef FUNCTION_NAME
+    size_t stride = sizeof(WORD) / 4;
+    size_t n_iterations = (count + stride - 1) / stride;  /* ceil(count / stride) */
+
+    /* prepare block */
+    uint8_t block[64*stride];
+    const char* ptrs[64*stride];
+    md4_pad(block, length, stride);
+    set_keys(block, ptrs, length, stride, start, n_iterations);
+
+    size_t n_candidates = 0;
+    for (size_t i = 0; i < n_iterations; i += 1) {
+        WORD A, B, C, D;
+        MD4_INIT(A, B, C, D);
+        MD4_BLOCK(block, A,B,C,D, 64);
+
+        if (ANY_EQ(A, filter)) {
+            uint32_t* hashes = (uint32_t*) &A;
+            for (size_t interleaf = 0; interleaf < stride; interleaf += 1) {
+                if (hashes[interleaf] != filter) {
+                    continue;
+                }
+                candidates[n_candidates] = start + interleaf*n_iterations + i;
+                n_candidates += 1;
+                if (n_candidates >= size) {
+                    return n_candidates;
+                }
+            }
+        }
+
+        if (do_generate_passwords) {
+            next_keys(block, ptrs, length, stride);
+        }
+    }
+
+    return n_candidates;
+}

@@ -29,13 +29,6 @@ static inline __m512i _mm512_bswap_epi32(__m512i a) {
 #define SET1(a) (_mm512_set1_epi32((int) (a)))
 
 #include "md4_block.h"
-MD4_GENERATE("avx512f", avx512)
-
 #include "md5_block.h"
-MD5_GENERATE("avx512f", avx512)
-
 #include "sha1_block.h"
-SHA1_GENERATE("avx512f", avx512)
-
 #include "sha256_block.h"
-SHA256_GENERATE("avx512f", avx512)

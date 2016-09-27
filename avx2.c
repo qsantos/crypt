@@ -55,13 +55,6 @@ static inline __m256i my_mm256_bswap_epi32(__m256i a) {
 #define SET1(a) (_mm256_set1_epi32((int) (a)))
 
 #include "md4_block.h"
-MD4_GENERATE("avx2", avx2)
-
 #include "md5_block.h"
-MD5_GENERATE("avx2", avx2)
-
 #include "sha1_block.h"
-SHA1_GENERATE("avx2", avx2)
-
 #include "sha256_block.h"
-SHA256_GENERATE("avx2", avx2)

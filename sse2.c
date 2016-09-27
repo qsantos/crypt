@@ -43,13 +43,6 @@ static inline __m128i my_mm_bswap_epi32(__m128i x) {
 #define SET1(a) (_mm_set1_epi32((int) (a)))
 
 #include "md4_block.h"
-MD4_GENERATE("sse2", sse2)
-
 #include "md5_block.h"
-MD5_GENERATE("sse2", sse2)
-
 #include "sha1_block.h"
-SHA1_GENERATE("sse2", sse2)
-
 #include "sha256_block.h"
-SHA256_GENERATE("sse2", sse2)

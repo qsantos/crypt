@@ -19,13 +19,6 @@
 #define SET1(a) (a)
 
 #include "md4_block.h"
-MD4_GENERATE("arch=x86-64", x86)
-
 #include "md5_block.h"
-MD5_GENERATE("arch=x86-64", x86)
-
 #include "sha1_block.h"
-SHA1_GENERATE("arch=x86-64", x86)
-
 #include "sha256_block.h"
-SHA256_GENERATE("arch=x86-64", x86)

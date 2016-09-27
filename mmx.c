@@ -50,13 +50,6 @@ static inline int my_mm_anyeq_pi32(__m64 x, uint32_t imm) {
 #define SET1(a) (_mm_set1_pi32((int) (a)))
 
 #include "md4_block.h"
-MD4_GENERATE("mmx", mmx)
-
 #include "md5_block.h"
-MD5_GENERATE("mmx", mmx)
-
 #include "sha1_block.h"
-SHA1_GENERATE("mmx", mmx)
-
 #include "sha256_block.h"
-SHA256_GENERATE("mmx", mmx)
