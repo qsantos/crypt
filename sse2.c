@@ -1,6 +1,10 @@
 #include <stdint.h>
 #include <emmintrin.h>  // SSE2 (for _mm_movemask_epi8)
 
+#define TARGET_NAME "SSE2"
+#define TARGET_SUFFIX sse2
+#define TARGET_ID "sse2"
+
 // rotate packed 32-bit integers to the left
 __attribute__((target("sse2")))
 static inline __m128i my_mm_rol_epi32(__m128i a, int s) {

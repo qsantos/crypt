@@ -1,6 +1,10 @@
 #include <stdint.h>
 #include <mmintrin.h>  // MMX
 
+#define TARGET_NAME "MMX"
+#define TARGET_SUFFIX mmx
+#define TARGET_ID "mmx"
+
 // rotate packed 32-bit integers to the left
 __attribute__((target("mmx")))
 static inline __m64 my_mm_rol_pi32(__m64 a, int s) {

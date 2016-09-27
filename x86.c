@@ -1,5 +1,9 @@
 #include <stdint.h>
 
+#define TARGET_NAME "x86"
+#define TARGET_SUFFIX x86
+#define TARGET_ID "arch=x86-64"
+
 #define WORD uint32_t
 #define OR(a, b) ((a) | (b))
 #define XOR(a, b) ((a) ^ (b))

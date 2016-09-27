@@ -1,6 +1,10 @@
 #include <stdint.h>
 #include <immintrin.h>  // AVX/AVX2/AVX512
 
+#define TARGET_NAME "AVX-512"
+#define TARGET_SUFFIX avx512
+#define TARGET_ID "avx512f"
+
 // swap endianness of packed 32-bit integers
 __attribute__((target("avx512bw")))
 static inline __m512i _mm512_bswap_epi32(__m512i a) {

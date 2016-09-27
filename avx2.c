@@ -1,6 +1,10 @@
 #include <stdint.h>
 #include <immintrin.h>  // AVX/AVX2/AVX512
 
+#define TARGET_NAME "AVX2"
+#define TARGET_SUFFIX avx2
+#define TARGET_ID "avx2"
+
 // rotate packed 32-bit integers to the left
 __attribute__((target("avx2")))
 static inline __m256i my_mm256_rol_epi32(__m256i a, int s) {
