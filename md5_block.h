@@ -16,6 +16,9 @@
 
 #include "md5_simd.h"
 
+#include <string.h>
+
+#include "interleave.h"
 #include "keyspace.h"
 
 static const uint32_t T[] = {
@@ -143,6 +146,21 @@ static const uint32_t T[] = {
     } \
 } while (0)
 #endif
+
+static inline void md5_pad(uint8_t* block, size_t length, size_t stride) {
+    memset(block, 0, 64 * stride);
+    for (size_t interleaf = 0; interleaf < stride; interleaf += 1) {
+        size_t offset;
+
+        // data termination
+        offset = interleaved_offset(length, stride, interleaf);
+        block[offset] = 0x80;
+
+        // length in bits
+        offset = interleaved_offset(56, stride, interleaf);
+        *(uint32_t*) (block + offset) = (uint32_t) (length * 8);
+    }
+}
 
 extern int do_generate_passwords;
 

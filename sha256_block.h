@@ -17,6 +17,9 @@
 
 #include "sha256_simd.h"
 
+#include <string.h>
+
+#include "interleave.h"
 #include "keyspace.h"
 
 static const uint32_t K[] = {
@@ -126,6 +129,24 @@ static const uint32_t K[] = {
     H = ADD(H, previous_H); \
 } while (0)
 #endif
+
+static inline void sha256_pad(uint8_t* block, size_t length, size_t stride) {
+    memset(block, 0, 64 * stride);
+    for (size_t interleaf = 0; interleaf < stride; interleaf += 1) {
+        size_t offset;
+
+        // data termination
+        offset = interleaved_offset(length, stride, interleaf);
+        block[offset] = 0x80;
+        // length in bits
+        size_t bits = length * 8;
+        for (size_t i = 8; i --> 0; ) {
+            offset = interleaved_offset(56 + i, stride, interleaf);
+            block[offset] = (uint8_t) bits;
+            bits >>= 8;
+        }
+    }
+}
 
 extern int do_generate_passwords;
 
