@@ -124,8 +124,6 @@ __attribute__((target(TARGET_ID)))
 #define FUNCTION_NAME APPEND_VALUE(sha1_filterone_, TARGET_SUFFIX)
 size_t FUNCTION_NAME(size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count) {
 #undef FUNCTION_NAME
-    /* TODO: quickfix, should be in filter generator */
-    filter = __builtin_bswap32(filter);
     size_t stride = sizeof(WORD) / 4;
     size_t n_iterations = (count + stride - 1) / stride;  /* ceil(count / stride) */
 
