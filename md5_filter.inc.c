@@ -88,11 +88,6 @@ static const uint32_t T[] = {
     ) do { \
     WORD* X = (WORD*) block; \
     \
-    WORD previous_A = A; \
-    WORD previous_B = B; \
-    WORD previous_C = C; \
-    WORD previous_D = D; \
-    \
     MD5_OP_F(A,B,C,D, 0, 7, 1); MD5_OP_F(D,A,B,C, 1,12, 2); MD5_OP_F(C,D,A,B, 2,17, 3); MD5_OP_F(B,C,D,A, 3,22, 4); \
     MD5_OP_F(A,B,C,D, 4, 7, 5); MD5_OP_F(D,A,B,C, 5,12, 6); MD5_OP_F(C,D,A,B, 6,17, 7); MD5_OP_F(B,C,D,A, 7,22, 8); \
     MD5_OP_F(A,B,C,D, 8, 7, 9); MD5_OP_F(D,A,B,C, 9,12,10); MD5_OP_F(C,D,A,B,10,17,11); MD5_OP_F(B,C,D,A,11,22,12); \
@@ -106,17 +101,7 @@ static const uint32_t T[] = {
     MD5_OP_H(A,B,C,D, 5, 4,33); MD5_OP_H(D,A,B,C, 8,11,34); MD5_OP_H(C,D,A,B,11,16,35); MD5_OP_H(B,C,D,A,14,23,36); \
     MD5_OP_H(A,B,C,D, 1, 4,37); MD5_OP_H(D,A,B,C, 4,11,38); MD5_OP_H(C,D,A,B, 7,16,39); MD5_OP_H(B,C,D,A,10,23,40); \
     MD5_OP_H(A,B,C,D,13, 4,41); MD5_OP_H(D,A,B,C, 0,11,42); MD5_OP_H(C,D,A,B, 3,16,43); MD5_OP_H(B,C,D,A, 6,23,44); \
-    MD5_OP_H(A,B,C,D, 9, 4,45); MD5_OP_H(D,A,B,C,12,11,46); MD5_OP_H(C,D,A,B,15,16,47); MD5_OP_H(B,C,D,A, 2,23,48); \
-    \
-    MD5_OP_I(A,B,C,D, 0, 6,49); MD5_OP_I(D,A,B,C, 7,10,50); MD5_OP_I(C,D,A,B,14,15,51); MD5_OP_I(B,C,D,A, 5,21,52); \
-    MD5_OP_I(A,B,C,D,12, 6,53); MD5_OP_I(D,A,B,C, 3,10,54); MD5_OP_I(C,D,A,B,10,15,55); MD5_OP_I(B,C,D,A, 1,21,56); \
-    MD5_OP_I(A,B,C,D, 8, 6,57); MD5_OP_I(D,A,B,C,15,10,58); MD5_OP_I(C,D,A,B, 6,15,59); MD5_OP_I(B,C,D,A,13,21,60); \
-    MD5_OP_I(A,B,C,D, 4, 6,61); MD5_OP_I(D,A,B,C,11,10,62); MD5_OP_I(C,D,A,B, 2,15,63); MD5_OP_I(B,C,D,A, 9,21,64); \
-    \
-    A = ADD(A, previous_A); \
-    B = ADD(B, previous_B); \
-    C = ADD(C, previous_C); \
-    D = ADD(D, previous_D); \
+    MD5_OP_H(A,B,C,D, 9, 4,45); MD5_OP_H(D,A,B,C,12,11,46); \
 } while (0)
 #endif
 
@@ -146,8 +131,8 @@ size_t FUNCTION_NAME(size_t* candidates, size_t size, uint32_t filter, size_t le
         MD5_INIT(A, B, C, D);
         MD5_BLOCK(block, A,B,C,D, 64);
 
-        if (ANY_EQ(A, filter)) {
-            uint32_t* hashes = (uint32_t*) &A;
+        if (ANY_EQ(D, filter)) {
+            uint32_t* hashes = (uint32_t*) &D;
             for (size_t interleaf = 0; interleaf < stride; interleaf += 1) {
                 if (hashes[interleaf] != filter) {
                     continue;
