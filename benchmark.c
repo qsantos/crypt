@@ -38,6 +38,7 @@ static const char* reference_message;
 static const char* reference_digest;
 
 typedef size_t filterone_f(size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
+typedef uint32_t getfilterone_f(uint8_t* digest);
 
 // parsed arguments
 static struct {
@@ -227,7 +228,7 @@ static void check_full(void(*func)(uint8_t*,const uint8_t*,size_t)) {
 }
 
 
-static void check_filterone(filterone_f filterone) {
+static void check_filterone(filterone_f filterone, getfilterone_f getfilterone) {
     // get the reference of the reference message in the keyspace
     size_t index;
     int ret = key_index(reference_message, &index);
@@ -238,9 +239,7 @@ static void check_filterone(filterone_f filterone) {
     // get the filter for the reference digest
     uint8_t digest[1024];
     bytes_fromhex(digest, reference_digest);
-    // TODO: use digest-specific filter generator
-    uint32_t* digest_words = (uint32_t*) digest;
-    uint32_t filter = digest_words[0];
+    uint32_t filter = getfilterone(digest);
 
     size_t candidates[32];
     size_t length = strlen(reference_message);
@@ -344,6 +343,7 @@ static void benchmark_filterone(filterone_f func) {
 
 static void check_all(const char* name,
     void(*full)(uint8_t*,const uint8_t*,size_t),
+    getfilterone_f getfilterone,
     filterone_f x86,
     filterone_f mmx,
     filterone_f sse2,
@@ -355,19 +355,19 @@ static void check_all(const char* name,
         check_full(full);
     }
     if (args.x86) {
-        check_filterone(x86);
+        check_filterone(x86, getfilterone);
     }
     if (args.mmx) {
-        IF_EXT("mmx", check_filterone(mmx));
+        IF_EXT("mmx", check_filterone(mmx, getfilterone));
     }
     if (args.sse2) {
-        IF_EXT("sse2", check_filterone(sse2));
+        IF_EXT("sse2", check_filterone(sse2, getfilterone));
     }
     if (args.avx2) {
-        IF_EXT("avx2", check_filterone(avx2));
+        IF_EXT("avx2", check_filterone(avx2, getfilterone));
     }
     if (args.avx512) {
-        IF_EXT("avx512f", check_filterone(avx512));
+        IF_EXT("avx512f", check_filterone(avx512, getfilterone));
     }
     printf("\n");
 }
@@ -375,7 +375,7 @@ static void check_all(const char* name,
 #define CHECK_ALL(NAME, PREFIX, MESSAGE, DIGEST) do { \
     reference_message = MESSAGE; \
     reference_digest = DIGEST; \
-    check_all(NAME, PREFIX, \
+    check_all(NAME, PREFIX, PREFIX##_getfilterone, \
               PREFIX##_filterone_x86, PREFIX##_filterone_mmx, \
               PREFIX##_filterone_sse2, PREFIX##_filterone_avx2, \
               PREFIX##_filterone_avx512); \
