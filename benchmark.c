@@ -31,8 +31,8 @@
 \*/
 int do_generate_passwords = 1;
 
-static const size_t n_iterations = 1<<10;
-static const size_t n_samples = 1<<10;
+static const size_t n_iterations = 1<<12;
+static const size_t n_samples = 1<<12;
 
 static const char* reference_message;
 static const char* reference_digest;
