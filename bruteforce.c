@@ -75,8 +75,6 @@ int main(int argc, char** argv) {
         count *= charset_length;
     }
 
-    uint32_t filter = md5_getfilterone(args.target, length, 0, NULL);
-
     if (args.jobs >= 1) {
         omp_set_num_threads(args.jobs);
     }
@@ -86,32 +84,40 @@ int main(int argc, char** argv) {
         size_t n_threads = (size_t) omp_get_num_threads();
         size_t count_per_thread = count / n_threads;
         size_t start = count_per_thread * thread_id;
+        size_t stop = start + count_per_thread;
         fprintf(stderr, "Started thread no %zu / %zu <- keyspace[%zu:%zu]\n",
                thread_id+1, n_threads, start, start + count);
 
-        size_t candidates[16];
-        size_t a_candidates = args.single ? 1 : 16;
-        size_t n_candidates = md5_filterone_avx2(candidates, a_candidates, filter, length, start, count_per_thread);
+        while (start < stop) {
+            size_t filter_lifetime;
+            uint32_t filter = md5_getfilterone(args.target, length, start, &filter_lifetime);
 
-        // NOTE: should use mutex for printf() but that happens rarely enough
-        for (size_t i = 0; i < n_candidates; i += 1) {
-            // get candidate
-            char key[length+1];
-            key[length] = '\0';
-            get_key(key, length, candidates[i]);
+            size_t candidates[16];
+            size_t a_candidates = args.single ? 1 : 16;
+            size_t n_candidates = md5_filterone_avx2(candidates, a_candidates, filter, length, start, filter_lifetime);
 
-            // check complete digest
-            uint8_t digest[16];
-            md5(digest, (uint8_t*) key, length);
-            if (bstrncmp(digest, args.target, 16) != 0) {
-                continue;
+            // NOTE: should use mutex for printf() but that happens rarely enough
+            for (size_t i = 0; i < n_candidates; i += 1) {
+                // get candidate
+                char key[length+1];
+                key[length] = '\0';
+                get_key(key, length, candidates[i]);
+
+                // check complete digest
+                uint8_t digest[16];
+                md5(digest, (uint8_t*) key, length);
+                if (bstrncmp(digest, args.target, 16) != 0) {
+                    continue;
+                }
+
+                // this is an actual hit
+                printf("%s\n", key);
+                if (args.single) {
+                    exit(0);  // terminate all threads
+                }
             }
 
-            // this is an actual hit
-            printf("%s\n", key);
-            if (args.single) {
-                exit(0);  // terminate all threads
-            }
+            start += filter_lifetime;
         }
     }
 
