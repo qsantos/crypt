@@ -49,7 +49,7 @@ static inline int my_mm_anyeq_pi32(__m64 x, uint32_t imm) {
 #define BSWAP(X) my_mm_bswap_pi32(X)
 #define SET1(a) (_mm_set1_pi32((int) (a)))
 
-#include "md4_block.h"
-#include "md5_block.h"
-#include "sha1_block.h"
-#include "sha256_block.h"
+#include "md4_filter.inc.c"
+#include "md5_filter.inc.c"
+#include "sha1_filter.inc.c"
+#include "sha256_filter.inc.c"

@@ -28,7 +28,7 @@ static inline __m512i _mm512_bswap_epi32(__m512i a) {
 #define BSWAP(X) _mm512_bswap_epi32(X)
 #define SET1(a) (_mm512_set1_epi32((int) (a)))
 
-#include "md4_block.h"
-#include "md5_block.h"
-#include "sha1_block.h"
-#include "sha256_block.h"
+#include "md4_filter.inc.c"
+#include "md5_filter.inc.c"
+#include "sha1_filter.inc.c"
+#include "sha256_filter.inc.c"

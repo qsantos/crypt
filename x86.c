@@ -18,7 +18,7 @@
 #define BSWAP(X) __builtin_bswap32(X)
 #define SET1(a) (a)
 
-#include "md4_block.h"
-#include "md5_block.h"
-#include "sha1_block.h"
-#include "sha256_block.h"
+#include "md4_filter.inc.c"
+#include "md5_filter.inc.c"
+#include "sha1_filter.inc.c"
+#include "sha256_filter.inc.c"
