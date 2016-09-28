@@ -59,11 +59,6 @@
     ) do { \
     WORD* X = (WORD*) BLOCK; \
     \
-    WORD previous_A = A; \
-    WORD previous_B = B; \
-    WORD previous_C = C; \
-    WORD previous_D = D; \
-    \
     MD4_OP1(A,B,C,D,  0, 3); MD4_OP1(D,A,B,C,  1, 7); MD4_OP1(C,D,A,B,  2,11); MD4_OP1(B,C,D,A,  3,19); \
     MD4_OP1(A,B,C,D,  4, 3); MD4_OP1(D,A,B,C,  5, 7); MD4_OP1(C,D,A,B,  6,11); MD4_OP1(B,C,D,A,  7,19); \
     MD4_OP1(A,B,C,D,  8, 3); MD4_OP1(D,A,B,C,  9, 7); MD4_OP1(C,D,A,B, 10,11); MD4_OP1(B,C,D,A, 11,19); \
@@ -72,17 +67,7 @@
     MD4_OP2(A,B,C,D,  0, 3); MD4_OP2(D,A,B,C,  4, 5); MD4_OP2(C,D,A,B,  8, 9); MD4_OP2(B,C,D,A, 12,13); \
     MD4_OP2(A,B,C,D,  1, 3); MD4_OP2(D,A,B,C,  5, 5); MD4_OP2(C,D,A,B,  9, 9); MD4_OP2(B,C,D,A, 13,13); \
     MD4_OP2(A,B,C,D,  2, 3); MD4_OP2(D,A,B,C,  6, 5); MD4_OP2(C,D,A,B, 10, 9); MD4_OP2(B,C,D,A, 14,13); \
-    MD4_OP2(A,B,C,D,  3, 3); MD4_OP2(D,A,B,C,  7, 5); MD4_OP2(C,D,A,B, 11, 9); MD4_OP2(B,C,D,A, 15,13); \
-    \
-    MD4_OP3(A,B,C,D,  0, 3); MD4_OP3(D,A,B,C,  8, 9); MD4_OP3(C,D,A,B,  4,11); MD4_OP3(B,C,D,A, 12,15); \
-    MD4_OP3(A,B,C,D,  2, 3); MD4_OP3(D,A,B,C, 10, 9); MD4_OP3(C,D,A,B,  6,11); MD4_OP3(B,C,D,A, 14,15); \
-    MD4_OP3(A,B,C,D,  1, 3); MD4_OP3(D,A,B,C,  9, 9); MD4_OP3(C,D,A,B,  5,11); MD4_OP3(B,C,D,A, 13,15); \
-    MD4_OP3(A,B,C,D,  3, 3); MD4_OP3(D,A,B,C, 11, 9); MD4_OP3(C,D,A,B,  7,11); MD4_OP3(B,C,D,A, 15,15); \
-    \
-    A = ADD(A, previous_A); \
-    B = ADD(B, previous_B); \
-    C = ADD(C, previous_C); \
-    D = ADD(D, previous_D); \
+    MD4_OP2(A,B,C,D,  3, 3); MD4_OP2(D,A,B,C,  7, 5); \
 } while (0)
 #endif
 
@@ -112,8 +97,8 @@ size_t FUNCTION_NAME(size_t* candidates, size_t size, uint32_t filter, size_t le
         MD4_INIT(A, B, C, D);
         MD4_BLOCK(block, A,B,C,D, 64);
 
-        if (ANY_EQ(A, filter)) {
-            uint32_t* hashes = (uint32_t*) &A;
+        if (ANY_EQ(D, filter)) {
+            uint32_t* hashes = (uint32_t*) &D;
             for (size_t interleaf = 0; interleaf < stride; interleaf += 1) {
                 if (hashes[interleaf] != filter) {
                     continue;
