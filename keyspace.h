@@ -1,6 +1,8 @@
 #ifndef KEYSPACE_H
 #define KEYSPACE_H
 
+#include <string.h>
+
 #include "interleave.h"
 
 #define likely(x)      __builtin_expect(!!(x), 1)
