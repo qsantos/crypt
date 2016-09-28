@@ -77,40 +77,15 @@
     MD4_OP2(A,B,C,D,  2, 3); MD4_OP2(D,A,B,C,  6, 5); MD4_OP2(C,D,A,B, 10, 9); MD4_OP2(B,C,D,A, 14,13); \
     MD4_OP2(A,B,C,D,  3, 3); MD4_OP2(D,A,B,C,  7, 5); MD4_OP2(C,D,A,B, 11, 9); MD4_OP2(B,C,D,A, 15,13); \
     \
-    /* first look at the "else" block to see the full version */ \
-    if (LENGTH <= 4) { \
-        /* the input fits in a single block, so we can reverse the final additions */ \
-        /* since X[ 4], X[11], X[ 2] and X[ 9] are known, we can reverse the last four steps */ \
-        /* since X[ 8], X[15], X[ 6] and X[13] are known, we can also reverse four more steps */ \
-        /* since X[12], X[ 3], X[10] and X[ 1] are known, we can also reverse four more steps */ \
-        /* since we only guarantee the computation of A, we can skip three more steps */ \
-        MD4_OP3(A,B,C,D,  0, 3); \
-    } else if (LENGTH <= 12) { \
-        /* the input fits in a single block, so we can reverse the final additions */ \
-        /* since X[ 4], X[11], X[ 2] and X[ 9] are known, we can reverse the last four steps */ \
-        /* since X[ 8], X[15], X[ 6] and X[13] are known, we can also reverse four more steps */ \
-        /* since we only guarantee the computation of A, we can skip three more steps */ \
-        MD4_OP3(A,B,C,D,  0, 3); MD4_OP3(D,A,B,C,  8, 9); MD4_OP3(C,D,A,B,  4,11); MD4_OP3(B,C,D,A, 12,15); \
-        MD4_OP3(A,B,C,D,  2, 3); MD4_OP3(D,A,B,C, 10, 9); MD4_OP3(C,D,A,B,  6,11); MD4_OP3(B,C,D,A, 14,15); \
-        MD4_OP3(A,B,C,D,  1, 3); \
-    } else if (LENGTH < 56) { \
-        /* the input fits in a single block, so we can reverse the final additions */ \
-        /* since we only guarantee the computation of A, we can skip the last three steps */ \
-        MD4_OP3(A,B,C,D,  0, 3); MD4_OP3(D,A,B,C,  8, 9); MD4_OP3(C,D,A,B,  4,11); MD4_OP3(B,C,D,A, 12,15); \
-        MD4_OP3(A,B,C,D,  2, 3); MD4_OP3(D,A,B,C, 10, 9); MD4_OP3(C,D,A,B,  6,11); MD4_OP3(B,C,D,A, 14,15); \
-        MD4_OP3(A,B,C,D,  1, 3); MD4_OP3(D,A,B,C,  9, 9); MD4_OP3(C,D,A,B,  5,11); MD4_OP3(B,C,D,A, 13,15); \
-        MD4_OP3(A,B,C,D,  3, 3); MD4_OP3(D,A,B,C, 11, 9); MD4_OP3(C,D,A,B,  7,11); MD4_OP3(B,C,D,A, 15,15); \
-    } else { \
-        MD4_OP3(A,B,C,D,  0, 3); MD4_OP3(D,A,B,C,  8, 9); MD4_OP3(C,D,A,B,  4,11); MD4_OP3(B,C,D,A, 12,15); \
-        MD4_OP3(A,B,C,D,  2, 3); MD4_OP3(D,A,B,C, 10, 9); MD4_OP3(C,D,A,B,  6,11); MD4_OP3(B,C,D,A, 14,15); \
-        MD4_OP3(A,B,C,D,  1, 3); MD4_OP3(D,A,B,C,  9, 9); MD4_OP3(C,D,A,B,  5,11); MD4_OP3(B,C,D,A, 13,15); \
-        MD4_OP3(A,B,C,D,  3, 3); MD4_OP3(D,A,B,C, 11, 9); MD4_OP3(C,D,A,B,  7,11); MD4_OP3(B,C,D,A, 15,15); \
-        \
-        A = ADD(A, previous_A); \
-        B = ADD(B, previous_B); \
-        C = ADD(C, previous_C); \
-        D = ADD(D, previous_D); \
-    } \
+    MD4_OP3(A,B,C,D,  0, 3); MD4_OP3(D,A,B,C,  8, 9); MD4_OP3(C,D,A,B,  4,11); MD4_OP3(B,C,D,A, 12,15); \
+    MD4_OP3(A,B,C,D,  2, 3); MD4_OP3(D,A,B,C, 10, 9); MD4_OP3(C,D,A,B,  6,11); MD4_OP3(B,C,D,A, 14,15); \
+    MD4_OP3(A,B,C,D,  1, 3); MD4_OP3(D,A,B,C,  9, 9); MD4_OP3(C,D,A,B,  5,11); MD4_OP3(B,C,D,A, 13,15); \
+    MD4_OP3(A,B,C,D,  3, 3); MD4_OP3(D,A,B,C, 11, 9); MD4_OP3(C,D,A,B,  7,11); MD4_OP3(B,C,D,A, 15,15); \
+    \
+    A = ADD(A, previous_A); \
+    B = ADD(B, previous_B); \
+    C = ADD(C, previous_C); \
+    D = ADD(D, previous_D); \
 } while (0)
 #endif
 

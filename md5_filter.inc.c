@@ -111,39 +111,15 @@ static const uint32_t T[] = {
     MD5_OP_H(A,B,C,D,13, 4,41); MD5_OP_H(D,A,B,C, 0,11,42); MD5_OP_H(C,D,A,B, 3,16,43); MD5_OP_H(B,C,D,A, 6,23,44); \
     MD5_OP_H(A,B,C,D, 9, 4,45); MD5_OP_H(D,A,B,C,12,11,46); MD5_OP_H(C,D,A,B,15,16,47); MD5_OP_H(B,C,D,A, 2,23,48); \
     \
-    /* first look at the "else" block to see the full version */ \
-    if (LENGTH <= 4) { \
-        /* the input fits in a single block, so we can reverse the final additions */ \
-        /* since X[ 4], X[11], X[ 2] and X[ 9] are known, we can reverse the last four steps */ \
-        /* since X[ 8], X[15], X[ 6] and X[13] are known, we can also reverse four more steps */ \
-        /* since X[12], X[ 3], X[10] and X[ 1] are known, we can also reverse four more steps */ \
-        /* since we only guarantee the computation of A, we can skip three more steps */ \
-        MD5_OP_I(A,B,C,D, 0, 6,49); \
-    } else if (LENGTH <= 8) { \
-        /* the input fits in a single block, so we can reverse the final additions */ \
-        /* since X[ 4], X[11], X[ 2] and X[ 9] are known, we can reverse the last four steps */ \
-        /* since X[ 8], X[15], X[ 6] and X[13] are known, we can also reverse four more steps */ \
-        /* since we only guarantee the computation of A, we can skip three more steps */ \
-        MD5_OP_I(A,B,C,D, 0, 6,49); MD5_OP_I(D,A,B,C, 7,10,50); MD5_OP_I(C,D,A,B,14,15,51); MD5_OP_I(B,C,D,A, 5,21,52); \
-        MD5_OP_I(A,B,C,D,12, 6,53); \
-    } else if (LENGTH < 56) { \
-        /* the input fits in a single block, so we can reverse the final additions */ \
-        /* since we only guarantee the computation of A, we can skip the last three steps */ \
-        MD5_OP_I(A,B,C,D, 0, 6,49); MD5_OP_I(D,A,B,C, 7,10,50); MD5_OP_I(C,D,A,B,14,15,51); MD5_OP_I(B,C,D,A, 5,21,52); \
-        MD5_OP_I(A,B,C,D,12, 6,53); MD5_OP_I(D,A,B,C, 3,10,54); MD5_OP_I(C,D,A,B,10,15,55); MD5_OP_I(B,C,D,A, 1,21,56); \
-        MD5_OP_I(A,B,C,D, 8, 6,57); MD5_OP_I(D,A,B,C,15,10,58); MD5_OP_I(C,D,A,B, 6,15,59); MD5_OP_I(B,C,D,A,13,21,60); \
-        MD5_OP_I(A,B,C,D, 4, 6,61); \
-    } else { \
-        MD5_OP_I(A,B,C,D, 0, 6,49); MD5_OP_I(D,A,B,C, 7,10,50); MD5_OP_I(C,D,A,B,14,15,51); MD5_OP_I(B,C,D,A, 5,21,52); \
-        MD5_OP_I(A,B,C,D,12, 6,53); MD5_OP_I(D,A,B,C, 3,10,54); MD5_OP_I(C,D,A,B,10,15,55); MD5_OP_I(B,C,D,A, 1,21,56); \
-        MD5_OP_I(A,B,C,D, 8, 6,57); MD5_OP_I(D,A,B,C,15,10,58); MD5_OP_I(C,D,A,B, 6,15,59); MD5_OP_I(B,C,D,A,13,21,60); \
-        MD5_OP_I(A,B,C,D, 4, 6,61); MD5_OP_I(D,A,B,C,11,10,62); MD5_OP_I(C,D,A,B, 2,15,63); MD5_OP_I(B,C,D,A, 9,21,64); \
-        \
-        A = ADD(A, previous_A); \
-        B = ADD(B, previous_B); \
-        C = ADD(C, previous_C); \
-        D = ADD(D, previous_D); \
-    } \
+    MD5_OP_I(A,B,C,D, 0, 6,49); MD5_OP_I(D,A,B,C, 7,10,50); MD5_OP_I(C,D,A,B,14,15,51); MD5_OP_I(B,C,D,A, 5,21,52); \
+    MD5_OP_I(A,B,C,D,12, 6,53); MD5_OP_I(D,A,B,C, 3,10,54); MD5_OP_I(C,D,A,B,10,15,55); MD5_OP_I(B,C,D,A, 1,21,56); \
+    MD5_OP_I(A,B,C,D, 8, 6,57); MD5_OP_I(D,A,B,C,15,10,58); MD5_OP_I(C,D,A,B, 6,15,59); MD5_OP_I(B,C,D,A,13,21,60); \
+    MD5_OP_I(A,B,C,D, 4, 6,61); MD5_OP_I(D,A,B,C,11,10,62); MD5_OP_I(C,D,A,B, 2,15,63); MD5_OP_I(B,C,D,A, 9,21,64); \
+    \
+    A = ADD(A, previous_A); \
+    B = ADD(B, previous_B); \
+    C = ADD(C, previous_C); \
+    D = ADD(D, previous_D); \
 } while (0)
 #endif
 
