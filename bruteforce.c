@@ -75,9 +75,7 @@ int main(int argc, char** argv) {
         count *= charset_length;
     }
 
-    // TODO: use digest-specific filter generator
-    uint32_t* digest_words = (uint32_t*) args.target;
-    uint32_t filter = digest_words[0];
+    uint32_t filter = md5_getfilterone(args.target, length, 0);
 
     if (args.jobs >= 1) {
         omp_set_num_threads(args.jobs);
