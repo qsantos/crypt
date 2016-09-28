@@ -14,7 +14,7 @@
  * implementation (i.e. uint32_t, __m64, __m128i, __m256i or __m512i).
 \*/
 
-#include "md5_simd.h"
+#include "md5_filter.h"
 
 #include <string.h>
 

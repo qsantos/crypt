@@ -10,7 +10,7 @@
 #include "util.h"
 #include "keyspace.h"
 #include "md5.h"
-#include "md5_simd.h"
+#include "md5_filter.h"
 
 // temporary fix: keep the -n feature during the push of the bruteforce into
 // the architecture-dependent code
