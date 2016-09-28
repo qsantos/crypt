@@ -49,7 +49,9 @@ static const uint32_t T[] = {
 #define ROT(x,n) (((x) << (n)) | ((x) >> (32-(n))))
 #define REV(f,a,b,c,d,k,s,i) a = ROT(a - b, 32-s) - f(b,c,d) - X[k] - T[i];
 
-uint32_t md5_getfilterone(uint8_t digest[16], size_t length, size_t index) {
+uint32_t md5_getfilterone(uint8_t digest[16], size_t length, size_t index, size_t* lifetime) {
+    (void) lifetime;
+
     uint8_t block[64];
     const char* ptrs[64];
     md5_pad(block, length, 1);

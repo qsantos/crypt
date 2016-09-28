@@ -38,7 +38,7 @@ static const char* reference_message;
 static const char* reference_digest;
 
 typedef size_t filterone_f(size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
-typedef uint32_t getfilterone_f(uint8_t* digest, size_t length, size_t index);
+typedef uint32_t getfilterone_f(uint8_t* digest, size_t length, size_t index, size_t* lifetime);
 
 // parsed arguments
 static struct {
@@ -240,7 +240,7 @@ static void check_filterone(filterone_f filterone, getfilterone_f getfilterone) 
     // get the filter for the reference digest
     uint8_t digest[1024];
     bytes_fromhex(digest, reference_digest);
-    uint32_t filter = getfilterone(digest, length, index);
+    uint32_t filter = getfilterone(digest, length, index, NULL);
 
     size_t candidates[32];
 

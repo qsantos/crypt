@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 void sha256_pad(uint8_t* block, size_t length, size_t stride);
-uint32_t sha256_getfilterone(uint8_t digest[32], size_t length, size_t index);
+uint32_t sha256_getfilterone(uint8_t digest[32], size_t length, size_t index, size_t* lifetime);
 
 size_t sha256_filterone_x86   (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);
 size_t sha256_filterone_mmx   (size_t* candidates, size_t size, uint32_t filter, size_t length, size_t start, size_t count);

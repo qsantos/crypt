@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
         count *= charset_length;
     }
 
-    uint32_t filter = md5_getfilterone(args.target, length, 0);
+    uint32_t filter = md5_getfilterone(args.target, length, 0, NULL);
 
     if (args.jobs >= 1) {
         omp_set_num_threads(args.jobs);

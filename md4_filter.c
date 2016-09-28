@@ -24,7 +24,9 @@ void md4_pad(uint8_t* block, size_t length, size_t stride) {
 #define ROT(x,n) (((x) << (n)) | ((x) >> (32-(n))))
 #define REV3(a,b,c,d,k,s) a = ROT(a, 32-s) - H(b,c,d) - X[k] - 0x6ED9EBA1;
 
-uint32_t md4_getfilterone(uint8_t digest[16], size_t length, size_t index) {
+uint32_t md4_getfilterone(uint8_t digest[16], size_t length, size_t index, size_t* lifetime) {
+    (void) lifetime;
+
     uint8_t block[64];
     const char* ptrs[64];
     md4_pad(block, length, 1);
