@@ -48,11 +48,7 @@
 #endif
 
 #ifndef SHA1_BLOCK
-#define SHA1_BLOCK( \
-        BLOCK, /* the block to be processed */ \
-        A,B,C,D,E, /* WORD: the 160 bit state of SHA1 */ \
-        LENGTH /* in bytes; if less than 56, shortcuts can be taken; */ \
-    ) do { \
+#define SHA1_BLOCK(BLOCK, A,B,C,D,E) do { \
     WORD* X = (WORD*) BLOCK; \
     WORD W[80]; \
     \
@@ -115,7 +111,7 @@ size_t FUNCTION_NAME(size_t* candidates, size_t size, uint32_t filter, size_t le
     for (size_t i = 0; i < n_iterations; i += 1) {
         WORD A, B, C, D, E;
         SHA1_INIT(A, B, C, D, E);
-        SHA1_BLOCK(block, A,B,C,D,E, 64);
+        SHA1_BLOCK(block, A,B,C,D,E);
 
         if (ANY_EQ(A, filter)) {
             uint32_t* hashes = (uint32_t*) &A;

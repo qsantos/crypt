@@ -35,10 +35,6 @@
 #define MD4_G(X,Y,Z) OR(AND(X, Y), OR(AND(X, Z), AND(Y, Z)))
 #endif
 
-#ifndef MD4_H
-#define MD4_H(X,Y,Z) XOR(Y, XOR(X, Z))
-#endif
-
 #ifndef MD4_OP1
 #define MD4_OP1(a,b,c,d,k,s) do { WORD tmp = ADD(a, ADD(MD4_F(b,c,d), X[k])); a = ROL(tmp, s); } while (0)
 #endif
@@ -47,16 +43,8 @@
 #define MD4_OP2(a,b,c,d,k,s) do { WORD tmp = ADD(a, ADD(MD4_G(b,c,d), ADD(X[k], SET1(0x5A827999)))); a = ROL(tmp, s); } while (0)
 #endif
 
-#ifndef MD4_OP3
-#define MD4_OP3(a,b,c,d,k,s) do { WORD tmp = ADD(a, ADD(MD4_H(b,c,d), ADD(X[k], SET1(0x6ED9EBA1)))); a = ROL(tmp, s); } while (0)
-#endif
-
 #ifndef MD4_BLOCK
-#define MD4_BLOCK( \
-        BLOCK, /* WORD*: the block to be processed */ \
-        A,B,C,D, /* WORD: the 128 bit state of MD4 */ \
-        LENGTH /* in bytes; if less than 56, shortcuts can be taken; */ \
-    ) do { \
+#define MD4_BLOCK(BLOCK, A,B,C,D) do { \
     WORD* X = (WORD*) BLOCK; \
     \
     MD4_OP1(A,B,C,D,  0, 3); MD4_OP1(D,A,B,C,  1, 7); MD4_OP1(C,D,A,B,  2,11); MD4_OP1(B,C,D,A,  3,19); \
@@ -95,7 +83,7 @@ size_t FUNCTION_NAME(size_t* candidates, size_t size, uint32_t filter, size_t le
     for (size_t i = 0; i < n_iterations; i += 1) {
         WORD A, B, C, D;
         MD4_INIT(A, B, C, D);
-        MD4_BLOCK(block, A,B,C,D, 64);
+        MD4_BLOCK(block, A,B,C,D);
 
         if (ANY_EQ(D, filter)) {
             uint32_t* hashes = (uint32_t*) &D;

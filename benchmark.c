@@ -229,7 +229,7 @@ static void check_full(void(*func)(uint8_t*,const uint8_t*,size_t)) {
 
 
 static void check_filterone(filterone_f filterone, getfilterone_f getfilterone) {
-    // get the reference of the reference message in the keyspace
+    // get the index of the reference message in the keyspace
     size_t index;
     int ret = key_index(reference_message, &index);
     if (ret < 0) {

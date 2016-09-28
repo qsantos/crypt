@@ -1,4 +1,3 @@
-CPPFLAGS :=
 CFLAGS := -O3 -std=c99 -Wall -Wextra -Wpedantic -Wformat -Wshadow -Wconversion -fopenmp
 LDFLAGS := -O3 -fopenmp
 TARGETS := crypt benchmark bruteforce generate sort

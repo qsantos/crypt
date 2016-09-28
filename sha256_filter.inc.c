@@ -89,11 +89,7 @@ static const uint32_t K[] = {
 } while (0)
 
 #ifndef SHA256_BLOCK
-#define SHA256_BLOCK( \
-        BLOCK, /* the block to be processed */ \
-        A,B,C,D,E,F,G,H, /* WORD: the 256 bit state of SHA-2 */ \
-        LENGTH /* in bytes; if less than 56, shortcuts can be taken; */ \
-    ) do {\
+#define SHA256_BLOCK(BLOCK, A,B,C,D,E,F,G,H) do { \
     WORD* X = (WORD*) BLOCK; \
     WORD W[64]; \
     \
@@ -151,7 +147,7 @@ size_t FUNCTION_NAME(size_t* candidates, size_t size, uint32_t filter, size_t le
     for (size_t i = 0; i < n_iterations; i += 1) {
         WORD A, B, C, D, E, F, G, H;
         SHA256_INIT(A, B, C, D, E, F, G, H);
-        SHA256_BLOCK(block, A,B,C,D,E,F,G,H, 64);
+        SHA256_BLOCK(block, A,B,C,D,E,F,G,H);
 
         if (ANY_EQ(A, filter)) {
             uint32_t* hashes = (uint32_t*) &A;

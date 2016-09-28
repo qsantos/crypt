@@ -63,10 +63,6 @@ static const uint32_t T[] = {
 #define MD5_H(X,Y,Z) XOR(XOR(X, Y),Z)
 #endif
 
-#ifndef MD5_I
-#define MD5_I(X,Y,Z) XOR(Y, OR(X, ~Z))
-#endif
-
 #ifndef MD5_OP
 #define MD5_OP(f,a,b,c,d,k,s,i) do { \
     WORD tmp = ADD(a, ADD(f(b,c,d), ADD(X[k], SET1(T[i])))); \
@@ -78,14 +74,9 @@ static const uint32_t T[] = {
 #define MD5_OP_F(A,B,C,D,K,S,I) MD5_OP(MD5_F,A,B,C,D,K,S,I)
 #define MD5_OP_G(A,B,C,D,K,S,I) MD5_OP(MD5_G,A,B,C,D,K,S,I)
 #define MD5_OP_H(A,B,C,D,K,S,I) MD5_OP(MD5_H,A,B,C,D,K,S,I)
-#define MD5_OP_I(A,B,C,D,K,S,I) MD5_OP(MD5_I,A,B,C,D,K,S,I)
 
 #ifndef MD5_BLOCK
-#define MD5_BLOCK( \
-        BLOCK, /* the block to be processed */ \
-        A,B,C,D, /* the 128 bit state of MD5 */ \
-        LENGTH /* in bytes; if less than 56, shortcuts can be taken; */ \
-    ) do { \
+#define MD5_BLOCK(BLOCK, A,B,C,D) do { \
     WORD* X = (WORD*) block; \
     \
     MD5_OP_F(A,B,C,D, 0, 7, 1); MD5_OP_F(D,A,B,C, 1,12, 2); MD5_OP_F(C,D,A,B, 2,17, 3); MD5_OP_F(B,C,D,A, 3,22, 4); \
@@ -129,7 +120,7 @@ size_t FUNCTION_NAME(size_t* candidates, size_t size, uint32_t filter, size_t le
     for (size_t i = 0; i < n_iterations; i += 1) {
         WORD A, B, C, D;
         MD5_INIT(A, B, C, D);
-        MD5_BLOCK(block, A,B,C,D, 64);
+        MD5_BLOCK(block, A,B,C,D);
 
         if (ANY_EQ(D, filter)) {
             uint32_t* hashes = (uint32_t*) &D;
