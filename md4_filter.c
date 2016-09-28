@@ -25,7 +25,13 @@ void md4_pad(uint8_t* block, size_t length, size_t stride) {
 #define REV3(a,b,c,d,k,s) a = ROT(a, 32-s) - H(b,c,d) - X[k] - 0x6ED9EBA1;
 
 uint32_t md4_getfilterone(uint8_t digest[16], size_t length, size_t index, size_t* lifetime) {
-    (void) lifetime;
+    if (lifetime != NULL) {
+        size_t n_prefixes = 1;
+        for (size_t i = 0; i < 4; i += 1) {
+            n_prefixes *= charset_length;
+        }
+        *lifetime = n_prefixes - (index % n_prefixes);
+    }
 
     uint8_t block[64];
     const char* ptrs[64];

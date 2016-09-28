@@ -27,7 +27,11 @@ void sha1_pad(uint8_t* block, size_t length, size_t stride) {
 uint32_t sha1_getfilterone(uint8_t digest[20], size_t length, size_t index, size_t* lifetime) {
     (void) length;
     (void) index;
-    (void) lifetime;
+
+    if (lifetime != NULL) {
+        *lifetime = 1;
+    }
+
     uint32_t* words = (uint32_t*) digest;
     uint32_t A = __builtin_bswap32(words[0]);
     return A;
