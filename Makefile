@@ -4,6 +4,7 @@ LDFLAGS := -O3 -fopenmp
 TARGETS := crypt benchmark bruteforce generate sort
 
 DIGESTS := md2.o md4.o md5.o sha1.o sha256.o sha512.o
+FILTERS := md4_filter.o md5_filter.o sha1_filter.o sha256_filter.o
 SIMD := x86.o mmx.o sse2.o avx2.o avx512.o
 
 all: $(TARGETS)
