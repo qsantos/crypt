@@ -52,7 +52,7 @@ static const uint32_t T[] = {
 #endif
 
 #ifndef MD5_F
-#define MD5_F(X,Y,Z) OR(AND(X, Y), ANDNOT(X, Z))
+#define MD5_F(X,Y,Z) XOR(AND(XOR(Y, Z), X), Z)
 #endif
 
 #ifndef MD5_G
