@@ -49,12 +49,6 @@
 
 #ifndef SHA1_BLOCK
 #define SHA1_BLOCK(BLOCK, A,B,C,D,E) do { \
-    WORD previous_A = A; \
-    WORD previous_B = B; \
-    WORD previous_C = C; \
-    WORD previous_D = D; \
-    WORD previous_E = E; \
-    \
     /* run SHA-1 steps and update W on the fly */ \
     WORD x = BSWAP(X[0]); \
     SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,x); \
@@ -133,16 +127,7 @@
     SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[73] ^ ROL(x,20)); \
     SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[74] ^ ROL(x,8) ^ ROL(x,16)); \
     SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[75] ^ ROL(x,6) ^ ROL(x,12) ^ ROL(x,14)); \
-    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[76] ^ ROL(x,7) ^ ROL(x,8) ^ ROL(x,12) ^ ROL(x,16) ^ ROL(x,21)); \
-    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[77]); \
-    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[78] ^ ROL(x,7) ^ ROL(x,8) ^ ROL(x,15) ^ ROL(x,18) ^ ROL(x,20)); \
-    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[79] ^ ROL(x,8) ^ ROL(x,22)); \
-    \
-    A = ADD(A, previous_A); \
-    B = ADD(B, previous_B); \
-    C = ADD(C, previous_C); \
-    D = ADD(D, previous_D); \
-    E = ADD(E, previous_E); \
+    E = ROL(A, 30); /* skip last four steps */ \
 } while (0)
 #endif
 
@@ -173,7 +158,7 @@ size_t FUNCTION_NAME(size_t* candidates, size_t size, uint32_t filter, size_t le
     for (int t = 1; t < 16; t += 1) {
         W[t] = BSWAP(X[t]);
     }
-    for (int t = 16; t < 80; t += 1) {
+    for (int t = 16; t < 76; t += 1) {
         W[t] = ROL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1);
     }
 
@@ -183,8 +168,8 @@ size_t FUNCTION_NAME(size_t* candidates, size_t size, uint32_t filter, size_t le
         SHA1_INIT(A, B, C, D, E);
         SHA1_BLOCK(block, A,B,C,D,E);
 
-        if (ANY_EQ(A, filter)) {
-            uint32_t* hashes = (uint32_t*) &A;
+        if (ANY_EQ(E, filter)) {
+            uint32_t* hashes = (uint32_t*) &E;
             for (size_t interleaf = 0; interleaf < stride; interleaf += 1) {
                 if (hashes[interleaf] != filter) {
                     continue;
