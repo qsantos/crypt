@@ -93,33 +93,27 @@ static const uint32_t K[] = {
     WORD* X = (WORD*) BLOCK; \
     WORD W[64]; \
     \
-    WORD previous_A = A; \
-    WORD previous_B = B; \
-    WORD previous_C = C; \
-    WORD previous_D = D; \
-    WORD previous_E = E; \
-    WORD previous_F = F; \
-    WORD previous_G = G; \
-    WORD previous_H = H; \
-    \
     for (int t = 0; t < 16; t += 1) { \
         W[t] = BSWAP(X[t]); \
         SHA256_OP(t); \
     } \
     \
-    for (int t = 16; t < 64; t += 1) { \
+    for (int t = 16; t < 60; t += 1) { \
         W[t] = ADD(SHA256_Sigma1(W[t-2]), ADD(W[t-7], ADD(SHA256_Sigma0(W[t-15]), W[t-16]))); \
         SHA256_OP(t); \
     } \
-    \
-    A = ADD(A, previous_A); \
-    B = ADD(B, previous_B); \
-    C = ADD(C, previous_C); \
-    D = ADD(D, previous_D); \
-    E = ADD(E, previous_E); \
-    F = ADD(F, previous_F); \
-    G = ADD(G, previous_G); \
-    H = ADD(H, previous_H); \
+    /* step 60, cut short */ \
+    { \
+        int t = 60; \
+        W[t] = ADD(SHA256_Sigma1(W[t-2]), ADD(W[t-7], ADD(SHA256_Sigma0(W[t-15]), W[t-16]))); \
+        WORD T1 = ADD(SHA256_Sum1(E), ADD(SHA256_Ch(E,F,G), ADD(SET1(K[t]), ADD(W[t], H)))); \
+        H = G; \
+        G = F; \
+        F = E; \
+        E = ADD(D, T1); \
+    } \
+    /* skip last 3 steps */ \
+    H = E; \
 } while (0)
 #endif
 
@@ -149,8 +143,8 @@ size_t FUNCTION_NAME(size_t* candidates, size_t size, uint32_t filter, size_t le
         SHA256_INIT(A, B, C, D, E, F, G, H);
         SHA256_BLOCK(block, A,B,C,D,E,F,G,H);
 
-        if (ANY_EQ(A, filter)) {
-            uint32_t* hashes = (uint32_t*) &A;
+        if (ANY_EQ(H, filter)) {
+            uint32_t* hashes = (uint32_t*) &H;
             for (size_t interleaf = 0; interleaf < stride; interleaf += 1) {
                 if (hashes[interleaf] != filter) {
                     continue;
