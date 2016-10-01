@@ -28,7 +28,7 @@
 #endif
 
 #ifndef MD4_F
-#define MD4_F(X,Y,Z) OR(AND(X, Y), ANDNOT(X, Z))
+#define MD4_F(X,Y,Z) XOR(AND(XOR(Y, Z), X), Z)
 #endif
 
 #ifndef MD4_G
