@@ -127,7 +127,7 @@
     SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[73] ^ ROL(x,20)); \
     SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[74] ^ ROL(x,8) ^ ROL(x,16)); \
     SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[75] ^ ROL(x,6) ^ ROL(x,12) ^ ROL(x,14)); \
-    E = ROL(A, 30); /* skip last four steps */ \
+    E = A; \
 } while (0)
 #endif
 
