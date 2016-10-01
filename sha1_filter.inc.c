@@ -41,43 +41,102 @@
 #endif
 
 #ifndef SHA1_OP
-#define SHA1_OP(f,A,B,C,D,t,K) do { \
-    WORD tmp = ADD(ROL(A,5), ADD(f(B,C,D), ADD(E, ADD(W[t], SET1(K))))); \
+#define SHA1_OP(f,A,B,C,D,K,W) do { \
+    WORD tmp = ADD(ROL(A,5), ADD(f(B,C,D), ADD(E, ADD(W, SET1(K))))); \
     E = D; D = C; C = ROL(B, 30); B = A; A = tmp; \
 } while (0)
 #endif
 
 #ifndef SHA1_BLOCK
 #define SHA1_BLOCK(BLOCK, A,B,C,D,E) do { \
-    WORD* X = (WORD*) BLOCK; \
-    WORD W[80]; \
-    \
     WORD previous_A = A; \
     WORD previous_B = B; \
     WORD previous_C = C; \
     WORD previous_D = D; \
     WORD previous_E = E; \
     \
-    for (int t =  0; t < 16; t += 1) { \
-        W[t] = BSWAP(X[t]); \
-        SHA1_OP(SHA1_F,A,B,C,D,t,0x5A827999); \
-    } \
-    for (int t = 16; t < 20; t += 1) { \
-        W[t] = ROL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1); \
-        SHA1_OP(SHA1_F,A,B,C,D,t,0x5A827999); \
-    } \
-    for (int t = 20; t < 40; t += 1) { \
-        W[t] = ROL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1); \
-        SHA1_OP(SHA1_G,A,B,C,D,t,0x6ED9EBA1); \
-    } \
-    for (int t = 40; t < 60; t += 1) { \
-        W[t] = ROL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1); \
-        SHA1_OP(SHA1_H,A,B,C,D,t,0x8F1BBCDC); \
-    } \
-    for (int t = 60; t < 80; t += 1) { \
-        W[t] = ROL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1); \
-        SHA1_OP(SHA1_G,A,B,C,D,t,0xCA62C1D6); \
-    } \
+    /* run SHA-1 steps and update W on the fly */ \
+    WORD x = BSWAP(X[0]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,x); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[1]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[2]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[3]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[4]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[5]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[6]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[7]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[8]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[9]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[10]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[11]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[12]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[13]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[14]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[15]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[16] ^ ROL(x,1)); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[17]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[18]); \
+    SHA1_OP(SHA1_F,A,B,C,D,0X5A827999,W[19] ^ ROL(x,2)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[20]); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[21]); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[22] ^ ROL(x,3)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[23]); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[24] ^ ROL(x,2)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[25] ^ ROL(x,4)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[26]); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[27]); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[28] ^ ROL(x,5)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[29]); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[30] ^ ROL(x,2) ^ ROL(x,4)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[31] ^ ROL(x,6)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[32] ^ ROL(x,2) ^ ROL(x,3)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[33]); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[34] ^ ROL(x,7)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[35] ^ ROL(x,4)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[36] ^ ROL(x,4) ^ ROL(x,6)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[37] ^ ROL(x,8)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[38] ^ ROL(x,4)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0X6ED9EBA1,W[39]); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[40] ^ ROL(x,9) ^ ROL(x,4)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[41]); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[42] ^ ROL(x,8) ^ ROL(x,6)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[43] ^ ROL(x,10)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[44] ^ ROL(x,3) ^ ROL(x,6) ^ ROL(x,7)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[45]); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[46] ^ ROL(x,11) ^ ROL(x,4)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[47] ^ ROL(x,8) ^ ROL(x,4)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[48] ^ ROL(x,8) ^ ROL(x,10) ^ ROL(x,3) ^ ROL(x,4) ^ ROL(x,5)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[49] ^ ROL(x,12)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[50] ^ ROL(x,8)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[51] ^ ROL(x,4) ^ ROL(x,6)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[52] ^ ROL(x,8) ^ ROL(x,4) ^ ROL(x,13)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[53]); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[54] ^ ROL(x,10) ^ ROL(x,12) ^ ROL(x,7)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[55] ^ ROL(x,14)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[56] ^ ROL(x,4) ^ ROL(x,6) ^ ROL(x,7) ^ ROL(x,10) ^ ROL(x,11)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[57] ^ ROL(x,8)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[58] ^ ROL(x,8) ^ ROL(x,4) ^ ROL(x,15)); \
+    SHA1_OP(SHA1_H,A,B,C,D,0X8F1BBCDC,W[59] ^ ROL(x,8) ^ ROL(x,12)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[60] ^ ROL(x,4) ^ ROL(x,7) ^ ROL(x,8) ^ ROL(x,12) ^ ROL(x,14)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[61] ^ ROL(x,16)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[62] ^ ROL(x,4) ^ ROL(x,6) ^ ROL(x,8) ^ ROL(x,12)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[63] ^ ROL(x,8)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[64] ^ ROL(x,4) ^ ROL(x,6) ^ ROL(x,7) ^ ROL(x,8) ^ ROL(x,12) ^ ROL(x,17)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[65]); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[66] ^ ROL(x,16) ^ ROL(x,14)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[67] ^ ROL(x,8) ^ ROL(x,18)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[68] ^ ROL(x,11) ^ ROL(x,14) ^ ROL(x,15)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[69]); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[70] ^ ROL(x,12) ^ ROL(x,19)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[71] ^ ROL(x,16) ^ ROL(x,12)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[72] ^ ROL(x,5) ^ ROL(x,11) ^ ROL(x,12) ^ ROL(x,13) ^ ROL(x,16) ^ ROL(x,18)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[73] ^ ROL(x,20)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[74] ^ ROL(x,8) ^ ROL(x,16)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[75] ^ ROL(x,6) ^ ROL(x,12) ^ ROL(x,14)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[76] ^ ROL(x,7) ^ ROL(x,8) ^ ROL(x,12) ^ ROL(x,16) ^ ROL(x,21)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[77]); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[78] ^ ROL(x,7) ^ ROL(x,8) ^ ROL(x,15) ^ ROL(x,18) ^ ROL(x,20)); \
+    SHA1_OP(SHA1_G,A,B,C,D,0XCA62C1D6,W[79] ^ ROL(x,8) ^ ROL(x,22)); \
     \
     A = ADD(A, previous_A); \
     B = ADD(B, previous_B); \
@@ -106,6 +165,17 @@ size_t FUNCTION_NAME(size_t* candidates, size_t size, uint32_t filter, size_t le
     const char* ptrs[64*stride];
     sha1_pad(block, length, stride);
     set_keys(block, ptrs, length, stride, start, n_iterations);
+
+    /* compute W assuming X[0] = 0 */
+    WORD W[80];
+    WORD* X = (WORD*) block;
+    W[0] = SET1(0);
+    for (int t = 1; t < 16; t += 1) {
+        W[t] = BSWAP(X[t]);
+    }
+    for (int t = 16; t < 80; t += 1) {
+        W[t] = ROL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1);
+    }
 
     size_t n_candidates = 0;
     for (size_t i = 0; i < n_iterations; i += 1) {
