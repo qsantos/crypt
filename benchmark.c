@@ -202,7 +202,7 @@ static void argparse(int argc, char** argv) {
         }
     }
 
-    if (args.jobs > 1) {
+    if (args.jobs >= 1) {
         omp_set_num_threads(args.jobs);
     }
 
@@ -262,25 +262,20 @@ static void benchmark_full(void(*func)(uint8_t*,const uint8_t*,size_t)) {
 
     double real_start = real_clock();
     uint64_t cycles_min = (uint64_t) (-1);
+
+    #pragma omp parallel for
     for (size_t i = 0; i < n_samples; i += 1) {
         uint64_t cycles_start = rdtsc();
-        if (args.jobs != 1) {
-            #pragma omp parallel for
-            for (size_t j = 0; j < n_iterations; j += 1) {
-                uint8_t digest[20];
-                func(digest, (uint8_t*) "abcdef", 6);
-            }
-        } else {
-            for (size_t j = 0; j < n_iterations; j += 1) {
-                uint8_t digest[20];
-                func(digest, (uint8_t*) "abcdef", 6);
-            }
+        for (size_t j = 0; j < n_iterations; j += 1) {
+            uint8_t digest[20];
+            func(digest, (uint8_t*) "abcdef", 6);
         }
         uint64_t elapsed = rdtsc() - cycles_start;
         if (elapsed < cycles_min) {
             cycles_min = elapsed;
         }
     }
+
     double real_elapsed = (real_clock() - real_start);
 
     if (args.count_cycles) {
@@ -304,22 +299,17 @@ static void benchmark_filterone(filterone_f func) {
 
     double real_start = real_clock();
     uint64_t cycles_min = (uint64_t) (-1);
+
+    #pragma omp parallel for
     for (size_t i = 0; i < n_samples; i += 1) {
         uint64_t cycles_start = rdtsc();
-        if (args.jobs != 1) {
-            #pragma omp parallel
-            {
-                size_t n_threads = (size_t) omp_get_num_threads();
-                run_n_times(func, n_iterations / n_threads);
-            }
-        } else {
-            run_n_times(func, n_iterations);
-        }
+        run_n_times(func, n_iterations);
         uint64_t elapsed = rdtsc() - cycles_start;
         if (elapsed < cycles_min) {
             cycles_min = elapsed;
         }
     }
+
     double real_elapsed = (real_clock() - real_start);
 
     if (args.count_cycles) {
