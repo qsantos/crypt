@@ -36,15 +36,24 @@ size_t md2_filterone_x86(size_t* candidates, size_t size, uint32_t filter, size_
     md2_pad(block, length, stride);
     set_keys(block, ptrs, length, stride, start, n_iterations);
 
+    uint8_t X0[16];
+    uint8_t t0 = 0;
+    for (int j = 0; j < 16; j += 1) {
+        t0 = X0[j] = S[t0];
+    }
+
     size_t n_candidates = 0;
     for (size_t local_index = 0; local_index < n_iterations; local_index += 1) {
         // first block
         uint8_t X[48];
-        memset(X, 0, 16);
-        memcpy(X+16, block, 16);
-        memcpy(X+32, block, 16);
-        uint8_t t = 0;
-        for (int i = 0; i < 18; i += 1) {
+        memcpy(X, X0, 16);
+        memcpy(X + 16, block, 16);
+        memcpy(X + 32, block, 16);
+        uint8_t t = t0;
+        for (int j = 16; j < 48; j += 1) {
+            t = X[j] ^= S[t];
+        }
+        for (int i = 1; i < 18; i += 1) {
             for (int j = 0; j < 48; j += 1) {
                 t = X[j] ^= S[t];
             }
