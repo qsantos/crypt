@@ -64,14 +64,17 @@ size_t md2_filterone_x86(size_t* candidates, size_t size, uint32_t filter, size_
             X[i+32] = X[i+16] ^ X[i];
         }
         t = 0;
-        for (int i = 0; i < 18; i += 1) {
+        for (int i = 0; i < 2; i += 1) {
             for (int j = 0; j < 48; j += 1) {
                 t = X[j] ^= S[t];
             }
             t = (uint8_t) (t + i);
         }
+        for (int j = 0; j < 16; j += 1) {
+            t = X[j] ^= S[t];
+        }
 
-        if (X[0] == filter) {
+        if (t == filter) {
             candidates[n_candidates] = start + local_index;
             n_candidates += 1;
             if (n_candidates >= size) {
