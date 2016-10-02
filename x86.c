@@ -18,6 +18,7 @@
 #define BSWAP(X) __builtin_bswap32(X)
 #define SET1(a) (a)
 
+#include "md2_filter.inc.c"
 #include "md4_filter.inc.c"
 #include "md5_filter.inc.c"
 #include "sha1_filter.inc.c"

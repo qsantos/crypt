@@ -14,6 +14,7 @@
 #include "md5.h"
 #include "sha1.h"
 #include "sha256.h"
+#include "md2_filter.h"
 #include "md4_filter.h"
 #include "md5_filter.h"
 #include "sha1_filter.h"
@@ -448,7 +449,12 @@ int main(int argc, char** argv) {
             printf(FMT_TIT, "MD2");
             reference_message = "abc";
             reference_digest = "da853b0d3f88d99b30283a69e6ded6bb";
-            check_full(md2);
+            if (args.full) {
+                check_full(md2);
+            }
+            if (args.x86) {
+                check_filterone(md2_filterone_x86, md2_getfilterone);
+            }
             printf("\n");
         }
         if (args.md4) {
@@ -468,6 +474,9 @@ int main(int argc, char** argv) {
             printf(FMT_TIT, "MD2");
             if (args.full) {
                 benchmark_full(md2);
+            }
+            if (args.x86) {
+                benchmark_filterone(md2_filterone_x86);
             }
             printf("\n");
         }
